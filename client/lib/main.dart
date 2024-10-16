@@ -244,8 +244,8 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         appBar: AppBar(
           backgroundColor: Colors.blue,
           leading: Image.asset('assets/images/logo.png'),
-          title:
-              Text(widget.title, style: const TextStyle(color: Colors.white)),
+          // title:
+          //     Text(widget.title, style: const TextStyle(color: Colors.white)),
           actions: [
             IconButton(
                 onPressed: _goToSettings,
@@ -366,12 +366,38 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             ),
           ),
           Positioned(
+            right: 20,
+            bottom: 20,
+            child: Container(
+              width: 60, // Set size of the container
+              height: 60, // Set size of the container
+              decoration: BoxDecoration(
+                color: Colors.white, // Background color
+                shape: BoxShape.circle, // Circular shape Optional: add border
+                border: Border.all(
+                  color: Colors.black, // Border color
+                  width: 2, // Border width
+                ),
+              ),
               child: IconButton(
-                  onPressed: _goToReportBuilder,
-                  icon: const Icon(Icons.add_circle,
-                      color: Colors.white, size: 70)),
-              right: 10,
-              bottom: 10)
+                onPressed: () {
+                  // Your action here
+                  print('Button pressed!'); // Debugging output
+                },
+                icon: const Icon(
+                  Icons.add, // Use a plus icon
+                  color: Colors.blue, // Icon color
+                  size: 55, // Adjust size to fit well
+                ),
+                padding: EdgeInsets.zero, // Remove padding
+                constraints: const BoxConstraints(), // No constraints
+                splashColor:
+                    Colors.blue.withOpacity(0.4), // Splash color for feedback
+                highlightColor: Colors.blue
+                    .withOpacity(0.3), // Highlight color for feedback
+              ),
+            ),
+          )
         ]),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
