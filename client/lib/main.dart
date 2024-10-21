@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
+import 'package:budget_365/report/report_creation_widget.dart';
+import 'package:budget_365/utility/settings.dart';
+import 'package:budget_365/visualization/data_visualization_widget.dart';
+import 'package:budget_365/group/groups_overview_widget.dart';
 
 void main() {
   runApp(const Budget365());
@@ -217,10 +221,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   ];
 
   void _goToSettings() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const SettingsPage()),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsWidget()),
+    );
   }
 
   void _goToCalendar() {
@@ -230,11 +234,25 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     // );
   }
 
+  void _goToDataVisualization() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DataVisualizationWidget()),
+    );
+  }
+
+  void _goToGroupsOverview() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const GroupsOverviewWidget()),
+    );
+  }
+
   void _goToReportBuilder() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const ReportBuilderPage()),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ReportCreationWidget()),
+    );
   }
 
   @override
@@ -265,7 +283,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const DropdownMenuGroup(),
+                    Container(child: const DropdownMenuGroup()),
                     IconButton(
                         onPressed: _goToCalendar,
                         icon: const Icon(Icons.calendar_month,
@@ -372,28 +390,25 @@ class _Budget365WidgetState extends State<Budget365Widget> {
               width: 60, // Set size of the container
               height: 60, // Set size of the container
               decoration: BoxDecoration(
-                color: Colors.white, // Background color
+                color: Colors.blue, // Background color
                 shape: BoxShape.circle, // Circular shape Optional: add border
                 border: Border.all(
                   color: Colors.black, // Border color
-                  width: 2, // Border width
+                  width: 1, // Border width
                 ),
               ),
               child: IconButton(
-                onPressed: () {
-                  // Your action here
-                  print('Button pressed!'); // Debugging output
-                },
+                onPressed: _goToReportBuilder,
                 icon: const Icon(
                   Icons.add, // Use a plus icon
-                  color: Colors.blue, // Icon color
+                  color: Colors.white, // Icon color
                   size: 55, // Adjust size to fit well
                 ),
                 padding: EdgeInsets.zero, // Remove padding
                 constraints: const BoxConstraints(), // No constraints
                 splashColor:
                     Colors.blue.withOpacity(0.4), // Splash color for feedback
-                highlightColor: Colors.blue
+                highlightColor: Colors.white
                     .withOpacity(0.3), // Highlight color for feedback
               ),
             ),
@@ -407,17 +422,23 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           showSelectedLabels: false,
           showUnselectedLabels: false,
           iconSize: 40,
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart),
+              icon: IconButton(
+                  onPressed: _goToDataVisualization,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.bar_chart)),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.group),
+              icon: IconButton(
+                  onPressed: _goToGroupsOverview,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.group)),
               label: '',
             ),
           ],
@@ -433,21 +454,42 @@ class DropdownMenuGroup extends StatefulWidget {
 }
 
 class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
-  String? _selectedItem = 'Group1';
+  List<String> _items = <String>[
+    "Mata's Economic Group",
+    "Martin's Cooperative",
+    'The Hanley Solution',
+    'This is a 25 char strings'
+  ];
+  String? _selectedItem = '';
 
-  List<String> _items = <String>['Group1', 'Group2', 'Group3'];
+  void initState() {
+    super.initState();
+    _selectedItem = _items[0];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SizedBox(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(5),
+        ),
         width: 200,
+        height: 40,
         child: DropdownButton<String>(
           style: const TextStyle(color: Colors.white),
+          padding: const EdgeInsets.all(10),
           dropdownColor: Colors.blue,
           menuWidth: 200,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+          underline: Container(
+            height: 0,
+            color: Colors.white,
+          ),
           isExpanded: true,
           value: _selectedItem,
+          menuMaxHeight: 150,
           onChanged: (String? value) {
             setState(() {
               _selectedItem = value;
@@ -456,7 +498,18 @@ class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
           items: _items.map((String value) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(value),
+              child: Container(
+                alignment: Alignment.center,
+                height: 40,
+                width: 180,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
             );
           }).toList(),
         ),
