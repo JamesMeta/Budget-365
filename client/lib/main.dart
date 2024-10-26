@@ -51,7 +51,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       type: 1,
       reportCode: 'EFGH',
       amount: '20',
-      description: 'Groceries',
+      description: 'Groc1`eries',
       category: 'Food',
       user: 'John Doe',
       date: '2023-02-18',
