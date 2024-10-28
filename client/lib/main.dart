@@ -5,8 +5,14 @@ import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://wywwdptapooirphafrqa.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5d3dkcHRhcG9vaXJwaGFmcnFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg5MzY4MzQsImV4cCI6MjA0NDUxMjgzNH0.6lBEAj2gUaO2ZbZB6RDZQQ9zaOiNT1EbUt9Bu18mHk8',
+  );
   runApp(const Budget365());
 }
 
