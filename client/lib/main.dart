@@ -5,6 +5,8 @@ import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
+import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:budget_365/login/login_widget.dart';
 
 void main() {
   runApp(const Budget365());
@@ -219,6 +221,39 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       date: '2023-09-05',
     ),
   ];
+  late int userLoggedIn;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Delaying the execution until the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocalStorageManager.fetchAccounts().then((value) {
+        if (value.isEmpty) {
+          // Navigate after the widget is fully initialized
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginWidget()),
+          ).then((result) {
+            if (result != null) {
+              setState(() {
+                userLoggedIn = result;
+              });
+            }
+          });
+        } else {
+          for (var account in value) {
+            if (account['most_recent_login'] == 1) {
+              setState(() {
+                userLoggedIn = account['username'];
+              });
+            }
+          }
+        }
+      });
+    });
+  }
 
   void _goToSettings() {
     Navigator.push(
@@ -283,7 +318,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(child: const DropdownMenuGroup()),
+                    const DropdownMenuGroup(),
                     IconButton(
                         onPressed: _goToCalendar,
                         icon: const Icon(Icons.calendar_month,

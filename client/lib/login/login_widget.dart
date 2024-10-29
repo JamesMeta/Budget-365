@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:budget_365/login/login_handler.dart';
 
 void main() {
   runApp(const MyWidget());
@@ -27,11 +28,42 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends State<LoginWidget> {
-  void _onCreateAccountPressed() {
-    Navigator.push(
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  void _onCreateAccountPressed() async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CreateAccountWidget()),
     );
+
+    if (!mounted) return;
+    if (result == null || result < 0) {
+      // handle errors more robustly
+      print('Error creating account');
+    } else {
+      Navigator.pop(context, result);
+    }
+  }
+
+  Future<dynamic> _onLoginPressed() async {
+    Map<String, dynamic> result = await LoginHandler.login(
+        usernameController.text, passwordController.text);
+
+    if (!mounted) return;
+
+    if (result['success']) {
+      return Navigator.pop(context, result['account']['id']);
+    } else {
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(result['message']),
+            );
+          });
+    }
   }
 
   @override
@@ -75,7 +107,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                 Container(
                   margin: EdgeInsets.only(top: 10, left: 20, right: 20),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Enter Your Username",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -103,7 +135,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                   margin:
                       EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Enter Your Password",
@@ -183,6 +215,21 @@ class CreateAccountWidget extends StatefulWidget {
 }
 
 class _CreateAccountWidgetState extends State<CreateAccountWidget> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+
+  Future<int> _onCreatePressed() async {
+    if (passwordController.text != confirmPasswordController.text) {
+      print('Passwords do not match');
+      return -1;
+    }
+
+    return await LoginHandler.register(
+        emailController.text, usernameController.text, passwordController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,7 +275,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                 Container(
                   margin: EdgeInsets.only(top: 10, left: 20, right: 20),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: emailController,
                     decoration: InputDecoration(
                       hintText: "Enter Your Email",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -255,7 +302,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                 Container(
                   margin: EdgeInsets.only(top: 10, left: 20, right: 20),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Enter Your Username",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -283,7 +330,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   margin:
                       EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Enter Your Password",
@@ -300,7 +347,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   margin:
                       EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: confirmPasswordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Confirm Your Password",
@@ -317,7 +364,22 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   margin: EdgeInsets.only(top: 40, left: 20, right: 20),
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        int result = await _onCreatePressed();
+                        if (result != -1) {
+                          Navigator.pop(context, result);
+                        } else {
+                          return showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Error'),
+                                  content: Text(
+                                      'Passwords do not match or account already exists'),
+                                );
+                              });
+                        }
+                      },
                       child: Text(
                         'Create Account',
                         style: TextStyle(
