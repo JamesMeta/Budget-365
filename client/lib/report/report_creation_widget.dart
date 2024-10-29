@@ -159,15 +159,7 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
       'category': category,
       'description': description,
       'type': 'income', // Explicitly specifying 'income'
-    }).execute();
-
-    if (response.error == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Income added successfully!')));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error adding income: ${response.error.message}')));
-    }
+    }).select();
   }
 
   void _addExpense() async {
@@ -185,17 +177,13 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
       'category': category,
       'description': description,
       'type': 'expense', // Explicitly specifying 'expense'
-    }).execute();
-
-    if (response.error == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Expense added successfully!')));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error adding expense: ${response.error.message}')));
-    }
+    }).select();
   }
 }
+
+class _selectedCategory {}
+
+class _selectedAccount {}
 
 class AmountInput extends StatelessWidget {
   AmountInput({Key? key}) : super(key: key);
