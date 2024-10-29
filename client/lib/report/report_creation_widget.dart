@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_creation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReportCreationWidget extends StatefulWidget {
   const ReportCreationWidget({
@@ -14,6 +15,7 @@ class ReportCreationWidget extends StatefulWidget {
 }
 
 class _ReportWidgetState extends State<ReportCreationWidget> {
+  final SupabaseClient supabase = Supabase.instance.client;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,31 +138,82 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
 
   void _goToHome() {}
 
-  void _addIncome() {}
+  void _addIncome() async {
+    // Capture values from input fields here
+    final amount = double.parse(AmountInput()
+        .amountController
+        .text); // Update AmountInput to expose this controller
+    final date =
+        DateInput().dateController.text; // Expose date controller as well
+    final account = _selectedAccount;
+    final category = _selectedCategory;
+    final description = DescriptionInput()
+        .descriptionController
+        .text; // Expose description controller
 
-  void _addExpense() {}
+    // Insert into Supabase
+    final response = await supabase.from('transactions').insert({
+      'amount': amount,
+      'date': date,
+      'account': account,
+      'category': category,
+      'description': description,
+      'type': 'income', // Explicitly specifying 'income'
+    }).select();
+  }
+
+  void _addExpense() async {
+    // Similar to _addIncome but set type as 'expense'
+    final amount = double.parse(AmountInput().amountController.text);
+    final date = DateInput().dateController.text;
+    final account = _selectedAccount;
+    final category = _selectedCategory;
+    final description = DescriptionInput().descriptionController.text;
+
+    final response = await supabase.from('transactions').insert({
+      'amount': amount,
+      'date': date,
+      'account': account,
+      'category': category,
+      'description': description,
+      'type': 'expense', // Explicitly specifying 'expense'
+    }).select();
+  }
 }
 
+class _selectedCategory {}
+
+class _selectedAccount {}
+
 class AmountInput extends StatelessWidget {
-  const AmountInput({super.key});
+  AmountInput({Key? key}) : super(key: key);
+
+  final TextEditingController amountController =
+      TextEditingController(); // Expose controller
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: 'Enter Amount',
-          border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-              borderRadius: BorderRadius.circular(25.7)),
+      controller: amountController,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: 'Enter Amount',
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(25.7),
         ),
-        style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white));
+      ),
+      style: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+    );
   }
 }
 
 class DateInput extends StatefulWidget {
-  const DateInput({super.key});
+  DateInput({Key? key}) : super(key: key);
+
+  final TextEditingController dateController =
+      TextEditingController(); // Expose controller
 
   @override
   State<DateInput> createState() => _DateInputState();
@@ -288,20 +341,26 @@ class _DropdownMenuCategoryState extends State<DropdownMenuCategory> {
 }
 
 class DescriptionInput extends StatelessWidget {
-  const DescriptionInput({super.key});
+  DescriptionInput({Key? key}) : super(key: key);
+
+  final TextEditingController descriptionController =
+      TextEditingController(); // Expose controller
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-        keyboardType: TextInputType.multiline,
-        decoration: InputDecoration(
-          labelText: 'Description',
-          hintText: 'Enter Description here',
-          border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-              borderRadius: BorderRadius.circular(25.7)),
+      controller: descriptionController,
+      keyboardType: TextInputType.multiline,
+      decoration: InputDecoration(
+        labelText: 'Description',
+        hintText: 'Enter Description here',
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(25.7),
         ),
-        style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white));
+      ),
+      style: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+    );
   }
 }
