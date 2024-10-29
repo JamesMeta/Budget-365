@@ -15,7 +15,7 @@ class ReportCreationWidget extends StatefulWidget {
 }
 
 class _ReportWidgetState extends State<ReportCreationWidget> {
-  final SupabaseClient supabase = Supabase.instance.client;
+  //final SupabaseClient supabase = Supabase.instance.client;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,14 +152,14 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
         .text; // Expose description controller
 
     // Insert into Supabase
-    final response = await supabase.from('transactions').insert({
-      'amount': amount,
-      'date': date,
-      'account': account,
-      'category': category,
-      'description': description,
-      'type': 'income', // Explicitly specifying 'income'
-    }).select();
+    // final response = await supabase.from('transactions').insert({
+    //   'amount': amount,
+    //   'date': date,
+    //   'account': account,
+    //   'category': category,
+    //   'description': description,
+    //   'type': 'income', // Explicitly specifying 'income'
+    // }).select();
   }
 
   void _addExpense() async {
@@ -170,14 +170,14 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
     final category = _selectedCategory;
     final description = DescriptionInput().descriptionController.text;
 
-    final response = await supabase.from('transactions').insert({
-      'amount': amount,
-      'date': date,
-      'account': account,
-      'category': category,
-      'description': description,
-      'type': 'expense', // Explicitly specifying 'expense'
-    }).select();
+    // final response = await supabase.from('transactions').insert({
+    //   'amount': amount,
+    //   'date': date,
+    //   'account': account,
+    //   'category': category,
+    //   'description': description,
+    //   'type': 'expense', // Explicitly specifying 'expense'
+    // }).select();
   }
 }
 
