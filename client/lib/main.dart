@@ -246,7 +246,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           for (var account in value) {
             if (account['most_recent_login'] == 1) {
               setState(() {
-                userLoggedIn = account['username'];
+                userLoggedIn = account['id'];
               });
             }
           }
