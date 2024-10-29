@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types, unused_import, unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -136,6 +138,7 @@ class _ReportWidgetState extends State<ReportCreationWidget> {
     );
   }
 
+  // ignore: unused_element
   void _goToHome() {}
 
   void _addIncome() async {
