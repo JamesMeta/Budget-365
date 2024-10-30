@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, unused_element, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
@@ -50,6 +50,7 @@ class Budget365Widget extends StatefulWidget {
 class _Budget365WidgetState extends State<Budget365Widget> {
   late final List<Report> _reports = _loadReports();
   late int userLoggedIn;
+  int _selectedNavigationalIndex = 0;
 
   @override
   void initState() {
@@ -246,6 +247,8 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       unselectedItemColor: Colors.white,
       showSelectedLabels: false,
       showUnselectedLabels: false,
+      currentIndex: _selectedNavigationalIndex,
+      onTap: _onTapedNavigation,
       iconSize: 40,
       items: [
         BottomNavigationBarItem(
@@ -253,17 +256,11 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: IconButton(
-              onPressed: _goToDataVisualization,
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.bar_chart)),
+          icon: Icon(Icons.bar_chart),
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: IconButton(
-              onPressed: _goToGroupsOverview,
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.group)),
+          icon: Icon(Icons.group),
           label: '',
         ),
       ],
@@ -280,12 +277,15 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoginWidget()),
+              //(Route<dynamic> route) => false,
             ).then((result) {
               if (result != null) {
                 setState(() {
                   userLoggedIn = result;
                 });
               }
+              if (!mounted) return;
+              Navigator.of(context).pop(); // Dismiss the dialog
             });
           },
           child: const Text('OK'),
@@ -294,11 +294,44 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
   }
 
+  Future<void> _initAccounts() async {
+    // Delaying the execution until the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocalStorageManager.fetchAccounts().then((value) {
+        if (value.isEmpty) {
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertNoLoginFound();
+            },
+          );
+        } else {
+          for (var account in value) {
+            if (account['most_recent_login'] == 1) {
+              setState(() {
+                userLoggedIn = account['id'];
+              });
+            }
+          }
+        }
+      });
+    });
+  }
+
   void _goToSettings() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SettingsWidget()),
-    );
+      MaterialPageRoute(builder: (context) => SettingsWidget(id: userLoggedIn)),
+    ).then((result) {
+      if (result != null) {
+        setState(() {
+          userLoggedIn = result;
+        });
+      } else {
+        print("Settings Popped with no login");
+      }
+    });
   }
 
   void _goToCalendar() {
@@ -327,6 +360,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       context,
       MaterialPageRoute(builder: (context) => const ReportCreationWidget()),
     );
+  }
+
+  void _onTapedNavigation(int index) {
+    setState(() {
+      _selectedNavigationalIndex = index;
+    });
   }
 
   List<Report> _loadReports() {
@@ -512,31 +551,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         date: '2023-09-05',
       ),
     ];
-  }
-
-  Future<void> _initAccounts() async {
-    // Delaying the execution until the first frame is rendered
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalStorageManager.fetchAccounts().then((value) {
-        if (value.isEmpty) {
-          if (!mounted) return;
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertNoLoginFound();
-            },
-          );
-        } else {
-          for (var account in value) {
-            if (account['most_recent_login'] == 1) {
-              setState(() {
-                userLoggedIn = account['id'];
-              });
-            }
-          }
-        }
-      });
-    });
   }
 }
 

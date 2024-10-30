@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 
@@ -79,7 +81,17 @@ class LocalStorageManager {
     );
   }
 
-  static Future<int> deleteGrade(int id) async {
+  static Future<void> logout(int id) async {
+    final db = await database;
+
+    await db.rawUpdate('''
+      UPDATE account
+      SET most_recent_login = 0
+      WHERE id = ?
+    ''', [id]);
+  }
+
+  static Future<int> deleteAccount(int id) async {
     final db = await database;
 
     return await db.delete(

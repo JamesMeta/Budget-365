@@ -9,19 +9,19 @@ class DividerTileWidget extends StatelessWidget {
     return ListTile(
         title: Container(
       padding: EdgeInsets.only(left: 10),
-      child: Text(
-        "Week of $week",
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
             color: Colors.grey,
             width: 1,
           ),
+        ),
+      ),
+      child: Text(
+        "Week of $week",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
     ));

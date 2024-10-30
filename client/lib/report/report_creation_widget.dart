@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, unused_import, unused_local_variable
+// ignore_for_file: camel_case_types, unused_import, unused_local_variable, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_creation.dart';
