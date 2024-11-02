@@ -31,7 +31,6 @@ class LocalStorageManager {
         username TEXT NOT NULL,
         password_hash TEXT NOT NULL,
         email TEXT NOT NULL,
-        account_code TEXT NOT NULL,
         most_recent_login INTEGER NOT NULL CHECK (most_recent_login  IN (0, 1))
       );
     ''');
@@ -53,10 +52,24 @@ class LocalStorageManager {
     ''', [id]);
   }
 
+  static Future<bool> isAccountCashed(String email) async {
+    final db = await database;
+
+    final response = await db.query(
+      'account',
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+
+    return response.isNotEmpty;
+  }
+
   static Future<int> createAccount(Map<String, dynamic> row) async {
     try {
       final db = await database;
-      return await db.insert('account', row);
+      await db.insert('account', row);
+      setMostRecentLogin(row['id']);
+      return row['id'];
     } catch (e) {
       print('Error creating account: $e');
       return -1;

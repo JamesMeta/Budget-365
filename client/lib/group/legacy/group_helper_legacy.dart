@@ -14,10 +14,8 @@ class GroupReportHelper {
         'group_code': groupCode,
         'group_name': groupName,
       });
-      print('Group created successfully');
-    } catch (error) {
-      print('Error creating group: $error');
-    }
+      // ignore: empty_catches
+    } catch (error) {}
   }
 
   //method to get a report of all groups
@@ -25,14 +23,12 @@ class GroupReportHelper {
     try {
       final response = await _supabase.from('group').select();
 
-      if (response == null || response.isEmpty) {
-        print('No groups found.');
+      if (response.isEmpty) {
         return [];
       }
 
-      return response as List<Map<String, dynamic>>;
+      return response;
     } catch (error) {
-      print('Error fetching group report: $error');
       return [];
     }
   }

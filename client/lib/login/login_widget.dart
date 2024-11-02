@@ -1,29 +1,13 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print
 
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/login/login_handler.dart';
 
-void main() {
-  runApp(const MyWidget());
-}
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: LoginWidget(),
-    );
-  }
-}
-
 class LoginWidget extends StatefulWidget {
-  const LoginWidget({super.key});
+  final CloudStorageManager cloudStorageManager;
+
+  const LoginWidget({super.key, required this.cloudStorageManager});
 
   @override
   State<LoginWidget> createState() => _LoginWidgetState();
@@ -32,6 +16,13 @@ class LoginWidget extends StatefulWidget {
 class _LoginWidgetState extends State<LoginWidget> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  late LoginHandler loginHandler;
+
+  @override
+  void initState() {
+    loginHandler = LoginHandler(widget.cloudStorageManager);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +196,10 @@ class _LoginWidgetState extends State<LoginWidget> {
   void _onCreateAccountPressed() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateAccountWidget()),
+      MaterialPageRoute(
+          builder: (context) => CreateAccountWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+              )),
     );
 
     if (!mounted) return;
@@ -218,20 +212,20 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Future<dynamic> _onLoginPressed() async {
-    Map<String, dynamic> result = await LoginHandler.login(
+    int result = await loginHandler.login(
         usernameController.text, passwordController.text);
 
     if (!mounted) return;
 
-    if (result['success']) {
-      return Navigator.pop(context, result['account']['id']);
+    if (result != -1) {
+      return Navigator.pop(context, result);
     } else {
       return showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Error'),
-              content: Text(result['message']),
+              content: Text("Invalid username or password"),
             );
           });
     }
@@ -239,7 +233,9 @@ class _LoginWidgetState extends State<LoginWidget> {
 }
 
 class CreateAccountWidget extends StatefulWidget {
-  const CreateAccountWidget({super.key});
+  final CloudStorageManager cloudStorageManager;
+
+  const CreateAccountWidget({super.key, required this.cloudStorageManager});
 
   @override
   State<CreateAccountWidget> createState() => _CreateAccountWidgetState();
@@ -286,7 +282,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
       return -1;
     }
 
-    return await LoginHandler.register(
+    return await LoginHandler(widget.cloudStorageManager).register(
         emailController.text, usernameController.text, passwordController.text);
   }
 
