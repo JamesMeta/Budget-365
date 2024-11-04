@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
+import 'package:budget_365/report/report_creation_widget_redo.dart';//temp
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
@@ -358,7 +359,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   void _goToReportBuilder() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ReportCreationWidget()),
+      MaterialPageRoute(builder: (context) => const ReportCreationWidgetRedo()),
     );
   }
 
