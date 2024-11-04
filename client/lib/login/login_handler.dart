@@ -1,55 +1,73 @@
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 
 class LoginHandler {
-  // this function is currently implemented in a testing manner and is not ready for production
-  static Future<Map<String, dynamic>> login(
-      String username, String password) async {
-    final accounts = await LocalStorageManager.fetchAccounts();
-    final loggedInAccount = accounts.firstWhere(
-        (account) => account['username'] == username,
-        orElse: () => {});
+  final CloudStorageManager _cloudStorageManager;
 
-    if (loggedInAccount == {}) {
-      return {
-        'success': false,
-        'message': 'Account not found',
-      };
-    } else if (loggedInAccount['password_hash'] != password) {
-      return {
-        'success': false,
-        'message': 'Incorrect password',
-      };
-    } else {
-      await LocalStorageManager.setMostRecentLogin(loggedInAccount['id']);
+  LoginHandler(this._cloudStorageManager);
 
-      return {
-        'success': true,
-        'account': loggedInAccount,
-      };
-    }
-  }
-
-  // this function is currently implemented in a testing manner and is not ready for production
-  static Future<int> register(
-      String email, String username, String password) async {
-    final accounts = await LocalStorageManager.fetchAccounts();
-    final existingAccount = accounts
-        .firstWhere((account) => account['email'] == email, orElse: () => {});
-
-    if (existingAccount.isNotEmpty) {
+  Future<int> login(String email, String password) async {
+    final id = await _cloudStorageManager.login(email, password);
+    if (id == -1) {
       return -1;
-    } else {
-      final account = {
-        'username': username,
-        'password_hash': password,
-        'email': email,
-        'account_code': email,
-        'most_recent_login': 1,
-      };
+    }
 
-      int id = await LocalStorageManager.createAccount(account);
+    if (await LocalStorageManager.isAccountCashed(email)) {
       await LocalStorageManager.setMostRecentLogin(id);
       return id;
+    } else {
+      final row = {
+        'id': id,
+        'username': 'username',
+        'password_hash': password,
+        'email': email,
+        'most_recent_login': 1,
+      };
+      await LocalStorageManager.createAccount(row);
     }
+
+    return id;
+  }
+
+  Future<int> attemptAutoLogin() async {
+    final accounts = await LocalStorageManager.fetchAccounts();
+    if (accounts.isEmpty) {
+      return -1;
+    }
+
+    final mostRecentLogin = accounts.firstWhere(
+      (account) => account['most_recent_login'] == 1,
+      orElse: () => {},
+    );
+    if (mostRecentLogin.isEmpty) {
+      return -1;
+    }
+
+    return login(mostRecentLogin['email'], mostRecentLogin['password_hash']);
+  }
+
+  Future<int> register(String email, String username, String password) async {
+    final isEmailRegistered =
+        await _cloudStorageManager.isEmailRegistered(email);
+    if (isEmailRegistered) {
+      return -1;
+    }
+
+    final id =
+        await _cloudStorageManager.createAccount(password, username, email);
+    if (id == -1) {
+      return -1;
+    }
+
+    final row = {
+      'id': id,
+      'username': username,
+      'password_hash': password,
+      'email': email,
+      'most_recent_login': 1,
+    };
+    await LocalStorageManager.createAccount(row);
+
+    return id;
   }
 }

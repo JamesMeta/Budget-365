@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import, avoid_print
 
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/utility/delete_local_storage.dart';
 import 'package:budget_365/utility/print_local_storage.dart';
@@ -8,8 +9,10 @@ import 'package:budget_365/login/login_widget.dart';
 
 class SettingsWidget extends StatefulWidget {
   final int id;
+  final CloudStorageManager cloudStorageManager;
 
-  const SettingsWidget({super.key, required this.id});
+  const SettingsWidget(
+      {super.key, required this.id, required this.cloudStorageManager});
 
   @override
   State<SettingsWidget> createState() => _SettingsWidgetState();
@@ -67,7 +70,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LoginWidget()),
+      MaterialPageRoute(
+          builder: (context) => LoginWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+              )),
     ).then((result) {
       if (result != null) {
         setState(() {

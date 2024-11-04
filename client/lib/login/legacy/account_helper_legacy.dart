@@ -16,10 +16,8 @@ class AccountHelper {
         'account_name': accountName,
         'email': email,
       });
-      print('Account created successfully');
-    } catch (error) {
-      print('Error creating account: $error');
-    }
+      // ignore: empty_catches
+    } catch (error) {}
   }
 
   //method to get a report of all accounts
@@ -27,14 +25,12 @@ class AccountHelper {
     try {
       final response = await _supabase.from('account').select();
 
-      if (response == null || response.isEmpty) {
-        print('No accounts found.');
+      if (response.isEmpty) {
         return [];
       }
 
-      return response as List<Map<String, dynamic>>;
+      return response;
     } catch (error) {
-      print('Error fetching account report: $error');
       return [];
     }
   }

@@ -9,21 +9,26 @@ import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/login/login_widget.dart';
-// ignore: unused_import
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
-  // await Supabase.initialize(
-  //   url: 'https://wywwdptapooirphafrqa.supabase.co',
-  //   anonKey:
-  //       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5d3dkcHRhcG9vaXJwaGFmcnFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg5MzY4MzQsImV4cCI6MjA0NDUxMjgzNH0.6lBEAj2gUaO2ZbZB6RDZQQ9zaOiNT1EbUt9Bu18mHk8',
-  // );
-  runApp(const Budget365());
+  await Supabase.initialize(
+    url: 'https://wywwdptapooirphafrqa.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5d3dkcHRhcG9vaXJwaGFmcnFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg5MzY4MzQsImV4cCI6MjA0NDUxMjgzNH0.6lBEAj2gUaO2ZbZB6RDZQQ9zaOiNT1EbUt9Bu18mHk8',
+  );
+
+  final cloudStorageManager = CloudStorageManager(Supabase.instance.client);
+
+  runApp(Budget365(cloudStorageManager));
 }
 
 class Budget365 extends StatelessWidget {
-  const Budget365({super.key});
+  final CloudStorageManager cloudStorageManager;
+
+  Budget365(this.cloudStorageManager);
 
   // This widget is the root of your application.
   @override
@@ -34,13 +39,17 @@ class Budget365 extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const Budget365Widget(title: 'Budget365'),
+      home: Budget365Widget(
+          title: 'Budget365', cloudStorageManager: cloudStorageManager),
     );
   }
 }
 
 class Budget365Widget extends StatefulWidget {
-  const Budget365Widget({super.key, required this.title});
+  final CloudStorageManager cloudStorageManager;
+
+  Budget365Widget(
+      {super.key, required this.title, required this.cloudStorageManager});
 
   final String title;
 
@@ -277,7 +286,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const LoginWidget()),
+              MaterialPageRoute(
+                  builder: (context) => LoginWidget(
+                      cloudStorageManager: widget.cloudStorageManager)),
               //(Route<dynamic> route) => false,
             ).then((result) {
               if (result != null) {
@@ -298,24 +309,28 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   Future<void> _initAccounts() async {
     // Delaying the execution until the first frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalStorageManager.fetchAccounts().then((value) {
-        if (value.isEmpty) {
-          if (!mounted) return;
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertNoLoginFound();
-            },
+      LocalStorageManager.fetchAccounts().then((value) async {
+        if (!value.isEmpty) {
+          final mostRecentLogin = value.firstWhere(
+            (account) => account['most_recent_login'] == 1,
+            orElse: () => {},
           );
-        } else {
-          for (var account in value) {
-            if (account['most_recent_login'] == 1) {
+          if (!mostRecentLogin.isEmpty) {
+            int id = await widget.cloudStorageManager.login(
+                mostRecentLogin['email'], mostRecentLogin['password_hash']);
+            if (id != -1) {
               setState(() {
-                userLoggedIn = account['id'];
+                userLoggedIn = id;
               });
             }
           }
         }
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertNoLoginFound();
+          },
+        );
       });
     });
   }
@@ -323,7 +338,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   void _goToSettings() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SettingsWidget(id: userLoggedIn)),
+      MaterialPageRoute(
+          builder: (context) => SettingsWidget(
+              id: userLoggedIn,
+              cloudStorageManager: widget.cloudStorageManager)),
     ).then((result) {
       if (result != null) {
         setState(() {
