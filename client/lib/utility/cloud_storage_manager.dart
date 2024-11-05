@@ -8,19 +8,27 @@ class CloudStorageManager {
 
   //method to create a new account
   Future<int> createAccount(
-      String passwordHash, String accountName, String email) async {
+      String password, String accountName, String email) async {
     try {
-      final response = await _supabase
+      final creationResponse =
+          await _supabase.auth.signUp(password: password, email: email);
+
+      if (creationResponse.user == null) {
+        print(
+            'Error creating account: ${creationResponse.session?.toString()}');
+        return -1;
+      }
+
+      final tableResponse = await _supabase
           .from('account')
           .insert({
-            'password_hash': passwordHash,
             'account_name': accountName,
             'email': email,
           })
           .select('id')
           .single();
       print('Account created successfully');
-      return response['id'] as int;
+      return tableResponse['id'] as int;
     } catch (error) {
       print('Error creating account: $error');
       return -1;
@@ -29,11 +37,13 @@ class CloudStorageManager {
 
   Future<int> login(String email, String password) async {
     try {
+      final loginResponse = await _supabase.auth
+          .signInWithPassword(password: password, email: email);
+
       final response = await _supabase
           .from('account')
           .select('id')
           .eq('email', email)
-          .eq('password_hash', password)
           .single();
 
       if (response == null) {
