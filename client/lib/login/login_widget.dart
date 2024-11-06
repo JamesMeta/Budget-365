@@ -73,7 +73,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       alignment: Alignment.topLeft,
       padding: EdgeInsets.only(top: 40, left: 20),
       child: Text(
-        'Username',
+        'Email',
         style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -89,7 +89,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       child: TextField(
         controller: usernameController,
         decoration: InputDecoration(
-          hintText: "Enter Your Username",
+          hintText: "Enter Your Email",
           hintStyle: TextStyle(color: Colors.grey),
           filled: true,
           fillColor: Colors.white,

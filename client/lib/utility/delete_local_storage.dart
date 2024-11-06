@@ -2,10 +2,13 @@
 
 import 'package:flutter/widgets.dart'; // Import Flutter widgets library
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as p;
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure Flutter bindings are initialized
-  LocalStorageManager.deleteAll();
-  print('All data deleted');
+  final dbPath = await getDatabasesPath();
+  final path = p.join(dbPath, 'account_details.db');
+  await deleteDatabase(path);
 }

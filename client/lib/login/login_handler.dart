@@ -12,6 +12,8 @@ class LoginHandler {
       return -1;
     }
 
+    print('Login successful');
+
     if (await LocalStorageManager.isAccountCashed(email)) {
       await LocalStorageManager.setMostRecentLogin(id);
       return id;
@@ -19,31 +21,14 @@ class LoginHandler {
       final row = {
         'id': id,
         'username': 'username',
-        'password_hash': password,
         'email': email,
+        'password': password,
         'most_recent_login': 1,
       };
       await LocalStorageManager.createAccount(row);
     }
 
     return id;
-  }
-
-  Future<int> attemptAutoLogin() async {
-    final accounts = await LocalStorageManager.fetchAccounts();
-    if (accounts.isEmpty) {
-      return -1;
-    }
-
-    final mostRecentLogin = accounts.firstWhere(
-      (account) => account['most_recent_login'] == 1,
-      orElse: () => {},
-    );
-    if (mostRecentLogin.isEmpty) {
-      return -1;
-    }
-
-    return login(mostRecentLogin['email'], mostRecentLogin['password_hash']);
   }
 
   Future<int> register(String email, String username, String password) async {
@@ -62,8 +47,8 @@ class LoginHandler {
     final row = {
       'id': id,
       'username': username,
-      'password_hash': password,
       'email': email,
+      'password': password,
       'most_recent_login': 1,
     };
     await LocalStorageManager.createAccount(row);

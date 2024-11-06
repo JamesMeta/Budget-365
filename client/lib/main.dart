@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
-import 'package:budget_365/report/report_creation_widget_redo.dart';//temp
+import 'package:budget_365/report/report_creation_widget_redo.dart'; //temp
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
@@ -21,6 +21,8 @@ Future<void> main() async {
   );
 
   final cloudStorageManager = CloudStorageManager(Supabase.instance.client);
+  WidgetsFlutterBinding.ensureInitialized(); // Required for async operations
+  await LocalStorageManager.database;
 
   runApp(Budget365(cloudStorageManager));
 }
@@ -316,12 +318,13 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             orElse: () => {},
           );
           if (!mostRecentLogin.isEmpty) {
-            int id = await widget.cloudStorageManager.login(
-                mostRecentLogin['email'], mostRecentLogin['password_hash']);
+            int id = await widget.cloudStorageManager
+                .login(mostRecentLogin['email'], mostRecentLogin['password']);
             if (id != -1) {
               setState(() {
                 userLoggedIn = id;
               });
+              return;
             }
           }
         }

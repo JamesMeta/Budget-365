@@ -40,6 +40,10 @@ class CloudStorageManager {
       final loginResponse = await _supabase.auth
           .signInWithPassword(password: password, email: email);
 
+      if (loginResponse.user == null) {
+        return -1;
+      }
+
       final response = await _supabase
           .from('account')
           .select('id')
@@ -47,11 +51,9 @@ class CloudStorageManager {
           .single();
 
       if (response == null) {
-        print('Invalid email or password');
         return -1;
       }
 
-      print('Login successful');
       return response['id'] as int;
     } catch (error) {
       print('Error logging in: $error');
