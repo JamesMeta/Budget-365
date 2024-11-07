@@ -60,7 +60,7 @@ class Budget365Widget extends StatefulWidget {
 }
 
 class _Budget365WidgetState extends State<Budget365Widget> {
-  late final List<Report> _reports = _loadReports();
+  List<Report> _reports = [];
   late int userLoggedIn;
   int _selectedNavigationalIndex = 0;
 
@@ -285,22 +285,19 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       content: const Text('Please log in to continue'),
       actions: <Widget>[
         TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => LoginWidget(
-                      cloudStorageManager: widget.cloudStorageManager)),
-              //(Route<dynamic> route) => false,
-            ).then((result) {
-              if (result != null) {
-                setState(() {
-                  userLoggedIn = result;
-                });
+          onPressed: () async {
+            int result = await _goToLogin();
+            if (!mounted) {
+              return;
+            } else {
+              if (result >= 0) {
+                Navigator.of(context).pop();
+              } else if (!mounted) {
+                return;
+              } else {
+                print("No login found");
               }
-              if (!mounted) return;
-              Navigator.of(context).pop(); // Dismiss the dialog
-            });
+            }
           },
           child: const Text('OK'),
         ),
@@ -338,13 +335,40 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     });
   }
 
+  Future<int> _goToLogin() async {
+    try {
+      await LocalStorageManager.logout(userLoggedIn);
+    } catch (e) {
+      print("No Login to Logout From: $e");
+    }
+
+    // Wait for the result of the navigation
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            LoginWidget(cloudStorageManager: widget.cloudStorageManager),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        userLoggedIn = result;
+      });
+      return 0; // Login successful
+    } else {
+      return -1; // Login failed
+    }
+  }
+
   void _goToSettings() {
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => SettingsWidget(
-              id: userLoggedIn,
-              cloudStorageManager: widget.cloudStorageManager)),
+                cloudStorageManager: widget.cloudStorageManager,
+                onLogout: _goToLogin,
+              )),
     ).then((result) {
       if (result != null) {
         setState(() {
@@ -388,191 +412,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     setState(() {
       _selectedNavigationalIndex = index;
     });
-  }
-
-  List<Report> _loadReports() {
-    return <Report>[
-      Report(
-        type: 0,
-        reportCode: 'ABCD',
-        amount: '2',
-        description: 'Monthly salary',
-        category: 'Salary',
-        user: 'Johnathan Hanley',
-        date: '2023-02-15',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'EFGH',
-        amount: '20',
-        description: 'Groc1`eries',
-        category: 'Food',
-        user: 'John Doe',
-        date: '2023-02-18',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'IJKL',
-        amount: '500',
-        description: '',
-        category: 'Bonus',
-        user: 'John Doe',
-        date: '2023-03-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'MNOP',
-        amount: '15000',
-        description: 'Dinner at restaurant',
-        category: 'Food',
-        user: 'John Doe',
-        date: '2023-03-05',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'QRST',
-        amount: '300000',
-        description: 'Utilities bill',
-        category: 'Bills',
-        user: 'John Doe',
-        date: '2023-03-10',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'UVWX',
-        amount: '1000000',
-        description: 'Freelance project',
-        category: 'Freelance',
-        user: 'John Doe',
-        date: '2023-04-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'YZ12',
-        amount: '75',
-        description: '',
-        category: 'Entertainment',
-        user: 'John Doe',
-        date: '2023-04-15',
-      ),
-      Report(
-        type: 0,
-        reportCode: '3456',
-        amount: '1200',
-        description: '',
-        category: 'Salary',
-        user: 'John Doe',
-        date: '2023-05-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: '7890',
-        amount: '450',
-        description: 'Shopping',
-        category: 'Clothing',
-        user: 'John Doe',
-        date: '2023-05-10',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'ASDF',
-        amount: '800',
-        description: 'Side hustle',
-        category: 'Freelance',
-        user: 'John Doe',
-        date: '2023-06-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'QWER',
-        amount: '120',
-        description: 'Internet bill',
-        category: 'Bills',
-        user: 'John Doe',
-        date: '2023-06-15',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'ZXCV',
-        amount: '55',
-        description: '',
-        category: 'Transportation',
-        user: 'John Doe',
-        date: '2023-06-20',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'POIU',
-        amount: '3000',
-        description: 'Freelance web development',
-        category: 'Freelance',
-        user: 'John Doe',
-        date: '2023-07-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'LKJH',
-        amount: '200',
-        description: 'Vacation expenses',
-        category: 'Travel',
-        user: 'John Doe',
-        date: '2023-07-05',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'MNBV',
-        amount: '3500',
-        description: '',
-        category: 'Salary',
-        user: 'John Doe',
-        date: '2023-07-15',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'TYUI',
-        amount: '175',
-        description: 'Gym membership',
-        category: 'Health',
-        user: 'John Doe',
-        date: '2023-07-20',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'GHJK',
-        amount: '4000',
-        description: 'Consulting work',
-        category: 'Consulting',
-        user: 'John Doe',
-        date: '2023-08-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'BNML',
-        amount: '250',
-        description: 'Car maintenance',
-        category: 'Transportation',
-        user: 'John Doe',
-        date: '2023-08-10',
-      ),
-      Report(
-        type: 0,
-        reportCode: 'VCXZ',
-        amount: '5000',
-        description: '',
-        category: 'Salary',
-        user: 'John Doe',
-        date: '2023-09-01',
-      ),
-      Report(
-        type: 1,
-        reportCode: 'WERT',
-        amount: '60',
-        description: 'Movies and snacks',
-        category: 'Entertainment',
-        user: 'John Doe',
-        date: '2023-09-05',
-      ),
-    ];
   }
 }
 

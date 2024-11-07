@@ -50,7 +50,7 @@ class CloudStorageManager {
           .eq('email', email)
           .single();
 
-      if (response == null) {
+      if (response.isEmpty) {
         return -1;
       }
 
@@ -73,23 +73,6 @@ class CloudStorageManager {
     } catch (error) {
       print('Error checking if email is registered: $error');
       return false;
-    }
-  }
-
-  //method to get a report of all accounts
-  Future<List<Map<String, dynamic>>> getAccountReport() async {
-    try {
-      final response = await _supabase.from('account').select();
-
-      if (response.isEmpty) {
-        print('No accounts found.');
-        return [];
-      }
-
-      return response as List<Map<String, dynamic>>;
-    } catch (error) {
-      print('Error fetching account report: $error');
-      return [];
     }
   }
 

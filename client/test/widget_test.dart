@@ -9,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:budget_365/main.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const Budget365());
+    final cloudStorageManager = CloudStorageManager(Supabase.instance.client);
+    await tester.pumpWidget(Budget365(cloudStorageManager));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

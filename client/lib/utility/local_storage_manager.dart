@@ -69,6 +69,19 @@ class LocalStorageManager {
     ''', [id]);
   }
 
+  static Future<String> getAccountUsername(int id) async {
+    final db = await database;
+
+    final response = await db.query(
+      'account',
+      columns: ['username'],
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    return response[0]['username'] as String;
+  }
+
   static Future<bool> isAccountCashed(String email) async {
     final db = await database;
 
@@ -112,13 +125,17 @@ class LocalStorageManager {
   }
 
   static Future<void> logout(int id) async {
-    final db = await database;
+    try {
+      final db = await database;
 
-    await db.rawUpdate('''
+      await db.rawUpdate('''
       UPDATE account
       SET most_recent_login = 0
       WHERE id = ?
     ''', [id]);
+    } catch (e) {
+      print('Error logging out: $e');
+    }
   }
 
   static Future<int> deleteAccount(int id) async {
