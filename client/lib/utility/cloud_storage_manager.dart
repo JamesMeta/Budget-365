@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budget_365/group/group.dart';
+import 'package:budget_365/group/user_groups.dart';
 
 class CloudStorageManager {
   final SupabaseClient _supabase;
@@ -73,6 +75,48 @@ class CloudStorageManager {
     } catch (error) {
       print('Error checking if email is registered: $error');
       return false;
+    }
+  }
+
+  Future<List<UserGroups>?> getUserGroups(int userID) async {
+    try {
+      final response =
+          await _supabase.from('user_groups').select().eq('id_account', userID);
+
+      final List<UserGroups> userGroups = [];
+      for (var row in response) {
+        userGroups.add(UserGroups(
+          id: row['id'] as int,
+          userId: row['id_account'] as int,
+          groupId: row['id_group'] as int,
+        ));
+      }
+      return userGroups;
+    } catch (error) {
+      print('Error fetching user groups: $error');
+      return null;
+    }
+  }
+
+  Future<List<Group>> getGroups(int userID) async {
+    try {
+      final response = await _supabase
+          .from('group')
+          .select('*, user_groups!inner(id_account)')
+          .eq('user_groups.id_account', userID);
+
+      final List<Group> groups = [];
+      for (var row in response) {
+        groups.add(Group(
+          id: row['id'] as int,
+          code: row['group_code'] as String,
+          name: row['group_name'] as String,
+        ));
+      }
+      return groups;
+    } catch (error) {
+      print('Error fetching groups: $error');
+      return [];
     }
   }
 

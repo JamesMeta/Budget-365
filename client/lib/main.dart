@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_final_fields
 
+import 'package:budget_365/group/group.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
@@ -61,36 +62,62 @@ class Budget365Widget extends StatefulWidget {
 
 class _Budget365WidgetState extends State<Budget365Widget> {
   List<Report> _reports = [];
+  List<Group> _groups = [];
   late int userLoggedIn;
   int _selectedNavigationalIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _initAccounts();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.blue,
-        appBar:
-            AppBarSection(), //This section covers the logo and the settings button
-        body: Stack(children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
+    return FutureBuilder<void>(
+      future: _initAccounts(), // The Future to wait for
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        // Check the connection state to handle loading, error, or data
+        if (snapshot.hasError) {
+          return Scaffold(
+            backgroundColor: Colors.blue,
+            appBar: AppBarSection(),
+            body: Center(
+                child: Text('Error: ${snapshot.error}')), // Show error message
+            bottomNavigationBar: BottomNavigationBarSection(),
+          );
+        } else if (snapshot.connectionState == ConnectionState.done) {
+          // Once the data is fetched, show the UI
+          return Scaffold(
+            backgroundColor: Colors.blue,
+            appBar: AppBarSection(),
+            body: Stack(
               children: [
-                DropDown_CalendarSection(), //this section is the dropdown and calendar above the table below the appbar
-                const SizedBox(height: 5),
-                TableLabelsSection(), //this section is the labels of the table below the dropdown and calendar
-                TableRowsSection() //this section is the table below the labels
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      DropDown_CalendarSection(),
+                      const SizedBox(height: 5),
+                      TableLabelsSection(),
+                      TableRowsSection(),
+                    ],
+                  ),
+                ),
+                PlusButtonSection(),
               ],
             ),
-          ),
-          PlusButtonSection()
-        ]),
-        bottomNavigationBar: BottomNavigationBarSection());
+            bottomNavigationBar: BottomNavigationBarSection(),
+          );
+        } else {
+          return Scaffold(
+            backgroundColor: Colors.blue,
+            appBar: AppBarSection(),
+            body: Center(child: CircularProgressIndicator()), // Show loading
+            bottomNavigationBar: BottomNavigationBarSection(),
+          );
+        }
+      },
+    );
   }
 
   PreferredSizeWidget AppBarSection() {
@@ -116,7 +143,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        const DropdownMenuGroup(),
+        DropdownMenuGroup(
+          groups: _groups,
+        ),
         IconButton(
             onPressed: _goToCalendar,
             icon: const Icon(Icons.calendar_month,
@@ -287,16 +316,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         TextButton(
           onPressed: () async {
             int result = await _goToLogin();
-            if (!mounted) {
-              return;
+            if (result >= 0) {
+              Navigator.of(context).pop(true); // Success, user logged in
             } else {
-              if (result >= 0) {
-                Navigator.of(context).pop();
-              } else if (!mounted) {
-                return;
-              } else {
-                print("No login found");
-              }
+              Navigator.of(context).pop(false); // Failure, user did not log in
             }
           },
           child: const Text('OK'),
@@ -306,33 +329,39 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   }
 
   Future<void> _initAccounts() async {
-    // Delaying the execution until the first frame is rendered
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalStorageManager.fetchAccounts().then((value) async {
-        if (!value.isEmpty) {
-          final mostRecentLogin = value.firstWhere(
-            (account) => account['most_recent_login'] == 1,
-            orElse: () => {},
-          );
-          if (!mostRecentLogin.isEmpty) {
-            int id = await widget.cloudStorageManager
-                .login(mostRecentLogin['email'], mostRecentLogin['password']);
-            if (id != -1) {
-              setState(() {
-                userLoggedIn = id;
-              });
-              return;
-            }
-          }
+    var value = await LocalStorageManager.fetchAccounts();
+    if (value.isNotEmpty) {
+      final mostRecentLogin = value.firstWhere(
+        (account) => account['most_recent_login'] == 1,
+        orElse: () => {},
+      );
+      if (mostRecentLogin.isNotEmpty) {
+        int id = await widget.cloudStorageManager
+            .login(mostRecentLogin['email'], mostRecentLogin['password']);
+        if (id != -1) {
+          // If login is successful, update the userLoggedIn state
+          userLoggedIn = id;
+          _groups = await widget.cloudStorageManager.getGroups(userLoggedIn);
+          return; // Finish the future successfully
         }
-        showDialog(
+      }
+    }
+    // If no accounts or no recent login is found, show an alert dialog
+    bool loginResult = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
             return AlertNoLoginFound();
           },
-        );
-      });
-    });
+        ) ??
+        false;
+
+    if (loginResult) {
+      // Handle successful login, do any additional work here
+      return;
+    } else {
+      // Handle unsuccessful login or dialog dismiss, prevent further execution
+      return;
+    }
   }
 
   Future<int> _goToLogin() async {
@@ -352,6 +381,8 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
 
     if (result != null) {
+      if (!mounted)
+        return -1; // Ensure widget is mounted before calling setState
       setState(() {
         userLoggedIn = result;
       });
@@ -416,25 +447,29 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 }
 
 class DropdownMenuGroup extends StatefulWidget {
-  const DropdownMenuGroup({super.key});
+  late List<Group> groups;
+
+  DropdownMenuGroup({super.key, required this.groups});
 
   @override
-  State<DropdownMenuGroup> createState() => _DropdownMenuGroupState();
+  State<DropdownMenuGroup> createState() =>
+      _DropdownMenuGroupState(groups: groups);
 }
 
 class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
-  List<String> _items = <String>[
-    "Mata's Economic Group",
-    "Martin's Cooperative",
-    'The Hanley Solution',
-    'This is a 25 char strings'
-  ];
+  late List<Group> groups;
+
+  _DropdownMenuGroupState({required this.groups});
+
   String? _selectedItem = '';
 
   @override
   void initState() {
     super.initState();
-    _selectedItem = _items[0];
+    if (groups.isNotEmpty)
+      _selectedItem = groups[0].name;
+    else
+      _selectedItem = '';
   }
 
   @override
@@ -465,9 +500,9 @@ class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
               _selectedItem = value;
             });
           },
-          items: _items.map((String value) {
+          items: groups.map((Group group) {
             return DropdownMenuItem<String>(
-              value: value,
+              value: group.name,
               child: Container(
                 alignment: Alignment.center,
                 height: 40,
@@ -476,7 +511,7 @@ class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
                   border: Border.all(color: Colors.white),
                 ),
                 child: Text(
-                  value,
+                  group.name,
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
