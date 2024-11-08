@@ -435,7 +435,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   void _goToReportBuilder() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ReportCreationWidgetRedo()),
+      MaterialPageRoute(builder: (context) => ReportCreationWidgetRedo("Income")),
     );
   }
 

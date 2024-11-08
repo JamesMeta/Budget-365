@@ -3,7 +3,8 @@ import 'package:budget_365/report/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReportCreationWidgetRedo extends StatefulWidget {
-  const ReportCreationWidgetRedo({super.key});
+  String identifier;
+  ReportCreationWidgetRedo(this.identifier);
 
   @override
   State<ReportCreationWidgetRedo> createState() => ReportCreationWidgetRedoState();
@@ -13,7 +14,7 @@ class ReportCreationWidgetRedoState extends State<ReportCreationWidgetRedo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.blue,
       appBar: AppBarSection(),
       body: Stack(children: [
         Padding(padding: EdgeInsets.all(8.0),
@@ -29,10 +30,12 @@ class ReportCreationWidgetRedoState extends State<ReportCreationWidgetRedo> {
             SizedBox(height: 25,),
             CategoryInput(),
             SizedBox(height: 25,),
-            DescriptionInput(),],
+            DescriptionInput(),
+            SizedBox(height: 25,),
+            BottomSubmitButton()],
         ),)
       ],),
-      bottomNavigationBar: BottomAppBarSection(),
+      // bottomNavigationBar: BottomAppBarSection(),
     );
   }
 
@@ -41,40 +44,60 @@ class ReportCreationWidgetRedoState extends State<ReportCreationWidgetRedo> {
       centerTitle: true,
       // leadingWidth: 50,
       backgroundColor: Colors.blue,
-      title: Text(
-        "Income",
-        style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),),
+      title: Column(
+        children: [
+          SizedBox(height: 10,),
+          Text(
+            widget.identifier,
+            style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextButton(
+                onPressed: _addIncome,
+                child: Text(
+                  "Income",
+                  style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),)),
+              TextButton(
+                onPressed: _addExpense,
+                child: Text(
+                  "Expense",
+                  style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),))],
+          ),
+        ],
+      )
     );
   }
 
-  Widget BottomAppBarSection(){
-    return BottomAppBar(
-      color: Colors.blue,
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            TextButton(
-              onPressed: _addIncome,
-              child: Text(
-                "Income",
-                style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),)),
-            TextButton(
-              onPressed: _addExpense,
-              child: Text(
-                "Expense",
-                style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),))],
-        ),),);
+  Widget BottomSubmitButton(){
+    return Container(
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: _doThing(),
+        style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(Colors.white),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10))),
+            fixedSize: WidgetStatePropertyAll(Size(400, 60)),
+          ),
+        child: Text(
+          "Submit",
+          style: TextStyle(
+                color: Colors.blue,
+                fontSize: 20,
+                fontFamily: 'Arial',
+                fontWeight: FontWeight.bold),),
+      ),
+    );
   }
 
   Widget AmountInput(){
@@ -85,6 +108,8 @@ class ReportCreationWidgetRedoState extends State<ReportCreationWidgetRedo> {
         border: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
             borderRadius: BorderRadius.circular(25.7)),
+        fillColor: Colors.white,
+        filled: true,
       ),
     );
   }
@@ -115,8 +140,17 @@ class ReportCreationWidgetRedoState extends State<ReportCreationWidgetRedo> {
       ),);
   }
 
-  _addIncome(){}
-  _addExpense(){}
+  _addIncome(){
+    setState(() {
+      widget.identifier = "Income";
+    });
+  }
+  _addExpense(){
+    setState(() {
+      widget.identifier = "Expense";
+    });
+  }
+  _doThing(){}
 
 }
 
@@ -163,9 +197,11 @@ class _DateInputState extends State<DateInput> {
             borderSide: BorderSide(color: Colors.white),
             borderRadius: BorderRadius.circular(25.7)),
         suffixIcon: Icon(Icons.calendar_today),
+        fillColor: Colors.white,
+        filled: true,
       ),
       style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          fontSize: 16, color: Colors.black),
       onTap: () => _selectDate(context),
     );
   }
@@ -189,8 +225,10 @@ class _DropdownMenuAccountState extends State<DropdownMenuAccount> {
       child: SizedBox(
         width: 350,
         child: DropdownButton<String>(
-          style: const TextStyle(color: Colors.black),
-          dropdownColor: Colors.white,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold),
+          dropdownColor: Colors.blue,
           menuWidth: 350,
           isExpanded: true,
           value: _selectedItem,
@@ -229,8 +267,10 @@ class _DropdownMenuCategoryState extends State<DropdownMenuCategory> {
       child: SizedBox(
         width: 350,
         child: DropdownButton<String>(
-          style: const TextStyle(color: Colors.black),
-          dropdownColor: Colors.white,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold),
+          dropdownColor: Colors.blue,
           menuWidth: 350,
           isExpanded: true,
           value: _selectedItem,
