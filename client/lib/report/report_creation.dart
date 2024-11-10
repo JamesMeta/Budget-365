@@ -1,13 +1,18 @@
-// ignore_for_file: unused_import
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 
-import 'package:flutter/material.dart';
-import 'package:budget_365/report/report_tile_widget.dart';
+class ReportCreation {
+  final CloudStorageManager cloudStorageManager;
 
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
+  ReportCreation(this.cloudStorageManager);
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
+  // Future<int> createReport(int ReportType, String amount, String description,
+  //     String category) async {}
+
+  // Future<int> editReport() async {
+
+  // }
+
+  // Future<int> deleteReport() async {
+
+  // }
 }

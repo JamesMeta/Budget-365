@@ -25,8 +25,8 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
     return initials;
   }
 
-  String getNameofDayofWeek(String date) {
-    DateTime dateTime = DateTime.parse(date);
+  String getNameofDayofWeek(DateTime date) {
+    DateTime dateTime = date;
     String dayOfWeek = '';
 
     switch (dateTime.weekday) {
@@ -72,7 +72,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
             child: Column(
               children: [
                 Text(
-                  getInitials(widget.report.user),
+                  getInitials(widget.report.username),
                   style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -98,7 +98,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
             child: Column(
               children: [
                 Text(
-                  widget.report.amount,
+                  widget.report.amount.toString(),
                   style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

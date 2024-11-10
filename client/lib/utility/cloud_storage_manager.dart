@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
+import 'package:budget_365/report/report.dart';
 
 class CloudStorageManager {
   final SupabaseClient _supabase;
@@ -120,6 +123,58 @@ class CloudStorageManager {
     }
   }
 
+  Stream<List<Report>> getReportsStream(int groupID) {
+    final controller = StreamController<List<Report>>();
+
+    Future<void> fetchReports() async {
+      try {
+        final response =
+            await _supabase.from('report').select().eq('id_group', groupID);
+
+        final List<Report> reports = [];
+        for (var row in response) {
+          final username = await getUsername(row['id_user'] as int);
+
+          reports.add(Report(
+            id: row['id'] as int,
+            groupID: row['id_group'] as int,
+            username: username,
+            type: row['type'] as int,
+            amount: (row['amount'] as int).toDouble(),
+            description: row['description'] as String,
+            category: row['category'] as String,
+            date: DateTime.parse(row['date']),
+          ));
+        }
+
+        // Add the list of reports to the stream
+        controller.add(reports);
+      } catch (error) {
+        print('Error fetching reports: $error');
+        controller.addError(error);
+      }
+    }
+
+    // Call fetchReports initially and set it to repeat if needed
+    fetchReports();
+
+    return controller.stream;
+  }
+
+  Future<String> getUsername(int userID) async {
+    try {
+      final response = await _supabase
+          .from('account')
+          .select('account_name')
+          .eq('id', userID)
+          .single();
+      return response['account_name'] as String;
+    } catch (error) {
+      print('Error fetching username: $error');
+      return '';
+    }
+  }
+
   //method to create a new group
   Future<void> createGroup(int id, String groupCode, String groupName) async {
     try {
@@ -131,23 +186,6 @@ class CloudStorageManager {
       print('Group created successfully');
     } catch (error) {
       print('Error creating group: $error');
-    }
-  }
-
-  //method to get a report of all groups
-  Future<List<Map<String, dynamic>>> getGroupReport() async {
-    try {
-      final response = await _supabase.from('group').select();
-
-      if (response.isEmpty) {
-        print('No groups found.');
-        return [];
-      }
-
-      return response;
-    } catch (error) {
-      print('Error fetching group report: $error');
-      return [];
     }
   }
 }

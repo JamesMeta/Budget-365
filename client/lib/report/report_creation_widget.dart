@@ -1,230 +1,368 @@
-// ignore_for_file: camel_case_types, unused_import, unused_local_variable, prefer_final_fields
-
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 
 class ReportCreationWidget extends StatefulWidget {
-  const ReportCreationWidget({
-    super.key,
-    /*required this.title*/
-  });
+  final CloudStorageManager cloudStorageManager;
 
-  //final String title;
+  ReportCreationWidget({required this.cloudStorageManager});
 
   @override
-  State<ReportCreationWidget> createState() => _ReportWidgetState();
+  State<ReportCreationWidget> createState() => _ReportCreationWidgetState();
 }
 
-class _ReportWidgetState extends State<ReportCreationWidget> {
-  //final SupabaseClient supabase = Supabase.instance.client;
+class _ReportCreationWidgetState extends State<ReportCreationWidget> {
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _amountController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+
+  String? _selectedItem;
+  String _selectedType = '';
+
+  List<String> _items = <String>['Category1', 'Category2', 'Category3'];
+
+  Color specialColor = const Color.fromARGB(143, 0, 0, 0);
+
+  double fontSizeInputs = 17;
+  double fontSizeButtons = 25;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        leadingWidth: 100,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text('Add',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                )),
-            TextButton(
-                onPressed: _addIncome,
-                child: Text('Income',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ))),
-            TextButton(
-                onPressed: _addExpense,
-                child: Text('Expense',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white70,
-                    ))),
-          ],
-        ),
-      ),
+      backgroundColor: const Color.fromARGB(255, 112, 213, 243),
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      appBar: AppBarSection(),
       body: Stack(
         children: [
+          Gradient(),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('    Amount:   ',
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                    Expanded(
-                      child: AmountInput(),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      '   Date:    ',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    Expanded(child: DateInput()),
-                  ],
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      'Account:',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    const DropdownMenuAccount(),
-                  ],
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      'Category:',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    const DropdownMenuCategory(),
-                  ],
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(child: DescriptionInput()),
-                  ],
-                )
-              ],
+            padding: EdgeInsets.fromLTRB(10, 120, 10, 10),
+            child: SingleChildScrollView(
+              // Wrap Column with SingleChildScrollView
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IncomeExpenseButton(),
+                  SizedBox(height: 40),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          CategoryInput(),
+                          SizedBox(width: 20),
+                          DateInputSelect(),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      AmountInput(),
+                      SizedBox(height: 20),
+                      DescriptionInput(),
+                      SizedBox(height: 20),
+                      BottomSubmitButton(),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
             ),
-          )
+          ),
         ],
       ),
+      // bottomNavigationBar: BottomAppBarSection(),
     );
   }
 
-  // ignore: unused_element
-  void _goToHome() {}
-
-  void _addIncome() async {
-    // Capture values from input fields here
-    final amount = double.parse(AmountInput()
-        .amountController
-        .text); // Update AmountInput to expose this controller
-    final date =
-        DateInput().dateController.text; // Expose date controller as well
-    final account = _selectedAccount;
-    final category = _selectedCategory;
-    final description = DescriptionInput()
-        .descriptionController
-        .text; // Expose description controller
-
-    // Insert into Supabase
-    // final response = await supabase.from('transactions').insert({
-    //   'amount': amount,
-    //   'date': date,
-    //   'account': account,
-    //   'category': category,
-    //   'description': description,
-    //   'type': 'income', // Explicitly specifying 'income'
-    // }).select();
+  PreferredSizeWidget AppBarSection() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Text(
+        "Create Report",
+        style: TextStyle(
+            color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+      ),
+      centerTitle: true,
+    );
   }
 
-  void _addExpense() async {
-    // Similar to _addIncome but set type as 'expense'
-    final amount = double.parse(AmountInput().amountController.text);
-    final date = DateInput().dateController.text;
-    final account = _selectedAccount;
-    final category = _selectedCategory;
-    final description = DescriptionInput().descriptionController.text;
-
-    // final response = await supabase.from('transactions').insert({
-    //   'amount': amount,
-    //   'date': date,
-    //   'account': account,
-    //   'category': category,
-    //   'description': description,
-    //   'type': 'expense', // Explicitly specifying 'expense'
-    // }).select();
+  Widget Gradient() {
+    return Container(
+      decoration: const BoxDecoration(
+          gradient: LinearGradient(
+        colors: [
+          Color.fromARGB(255, 63, 19, 255),
+          Color.fromARGB(255, 71, 162, 236),
+          Color.fromARGB(255, 71, 162, 236),
+          Color.fromARGB(255, 63, 19, 255),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      )),
+    );
   }
-}
 
-class _selectedCategory {}
+  Widget IncomeExpenseButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: _selectedType == 'Income'
+                      ? const Color.fromARGB(255, 107, 248, 112)
+                      : Colors.transparent,
+                  width: 2.5),
+              borderRadius: BorderRadius.circular(10)),
+          child: ElevatedButton(
+            onPressed: _addIncome,
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10))),
+              fixedSize: WidgetStatePropertyAll(Size(150, 60)),
+            ),
+            child: Text(
+              "Income",
+              style: TextStyle(
+                  color: _selectedType == 'Income'
+                      ? const Color.fromARGB(255, 107, 248, 112)
+                      : Colors.white,
+                  fontSize: fontSizeButtons,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: _selectedType == 'Expense'
+                      ? Colors.red
+                      : Colors.transparent,
+                  width: 2.5),
+              borderRadius: BorderRadius.circular(10)),
+          child: ElevatedButton(
+            onPressed: _addExpense,
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10))),
+              fixedSize: WidgetStatePropertyAll(Size(150, 60)),
+            ),
+            child: Text(
+              "Expense",
+              style: TextStyle(
+                  color: _selectedType == 'Expense' ? Colors.red : Colors.white,
+                  fontSize: fontSizeButtons,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-class _selectedAccount {}
+  Widget CategoryInput() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+      width: 180,
+      height: 56,
+      decoration: BoxDecoration(
+        border: Border.all(color: specialColor, width: 2),
+        borderRadius: BorderRadius.circular(25.7),
+      ),
+      child: DropdownButton<String>(
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold),
+        dropdownColor: Colors.blue,
+        icon: Icon(Icons.arrow_drop_down, color: specialColor),
+        isExpanded: true,
+        underline: Container(color: Colors.transparent),
+        value: _selectedItem,
+        hint: Text('Select Category',
+            style: TextStyle(
+                color: specialColor,
+                fontSize: fontSizeInputs,
+                fontWeight: FontWeight.bold)), // Placeholder text
+        onChanged: (String? value) {
+          setState(() {
+            _selectedItem = value;
+          });
+        },
+        items: _items.map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
 
-class AmountInput extends StatelessWidget {
-  AmountInput({Key? key}) : super(key: key);
+  Widget DateInputSelect() {
+    return Container(
+      width: 180,
+      child: TextField(
+        controller: _dateController,
+        readOnly: true,
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: 'Select Date',
+          labelStyle: TextStyle(
+              color: specialColor,
+              fontSize: fontSizeInputs,
+              fontWeight: FontWeight.bold),
+          // Set border for different states
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when enabled
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when focused
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color in general
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          suffixIcon: Icon(Icons.calendar_today, color: specialColor),
+          fillColor: Colors.transparent,
+          filled: true,
+        ),
+        onTap: () => _selectDate(context),
+      ),
+    );
+  }
 
-  final TextEditingController amountController =
-      TextEditingController(); // Expose controller
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: amountController,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: 'Enter Amount',
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25.7),
+  Widget AmountInput() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: TextField(
+        controller: _amountController,
+        keyboardType: TextInputType.number,
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: "Enter Amount",
+          labelStyle: TextStyle(
+              color: specialColor,
+              fontSize: fontSizeInputs,
+              fontWeight: FontWeight.bold),
+          // Set border for different states
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when enabled
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when focused
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color in general
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          fillColor: Colors.transparent,
+          filled: true,
         ),
       ),
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     );
   }
-}
 
-class DateInput extends StatefulWidget {
-  DateInput({Key? key}) : super(key: key);
+  Widget DescriptionInput() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 380,
+      child: TextField(
+        controller: _descriptionController,
+        textAlignVertical: TextAlignVertical.top,
+        maxLines: null,
+        expands: true,
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          hintText: "Enter description here...",
+          hintStyle: TextStyle(color: specialColor),
+          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          // Set border for different states
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when enabled
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color when focused
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+                color: specialColor, width: 2), // Border color in general
+          ),
+          filled: true,
+          fillColor: Colors.transparent,
+        ),
+      ),
+    );
+  }
 
-  final TextEditingController dateController =
-      TextEditingController(); // Expose controller
+  Widget BottomSubmitButton() {
+    return Container(
+      height: 100,
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: _doThing,
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+          fixedSize: WidgetStatePropertyAll(Size(400, 80)),
+        ),
+        child: Text(
+          "Submit",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeButtons,
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
-  @override
-  State<DateInput> createState() => _DateInputState();
-}
+  _addIncome() {
+    setState(() {
+      _selectedType = 'Income';
+    });
+  }
 
-class _DateInputState extends State<DateInput> {
-  TextEditingController _dateController = TextEditingController();
-  @override
+  _addExpense() {
+    setState(() {
+      _selectedType = 'Expense';
+    });
+  }
+
   void dispose() {
     _dateController.dispose();
     super.dispose();
@@ -244,126 +382,5 @@ class _DateInputState extends State<DateInput> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: _dateController,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: 'Select Date',
-        border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-            borderRadius: BorderRadius.circular(25.7)),
-        suffixIcon: Icon(Icons.calendar_today),
-      ),
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-      onTap: () => _selectDate(context),
-    );
-  }
-}
-
-class DropdownMenuAccount extends StatefulWidget {
-  const DropdownMenuAccount({super.key});
-
-  @override
-  State<DropdownMenuAccount> createState() => _DropdownMenuAccountState();
-}
-
-class _DropdownMenuAccountState extends State<DropdownMenuAccount> {
-  String? _selectedItem = 'Account1';
-
-  List<String> _items = <String>['Account1', 'Account2', 'Account3'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 200,
-        child: DropdownButton<String>(
-          style: const TextStyle(color: Colors.white),
-          dropdownColor: Colors.blue,
-          menuWidth: 200,
-          isExpanded: true,
-          value: _selectedItem,
-          onChanged: (String? value) {
-            setState(() {
-              _selectedItem = value;
-            });
-          },
-          items: _items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class DropdownMenuCategory extends StatefulWidget {
-  const DropdownMenuCategory({super.key});
-
-  @override
-  State<DropdownMenuCategory> createState() => _DropdownMenuCategoryState();
-}
-
-class _DropdownMenuCategoryState extends State<DropdownMenuCategory> {
-  String? _selectedItem = 'Category1';
-
-  List<String> _items = <String>['Category1', 'Category2', 'Category3'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 200,
-        child: DropdownButton<String>(
-          style: const TextStyle(color: Colors.white),
-          dropdownColor: Colors.blue,
-          menuWidth: 200,
-          isExpanded: true,
-          value: _selectedItem,
-          onChanged: (String? value) {
-            setState(() {
-              _selectedItem = value;
-            });
-          },
-          items: _items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class DescriptionInput extends StatelessWidget {
-  DescriptionInput({Key? key}) : super(key: key);
-
-  final TextEditingController descriptionController =
-      TextEditingController(); // Expose controller
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: descriptionController,
-      keyboardType: TextInputType.multiline,
-      decoration: InputDecoration(
-        labelText: 'Description',
-        hintText: 'Enter Description here',
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(25.7),
-        ),
-      ),
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-    );
-  }
+  _doThing() {}
 }

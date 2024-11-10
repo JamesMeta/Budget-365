@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
-import 'package:budget_365/report/report_creation_widget_redo.dart'; //temp
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
 import 'package:budget_365/group/groups_overview_widget.dart';
@@ -39,7 +38,6 @@ class Budget365 extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: Budget365Widget(
@@ -65,6 +63,8 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   List<Group> _groups = [];
   late int userLoggedIn;
   int _selectedNavigationalIndex = 0;
+  String? _selectedGroupItem = '';
+  int _selectedGroupID = 0;
 
   @override
   void initState() {
@@ -79,21 +79,26 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         // Check the connection state to handle loading, error, or data
         if (snapshot.hasError) {
           return Scaffold(
-            backgroundColor: Colors.blue,
+            extendBody: true,
+            extendBodyBehindAppBar: false,
             appBar: AppBarSection(),
-            body: Center(
-                child: Text('Error: ${snapshot.error}')), // Show error message
+            body: Stack(children: [
+              Gradient(),
+              Center(child: Text('Error: ${snapshot.error}')),
+            ]), // Show error message
             bottomNavigationBar: BottomNavigationBarSection(),
           );
         } else if (snapshot.connectionState == ConnectionState.done) {
           // Once the data is fetched, show the UI
           return Scaffold(
-            backgroundColor: Colors.blue,
+            extendBody: true,
+            extendBodyBehindAppBar: true,
             appBar: AppBarSection(),
             body: Stack(
               children: [
+                Gradient(),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 10),
                   child: Column(
                     children: [
                       DropDown_CalendarSection(),
@@ -110,9 +115,15 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           );
         } else {
           return Scaffold(
-            backgroundColor: Colors.blue,
+            extendBody: true,
+            extendBodyBehindAppBar: true,
             appBar: AppBarSection(),
-            body: Center(child: CircularProgressIndicator()), // Show loading
+            body: Stack(
+              children: [
+                Gradient(),
+                Center(child: CircularProgressIndicator()),
+              ],
+            ), // Show loading
             bottomNavigationBar: BottomNavigationBarSection(),
           );
         }
@@ -122,7 +133,8 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 
   PreferredSizeWidget AppBarSection() {
     return AppBar(
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       leading: Image.asset('assets/images/logo.png'),
       // title:
       //     Text(widget.title, style: const TextStyle(color: Colors.white)),
@@ -143,14 +155,63 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        DropdownMenuGroup(
-          groups: _groups,
-        ),
+        DropDownMenuGroupSection(),
         IconButton(
             onPressed: _goToCalendar,
             icon: const Icon(Icons.calendar_month,
                 color: Colors.white, size: 30)),
       ],
+    );
+  }
+
+  Widget DropDownMenuGroupSection() {
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        width: 200,
+        height: 40,
+        child: DropdownButton<String>(
+          style: const TextStyle(color: Colors.white),
+          padding: const EdgeInsets.all(10),
+          dropdownColor: Colors.blue,
+          menuWidth: 200,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+          underline: Container(
+            color: Colors.transparent,
+          ),
+          isExpanded: true,
+          value: _selectedGroupItem,
+          menuMaxHeight: 150,
+          onChanged: (String? value) {
+            setState(() {
+              _selectedGroupItem = value;
+              _selectedGroupID = _groups
+                  .firstWhere((group) => group.name == value)
+                  .id; // Get the ID of the selected group
+            });
+          },
+          items: _groups.map((Group group) {
+            return DropdownMenuItem<String>(
+              value: group.name,
+              child: Container(
+                alignment: Alignment.center,
+                height: 40,
+                width: 180,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Text(
+                  group.name,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -238,10 +299,24 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 
   Widget TableRowsSection() {
     return Expanded(
-      child: ListView.builder(
-        itemCount: _reports.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ReportTileWidget(report: _reports[index]);
+      child: StreamBuilder<List<Report>>(
+        stream: widget.cloudStorageManager.getReportsStream(_selectedGroupID),
+        builder: (BuildContext context, AsyncSnapshot<List<Report>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No reports available'));
+          } else {
+            final reports = snapshot.data!;
+            return ListView.builder(
+              itemCount: reports.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ReportTileWidget(report: reports[index]);
+              },
+            );
+          }
         },
       ),
     );
@@ -250,12 +325,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   Widget PlusButtonSection() {
     return Positioned(
       right: 20,
-      bottom: 20,
+      bottom: 100,
       child: Container(
-        width: 60, // Set size of the container
-        height: 60, // Set size of the container
+        width: 70, // Set size of the container
+        height: 70, // Set size of the container
         decoration: BoxDecoration(
-          color: Colors.blue, // Background color
+          color: Color.fromARGB(255, 71, 162, 236), // Background color
           shape: BoxShape.circle, // Circular shape Optional: add border
           border: Border.all(
             color: Colors.black, // Border color
@@ -281,30 +356,52 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   }
 
   Widget BottomNavigationBarSection() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: const Color.fromARGB(255, 43, 118, 179),
-      selectedItemColor: Colors.grey,
-      unselectedItemColor: Colors.white,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      currentIndex: _selectedNavigationalIndex,
-      onTap: _onTapedNavigation,
-      iconSize: 40,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.group),
-          label: '',
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.black, width: 1)),
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.white,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        currentIndex: _selectedNavigationalIndex,
+        onTap: _onTapedNavigation,
+        iconSize: 40,
+        elevation: 0,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: '',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget Gradient() {
+    return Container(
+      decoration: const BoxDecoration(
+          gradient: LinearGradient(
+        colors: [
+          Color.fromARGB(255, 33, 81, 240),
+          Color.fromARGB(255, 71, 162, 236),
+          Color.fromARGB(255, 71, 162, 236),
+          Color.fromARGB(255, 33, 81, 240),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      )),
     );
   }
 
@@ -342,6 +439,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           // If login is successful, update the userLoggedIn state
           userLoggedIn = id;
           _groups = await widget.cloudStorageManager.getGroups(userLoggedIn);
+          if (_groups.isNotEmpty && _selectedGroupItem == '') {
+            _selectedGroupItem = _groups[0].name;
+            _selectedGroupID = _groups[0].id;
+          }
           return; // Finish the future successfully
         }
       }
@@ -435,7 +536,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   void _goToReportBuilder() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ReportCreationWidgetRedo("Income")),
+      MaterialPageRoute(
+          builder: (context) => ReportCreationWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+              )),
     );
   }
 
@@ -443,82 +547,5 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     setState(() {
       _selectedNavigationalIndex = index;
     });
-  }
-}
-
-class DropdownMenuGroup extends StatefulWidget {
-  late List<Group> groups;
-
-  DropdownMenuGroup({super.key, required this.groups});
-
-  @override
-  State<DropdownMenuGroup> createState() =>
-      _DropdownMenuGroupState(groups: groups);
-}
-
-class _DropdownMenuGroupState extends State<DropdownMenuGroup> {
-  late List<Group> groups;
-
-  _DropdownMenuGroupState({required this.groups});
-
-  String? _selectedItem = '';
-
-  @override
-  void initState() {
-    super.initState();
-    if (groups.isNotEmpty)
-      _selectedItem = groups[0].name;
-    else
-      _selectedItem = '';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(5),
-        ),
-        width: 200,
-        height: 40,
-        child: DropdownButton<String>(
-          style: const TextStyle(color: Colors.white),
-          padding: const EdgeInsets.all(10),
-          dropdownColor: Colors.blue,
-          menuWidth: 200,
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-          underline: Container(
-            height: 0,
-            color: Colors.white,
-          ),
-          isExpanded: true,
-          value: _selectedItem,
-          menuMaxHeight: 150,
-          onChanged: (String? value) {
-            setState(() {
-              _selectedItem = value;
-            });
-          },
-          items: groups.map((Group group) {
-            return DropdownMenuItem<String>(
-              value: group.name,
-              child: Container(
-                alignment: Alignment.center,
-                height: 40,
-                width: 180,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                ),
-                child: Text(
-                  group.name,
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
   }
 }
