@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
+import 'package:budget_365/group/group.dart';
 
 class ReportCreationWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
+  final String selectedGroup;
+  final List<Group> groups;
+  final int userID;
 
-  ReportCreationWidget({required this.cloudStorageManager});
+  ReportCreationWidget(
+      {required this.cloudStorageManager,
+      required this.selectedGroup,
+      required this.groups,
+      required this.userID});
 
   @override
-  State<ReportCreationWidget> createState() => _ReportCreationWidgetState();
+  State<ReportCreationWidget> createState() =>
+      _ReportCreationWidgetState(selectedGroup, groups);
 }
 
 class _ReportCreationWidgetState extends State<ReportCreationWidget> {
@@ -17,10 +26,19 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   TextEditingController _amountController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
 
-  String? _selectedItem;
+  String? _selectedCategory;
+  String? _selectedGroup;
   String _selectedType = '';
 
-  List<String> _items = <String>['Category1', 'Category2', 'Category3'];
+  late final List<Group> _groups;
+
+  late List<String> _categories;
+
+  _ReportCreationWidgetState(selectedGroup, groups) {
+    _selectedGroup = selectedGroup;
+    _groups = groups;
+    _dateController.text = DateTime.now().toString().split(' ')[0];
+  }
 
   Color specialColor = const Color.fromARGB(143, 0, 0, 0);
 
@@ -54,11 +72,18 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                         children: [
                           CategoryInput(),
                           SizedBox(width: 20),
-                          DateInputSelect(),
+                          GroupInput(),
                         ],
                       ),
                       SizedBox(height: 20),
-                      AmountInput(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AmountInput(),
+                          SizedBox(width: 20),
+                          DateInputSelect(),
+                        ],
+                      ),
                       SizedBox(height: 20),
                       DescriptionInput(),
                       SizedBox(height: 20),
@@ -168,9 +193,64 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget CategoryInput() {
+    return FutureBuilder(
+        future: _FetchCategories(),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              width: 175,
+              height: 56,
+              child: TextField(),
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return Container(
+              padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+              width: 175,
+              height: 56,
+              decoration: BoxDecoration(
+                border: Border.all(color: specialColor, width: 2),
+                borderRadius: BorderRadius.circular(26.7),
+              ),
+              child: DropdownButton<String>(
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSizeInputs,
+                    fontWeight: FontWeight.bold),
+                dropdownColor: Colors.blue,
+                icon: Icon(Icons.arrow_drop_down, color: specialColor),
+                isExpanded: true,
+                underline: Container(color: Colors.transparent),
+                value: _selectedCategory,
+                hint: Text('Select Category',
+                    style: TextStyle(
+                        color: specialColor,
+                        fontSize: fontSizeInputs,
+                        fontWeight: FontWeight.bold)), // Placeholder text
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                },
+                items: _categories.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            );
+          } else {
+            return Text('Error: ${snapshot.error}');
+          }
+        });
+  }
+
+  Widget GroupInput() {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-      width: 180,
+      width: 175,
       height: 56,
       decoration: BoxDecoration(
         border: Border.all(color: specialColor, width: 2),
@@ -185,21 +265,21 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         icon: Icon(Icons.arrow_drop_down, color: specialColor),
         isExpanded: true,
         underline: Container(color: Colors.transparent),
-        value: _selectedItem,
-        hint: Text('Select Category',
+        value: _selectedGroup,
+        hint: Text('Select Group',
             style: TextStyle(
                 color: specialColor,
                 fontSize: fontSizeInputs,
                 fontWeight: FontWeight.bold)), // Placeholder text
         onChanged: (String? value) {
           setState(() {
-            _selectedItem = value;
+            _selectedGroup = value;
           });
         },
-        items: _items.map((String value) {
+        items: _groups.map((Group value) {
           return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
+            value: value.name,
+            child: Text(value.name),
           );
         }).toList(),
       ),
@@ -208,7 +288,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget DateInputSelect() {
     return Container(
-      width: 180,
+      width: 175,
+      height: 56,
       child: TextField(
         controller: _dateController,
         readOnly: true,
@@ -249,7 +330,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget AmountInput() {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: 175,
+      height: 56,
       child: TextField(
         controller: _amountController,
         keyboardType: TextInputType.number,
@@ -331,7 +413,10 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       height: 100,
       alignment: Alignment.center,
       child: ElevatedButton(
-        onPressed: _doThing,
+        onPressed: () async {
+          await _createReport();
+          Navigator.pop(context);
+        },
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(Colors.transparent),
           shape: WidgetStatePropertyAll(
@@ -382,5 +467,28 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     }
   }
 
-  _doThing() {}
+  Future<List<String>> _FetchCategories() async {
+    int groupID =
+        _groups.firstWhere((group) => group.name == _selectedGroup).id;
+    _categories = await widget.cloudStorageManager.getCategoryList(groupID);
+    return _categories;
+  }
+
+  Future<void> _createReport() async {
+    int groupID =
+        _groups.firstWhere((group) => group.name == _selectedGroup).id;
+    int type = _selectedType == 'Income' ? 1 : 0;
+    double amount = double.parse(_amountController.text);
+    String description = _descriptionController.text;
+    String category = _selectedCategory!;
+    DateTime date = DateTime.parse(_dateController.text);
+    await widget.cloudStorageManager.createReport(
+        amount: amount,
+        description: description,
+        Category: category,
+        groupID: groupID,
+        userID: widget.userID,
+        date: date,
+        type: type);
+  }
 }

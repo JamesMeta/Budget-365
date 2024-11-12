@@ -539,6 +539,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       MaterialPageRoute(
           builder: (context) => ReportCreationWidget(
                 cloudStorageManager: widget.cloudStorageManager,
+                selectedGroup: _selectedGroupItem!,
+                groups: _groups,
+                userID: userLoggedIn,
               )),
     );
   }

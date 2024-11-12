@@ -175,6 +175,24 @@ class CloudStorageManager {
     }
   }
 
+  Future<List<String>> getCategoryList(int GroupID) async {
+    try {
+      final response = await _supabase
+          .from('category')
+          .select('name')
+          .eq('id_group', GroupID);
+
+      final List<String> categories = [];
+      for (var row in response) {
+        categories.add(row['name'] as String);
+      }
+      return categories;
+    } catch (error) {
+      print('Error fetching categories: $error');
+      return [];
+    }
+  }
+
   //method to create a new group
   Future<void> createGroup(int id, String groupCode, String groupName) async {
     try {
@@ -186,6 +204,30 @@ class CloudStorageManager {
       print('Group created successfully');
     } catch (error) {
       print('Error creating group: $error');
+    }
+  }
+
+  Future<void> createReport(
+      {required double amount,
+      required String description,
+      required String Category,
+      required int groupID,
+      required int userID,
+      required DateTime date,
+      required int type}) async {
+    try {
+      await _supabase.from('report').insert({
+        'amount': amount,
+        'description': description,
+        'category': Category,
+        'id_group': groupID,
+        'id_user': userID,
+        'date': date.toIso8601String(),
+        'type': type,
+      });
+      print('Report created successfully');
+    } catch (error) {
+      print('Error creating report: $error');
     }
   }
 }
