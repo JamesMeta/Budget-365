@@ -12,6 +12,7 @@ import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/login/login_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budget_365/group/group_interface_widget.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -143,6 +144,13 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             onPressed: _goToSettings,
             icon: const Icon(
               Icons.settings,
+              color: Colors.white,
+              size: 30,
+            )),
+        IconButton(
+            onPressed: _goToGroupsOverview,
+            icon: const Icon(
+              Icons.group,
               color: Colors.white,
               size: 30,
             )),
@@ -311,6 +319,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           } else {
             final reports = snapshot.data!;
             return ListView.builder(
+              padding: EdgeInsets.all(0),
               itemCount: reports.length,
               itemBuilder: (BuildContext context, int index) {
                 return ReportTileWidget(report: reports[index]);
@@ -394,10 +403,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       decoration: const BoxDecoration(
           gradient: LinearGradient(
         colors: [
-          Color.fromARGB(255, 33, 81, 240),
+          Color.fromARGB(255, 80, 117, 240),
           Color.fromARGB(255, 71, 162, 236),
           Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 33, 81, 240),
+          Color.fromARGB(255, 80, 117, 240),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -529,7 +538,11 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   void _goToGroupsOverview() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const GroupsOverviewWidget()),
+      MaterialPageRoute(
+          builder: (context) => GroupInterfaceWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+                userId: userLoggedIn,
+              )),
     );
   }
 

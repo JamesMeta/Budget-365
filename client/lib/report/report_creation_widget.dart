@@ -29,10 +29,11 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   String? _selectedCategory;
   String? _selectedGroup;
   String _selectedType = '';
+  bool _needsRefresh = true;
 
   late final List<Group> _groups;
 
-  late List<String> _categories;
+  List<String> _categories = [];
 
   _ReportCreationWidgetState(selectedGroup, groups) {
     _selectedGroup = selectedGroup;
@@ -71,7 +72,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           CategoryInput(),
-                          SizedBox(width: 20),
+                          SizedBox(width: 5),
                           GroupInput(),
                         ],
                       ),
@@ -80,7 +81,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           AmountInput(),
-                          SizedBox(width: 20),
+                          SizedBox(width: 5),
                           DateInputSelect(),
                         ],
                       ),
@@ -119,10 +120,10 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       decoration: const BoxDecoration(
           gradient: LinearGradient(
         colors: [
-          Color.fromARGB(255, 63, 19, 255),
+          Color.fromARGB(255, 80, 117, 240),
           Color.fromARGB(255, 71, 162, 236),
           Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 63, 19, 255),
+          Color.fromARGB(255, 80, 117, 240),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -193,64 +194,104 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget CategoryInput() {
-    return FutureBuilder(
-        future: _FetchCategories(),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              width: 175,
-              height: 56,
-              child: TextField(),
+    if (_categories.isEmpty || _needsRefresh) {
+      _needsRefresh = false;
+      return FutureBuilder(
+          future: _FetchCategories(),
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                width: 190,
+                height: 56,
+                child: TextField(),
+              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              return Container(
+                padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+                width: 190,
+                height: 56,
+                decoration: BoxDecoration(
+                  border: Border.all(color: specialColor, width: 2),
+                  borderRadius: BorderRadius.circular(26.7),
+                ),
+                child: DropdownButton<String>(
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSizeInputs,
+                      fontWeight: FontWeight.bold),
+                  dropdownColor: Colors.blue,
+                  icon: Icon(Icons.arrow_drop_down, color: specialColor),
+                  isExpanded: true,
+                  underline: Container(color: Colors.transparent),
+                  value: _selectedCategory,
+                  hint: Text('Select Category',
+                      style: TextStyle(
+                          color: specialColor,
+                          fontSize: fontSizeInputs,
+                          fontWeight: FontWeight.bold)), // Placeholder text
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                  items: _categories.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              );
+            } else {
+              return Text('Error: ${snapshot.error}');
+            }
+          });
+    } else {
+      return Container(
+        padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+        width: 190,
+        height: 56,
+        decoration: BoxDecoration(
+          border: Border.all(color: specialColor, width: 2),
+          borderRadius: BorderRadius.circular(26.7),
+        ),
+        child: DropdownButton<String>(
+          style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSizeInputs,
+              fontWeight: FontWeight.bold),
+          dropdownColor: Colors.blue,
+          icon: Icon(Icons.arrow_drop_down, color: specialColor),
+          isExpanded: true,
+          underline: Container(color: Colors.transparent),
+          value: _selectedCategory,
+          hint: Text('Select Category',
+              style: TextStyle(
+                  color: specialColor,
+                  fontSize: fontSizeInputs,
+                  fontWeight: FontWeight.bold)), // Placeholder text
+          onChanged: (String? value) {
+            setState(() {
+              _selectedCategory = value;
+            });
+          },
+          items: _categories.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
             );
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-              width: 175,
-              height: 56,
-              decoration: BoxDecoration(
-                border: Border.all(color: specialColor, width: 2),
-                borderRadius: BorderRadius.circular(26.7),
-              ),
-              child: DropdownButton<String>(
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: fontSizeInputs,
-                    fontWeight: FontWeight.bold),
-                dropdownColor: Colors.blue,
-                icon: Icon(Icons.arrow_drop_down, color: specialColor),
-                isExpanded: true,
-                underline: Container(color: Colors.transparent),
-                value: _selectedCategory,
-                hint: Text('Select Category',
-                    style: TextStyle(
-                        color: specialColor,
-                        fontSize: fontSizeInputs,
-                        fontWeight: FontWeight.bold)), // Placeholder text
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
-                items: _categories.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            );
-          } else {
-            return Text('Error: ${snapshot.error}');
-          }
-        });
+          }).toList(),
+        ),
+      );
+    }
   }
 
   Widget GroupInput() {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-      width: 175,
+      width: 190,
       height: 56,
       decoration: BoxDecoration(
         border: Border.all(color: specialColor, width: 2),
@@ -274,6 +315,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         onChanged: (String? value) {
           setState(() {
             _selectedGroup = value;
+            _needsRefresh = true;
           });
         },
         items: _groups.map((Group value) {
@@ -288,7 +330,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget DateInputSelect() {
     return Container(
-      width: 175,
+      width: 190,
       height: 56,
       child: TextField(
         controller: _dateController,
@@ -330,7 +372,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget AmountInput() {
     return Container(
-      width: 175,
+      width: 190,
       height: 56,
       child: TextField(
         controller: _amountController,
@@ -414,8 +456,27 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       alignment: Alignment.center,
       child: ElevatedButton(
         onPressed: () async {
-          await _createReport();
-          Navigator.pop(context);
+          int response = await _createReport();
+          if (response == 0) {
+            Navigator.pop(context);
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Error"),
+                    content: Text("Please fill out all fields"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          }
         },
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(Colors.transparent),
@@ -474,14 +535,24 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     return _categories;
   }
 
-  Future<void> _createReport() async {
+  Future<int> _createReport() async {
+    if (_selectedGroup == null ||
+        _selectedType.isEmpty ||
+        _amountController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _selectedCategory == null ||
+        _dateController.text.isEmpty) {
+      return -1;
+    }
+
     int groupID =
         _groups.firstWhere((group) => group.name == _selectedGroup).id;
-    int type = _selectedType == 'Income' ? 1 : 0;
+    int type = _selectedType == 'Income' ? 0 : 1;
     double amount = double.parse(_amountController.text);
     String description = _descriptionController.text;
     String category = _selectedCategory!;
     DateTime date = DateTime.parse(_dateController.text);
+
     await widget.cloudStorageManager.createReport(
         amount: amount,
         description: description,
@@ -490,5 +561,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         userID: widget.userID,
         date: date,
         type: type);
+
+    return 0;
   }
 }
