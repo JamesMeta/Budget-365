@@ -230,4 +230,32 @@ class CloudStorageManager {
       print('Error creating report: $error');
     }
   }
+
+  // Method to update group details
+  Future<bool> updateGroup(
+      int groupId, String newGroupCode, String newGroupName) async {
+    try {
+      final response = await _supabase.from('group').update({
+        'group_code': newGroupCode,
+        'group_name': newGroupName,
+      }).eq('id', groupId);
+      print('Group updated successfully');
+      return response != null;
+    } catch (error) {
+      print('Error updating group: $error');
+      return false;
+    }
+  }
+
+// Method to delete a group
+  Future<bool> deleteGroup(int groupId) async {
+    try {
+      final response = await _supabase.from('group').delete().eq('id', groupId);
+      print('Group deleted successfully');
+      return response != null;
+    } catch (error) {
+      print('Error deleting group: $error');
+      return false;
+    }
+  }
 }
