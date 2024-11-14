@@ -458,7 +458,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         onPressed: () async {
           int response = await _createReport();
           if (response == 0) {
-            Navigator.pop(context);
+            Navigator.pop(context, response);
           } else {
             showDialog(
                 context: context,

@@ -99,7 +99,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
               children: [
                 Gradient(),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
                   child: Column(
                     children: [
                       DropDown_CalendarSection(),
@@ -546,6 +546,16 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
   }
 
+  void _showSnackbar(BuildContext context) {
+    final snackBar = SnackBar(
+      content: Text('Report successfully created'),
+      duration: Duration(seconds: 2),
+    );
+
+    // Display the snackbar
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void _goToReportBuilder() {
     Navigator.push(
       context,
@@ -556,7 +566,11 @@ class _Budget365WidgetState extends State<Budget365Widget> {
                 groups: _groups,
                 userID: userLoggedIn,
               )),
-    );
+    ).then((value) {
+      if (value == 0) {
+        _showSnackbar(context);
+      }
+    });
   }
 
   void _onTapedNavigation(int index) {
