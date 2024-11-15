@@ -231,7 +231,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to update group details
+  //method to update group details (used in group editing ui popups)
   Future<bool> updateGroup(
       int groupId, String newGroupCode, String newGroupName) async {
     try {
@@ -247,7 +247,7 @@ class CloudStorageManager {
     }
   }
 
-// Method to delete a group
+//method to delete a group
   Future<bool> deleteGroup(int groupId) async {
     try {
       final response = await _supabase.from('group').delete().eq('id', groupId);
