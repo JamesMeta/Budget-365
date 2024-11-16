@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:budget_365/report/report_creation.dart';
+import 'package:budget_365/report/legacy/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/group/group.dart';
