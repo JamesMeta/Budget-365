@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_final_fields
 
 import 'package:budget_365/group/group.dart';
-import 'package:budget_365/group/group_ui_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
@@ -13,8 +12,8 @@ import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/login/login_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:budget_365/group/group_interface_widget.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:budget_365/group/group_ui_overview_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -590,6 +589,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(context);
+        setState(() {
+          // You can update any state variables here, even if you don't actually change anything.
+        });
       }
     });
   }

@@ -27,6 +27,15 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
   void initState() {
     super.initState();
     _groupsFuture = widget.cloudStorageManager.getGroups(widget.userID);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ThisFeatureHasNotBeenImplemented();
+        },
+      );
+    });
   }
 
   @override
@@ -79,6 +88,22 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
         ),
       ),
       centerTitle: true,
+    );
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Feature Not Fully Implemented'),
+      content: const Text(
+          'This feature has not been fully implemented yet so this is a simple demo of what will be here, in the future connection to the database will be added aswell as the ability to add people and different categories to the groups '),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 
