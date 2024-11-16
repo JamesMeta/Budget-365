@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
@@ -175,7 +176,24 @@ class CloudStorageManager {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchAllUsers() async {
+    try {
+      final response =
+          await _supabase.from('account').select('id, account_name');
+      return response
+          .map<Map<String, dynamic>>((user) => {
+                'id': user['id'],
+                'name': user['account_name'],
+              })
+          .toList();
+    } catch (error) {
+      print('Error fetching users: $error');
+      return [];
+    }
+  }
+
   Future<List<String>> getCategoryList(int GroupID) async {
+    //returns a list of categories for groups
     try {
       final response = await _supabase
           .from('category')
@@ -204,6 +222,51 @@ class CloudStorageManager {
       print('Group created successfully');
     } catch (error) {
       print('Error creating group: $error');
+    }
+  }
+
+  Future<bool> createUserGroup(int userId, int groupId) async {
+    try {
+      final response = await _supabase.from('user_groups').insert({
+        'id_account': userId,
+        'id_group': groupId,
+      });
+
+      print('User group created successfully');
+      return response != null;
+    } catch (error) {
+      print('Error creating user group: $error');
+      return false;
+    }
+  }
+
+  Future<bool> createGroupWithUsers({
+    required int groupId,
+    required String groupCode,
+    required String groupName,
+    required List<int> userIds,
+  }) async {
+    try {
+      //insert the new group into the `group` table
+      await _supabase.from('group').insert({
+        'id': groupId,
+        'group_code': groupCode,
+        'group_name': groupName,
+      });
+
+      // Insert users into `user_groups` table
+      for (int userId in userIds) {
+        await _supabase.from('user_groups').insert({
+          'id_account': userId,
+          'id_group': groupId,
+        });
+      }
+
+      print('Group and user associations created successfully');
+      return true;
+    } catch (error) {
+      print('Error creating group with users: $error');
+      return false;
     }
   }
 
