@@ -16,17 +16,23 @@ Password: 123456
 
 ### Dialogs and pickers:
 Can be seen if logged in as my account and you navigate to the reports section and you click on the date text field
+
 ![Image Alt Text](client/assets/images/dialogs.png)
 
 ### Multiple Screens and navigation:
 This can be seen in the many different screens you can navigate to 
+
 ![Image Alt Text](client/assets/images/login.png)
+
 ![Image Alt Text](client/assets/images/home.png)
+
 ![Image Alt Text](client/assets/images/report.png)
+
 ![Image Alt Text](client/assets/images/data.png)
 
 ### Snack Bars:
 This can be seen after you submit a report to the database
+
 ![Image Alt Text](client/assets/images/snackbar.png)
 
 ### Notifications:
@@ -34,12 +40,15 @@ Notifications are absent from this version of the app because I couldn't figure 
 
 ### Local Storage:
 This can be seen after your first login, whenever you boot up the app it automatically signs you in instead of requiring you to login each time
+
 ![Image Alt Text](client/assets/images/localcode.png)
 
 ### Cloud Storage:
 This can be seen in the reports as they are all stored on a cloud database
+
 ![Image Alt Text](client/assets/images/cloudcode.png)
 
 ### HTTP Request:
 This can be seen in our calls to our supabase client as they all use HTTP requests inorder to operate
+
 ![Image Alt Text](client/assets/images/supabase.png)
