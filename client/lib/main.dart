@@ -1,20 +1,24 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_final_fields
 
 import 'package:budget_365/group/group.dart';
+import 'package:budget_365/group/group_ui_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
-import 'package:budget_365/group/groups_overview_widget.dart';
+import 'package:budget_365/group/legacy/groups_overview_widget.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/login/login_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group_interface_widget.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: 'https://wywwdptapooirphafrqa.supabase.co',
     anonKey:
@@ -99,7 +103,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
               children: [
                 Gradient(),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
+                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 90),
                   child: Column(
                     children: [
                       DropDown_CalendarSection(),
@@ -144,13 +148,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             onPressed: _goToSettings,
             icon: const Icon(
               Icons.settings,
-              color: Colors.white,
-              size: 30,
-            )),
-        IconButton(
-            onPressed: _goToGroupsOverview,
-            icon: const Icon(
-              Icons.group,
               color: Colors.white,
               size: 30,
             )),
@@ -386,11 +383,13 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
+            icon: IconButton(
+                onPressed: _goToDataVisualization, icon: Icon(Icons.bar_chart)),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: IconButton(
+                onPressed: _goToGroupsOverview, icon: Icon(Icons.group)),
             label: '',
           ),
         ],
@@ -427,6 +426,22 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             } else {
               Navigator.of(context).pop(false); // Failure, user did not log in
             }
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    );
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Feature Not Implemented'),
+      content: const Text(
+          'This feature has not been implemented yet check back in the full release of Budget365'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
           },
           child: const Text('OK'),
         ),
@@ -526,6 +541,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     //   context,
     //   MaterialPageRoute(builder: (context) => const CalendarPage()),
     // );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ThisFeatureHasNotBeenImplemented();
+      },
+    );
   }
 
   void _goToDataVisualization() {
@@ -539,9 +560,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => GroupInterfaceWidget(
+          builder: (context) => GroupOverviewPage(
                 cloudStorageManager: widget.cloudStorageManager,
-                userId: userLoggedIn,
+                userID: userLoggedIn,
               )),
     );
   }

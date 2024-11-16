@@ -157,7 +157,13 @@ class _LoginWidgetState extends State<LoginWidget> {
             width: 100,
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return ThisFeatureHasNotBeenImplemented();
+                  });
+            },
             child: Text(
               'Forgot Password?',
               style: TextStyle(
@@ -194,6 +200,22 @@ class _LoginWidgetState extends State<LoginWidget> {
                 fontFamily: 'Arial',
                 fontWeight: FontWeight.bold),
           )),
+    );
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Feature Not Implemented'),
+      content: const Text(
+          'This feature has not been implemented yet check back in the full release of Budget365'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 

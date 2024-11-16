@@ -29,24 +29,29 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         children: <Widget>[
           ElevatedButton(
             onPressed: () {
-              deleteLocalStorage();
-            },
-            child: Text('Delete Local Storage'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              printLocalStorage();
-            },
-            child: Text('Print Local Storage'),
-          ),
-          ElevatedButton(
-            onPressed: () {
               logout();
             },
             child: Text('Logout'),
-          )
+          ),
+          ThisFeatureHasNotBeenImplemented(),
         ],
       ),
+    );
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Features Not Implemented'),
+      content: const Text(
+          'The settings page has yet to be implemented other than the logout button.'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 

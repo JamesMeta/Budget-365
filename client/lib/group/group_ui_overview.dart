@@ -26,6 +26,31 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     super.initState();
     //get the list of groups when the page is initialized
     _groupsFuture = widget.cloudStorageManager.getGroups(widget.userID);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ThisFeatureHasNotBeenImplemented();
+        },
+      );
+    });
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Feature Not Fully Implemented'),
+      content: const Text(
+          'This feature has not been fully implemented yet so this is a simple demo of what will be here'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    );
   }
 
   @override

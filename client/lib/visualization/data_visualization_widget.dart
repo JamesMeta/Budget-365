@@ -14,6 +14,20 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   int _selectedNavigationalIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Schedule the dialog to show after the current build phase is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ThisFeatureHasNotBeenImplemented();
+        },
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
@@ -29,101 +43,77 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
           _widgetOptions().elementAt(_selectedNavigationalIndex),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBarSection(),
     );
   }
 
-  List<Widget> _widgetOptions(){
-    return [LineChartScreen(),BarChartScreen(),PieChartScreen()];
+  List<Widget> _widgetOptions() {
+    return [LineChartScreen(), BarChartScreen(), PieChartScreen()];
   }
 
-  Widget LineChartScreen(){
-    return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
-                  ),
-                ),
-                borderData: FlBorderData(show: true),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: _convertToSpots(data),
-                    isCurved: true,
-                    barWidth: 4,
-                    isStrokeCapRound: true,
-                    belowBarData: BarAreaData(show: true),
-                  )
-                ],
-              )
-            ),
-          );
-  }
-
-  Widget BarChartScreen(){
+  Widget LineChartScreen() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
-      child: BarChart(
-        BarChartData(
-          gridData: FlGridData(show: true),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
+      child: LineChart(LineChartData(
+        gridData: FlGridData(show: true),
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
           ),
-          borderData: FlBorderData(show: true),
-        )
-      ),
-    );
-  }
-
-  Widget PieChartScreen(){
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
-    );
-  }
-
-
-  Widget BottomNavigationBarSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.black, width: 1)),
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.grey,
-        unselectedItemColor: Colors.white,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        currentIndex: _selectedNavigationalIndex,
-        onTap: _onTapedNavigation,
-        iconSize: 40,
-        elevation: 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.area_chart_rounded),
-            label: '',
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_rounded),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pie_chart_rounded),
-            label: '',
-          ),
+        ),
+        borderData: FlBorderData(show: true),
+        lineBarsData: [
+          LineChartBarData(
+            spots: _convertToSpots(data),
+            isCurved: true,
+            barWidth: 4,
+            isStrokeCapRound: true,
+            belowBarData: BarAreaData(show: true),
+          )
         ],
-      ),
+      )),
+    );
+  }
+
+  Widget BarChartScreen() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
+      child: BarChart(BarChartData(
+        gridData: FlGridData(show: true),
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
+          ),
+        ),
+        borderData: FlBorderData(show: true),
+      )),
+    );
+  }
+
+  Widget PieChartScreen() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
+    );
+  }
+
+  Widget ThisFeatureHasNotBeenImplemented() {
+    return AlertDialog(
+      title: const Text('Feature Not Fully Implemented'),
+      content: const Text(
+          'This feature has not been fully implemented yet so this is a simple demo of what will be here'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 
@@ -142,8 +132,8 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       )),
     );
   }
-  
-  List<FlSpot> _convertToSpots(List<double> data){
+
+  List<FlSpot> _convertToSpots(List<double> data) {
     return List.generate(
       data.length,
       (index) => FlSpot(index.toDouble(), data[index]),
@@ -155,5 +145,4 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       _selectedNavigationalIndex = index;
     });
   }
-  
 }
