@@ -18,6 +18,7 @@ import 'package:budget_365/group/group_ui_overview_widget.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Supabase
   await Supabase.initialize(
     url: 'https://wywwdptapooirphafrqa.supabase.co',
     anonKey:
@@ -65,10 +66,17 @@ class Budget365Widget extends StatefulWidget {
 class _Budget365WidgetState extends State<Budget365Widget> {
   List<Report> _reports = [];
   List<Group> _groups = [];
-  late int userLoggedIn;
-  int _selectedNavigationalIndex = 0;
+  int userLoggedIn = -1;
+
   String? _selectedGroupItem = '';
   int _selectedGroupID = 0;
+
+  int _selectedNavigationalIndex = 0;
+  late List<Widget> _widgetOptions = [
+    BodyHome(),
+    BodyDataVisualization(),
+    BodyGroupsOverview(),
+  ];
 
   @override
   void initState() {
@@ -77,61 +85,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _initAccounts(), // The Future to wait for
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        // Check the connection state to handle loading, error, or data
-        if (snapshot.hasError) {
-          return Scaffold(
-            extendBody: true,
-            extendBodyBehindAppBar: false,
-            appBar: AppBarSection(),
-            body: Stack(children: [
-              Gradient(),
-              Center(child: Text('Error: ${snapshot.error}')),
-            ]), // Show error message
-            bottomNavigationBar: BottomNavigationBarSection(),
-          );
-        } else if (snapshot.connectionState == ConnectionState.done) {
-          // Once the data is fetched, show the UI
-          return Scaffold(
-            extendBody: true,
-            extendBodyBehindAppBar: true,
-            appBar: AppBarSection(),
-            body: Stack(
-              children: [
-                Gradient(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 90),
-                  child: Column(
-                    children: [
-                      DropDown_CalendarSection(),
-                      const SizedBox(height: 5),
-                      TableLabelsSection(),
-                      TableRowsSection(),
-                    ],
-                  ),
-                ),
-                PlusButtonSection(),
-              ],
-            ),
-            bottomNavigationBar: BottomNavigationBarSection(),
-          );
-        } else {
-          return Scaffold(
-            extendBody: true,
-            extendBodyBehindAppBar: true,
-            appBar: AppBarSection(),
-            body: Stack(
-              children: [
-                Gradient(),
-                Center(child: CircularProgressIndicator()),
-              ],
-            ), // Show loading
-            bottomNavigationBar: BottomNavigationBarSection(),
-          );
-        }
-      },
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      appBar: AppBarSection(),
+      bottomNavigationBar: BottomNavigationBarSection(),
+      body: BodyHome(),
     );
   }
 
@@ -153,6 +112,60 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       ],
       leadingWidth: 100,
     );
+  }
+
+  FutureBuilder BodyHome() {
+    return FutureBuilder(
+        future: _initAccounts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                Gradient(),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 120, 10, 90),
+                  child: FutureBuilder(
+                    future: _getGroups(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.done) {
+                        return Column(
+                          children: [
+                            DropDown_CalendarSection(),
+                            const SizedBox(height: 5),
+                            TableLabelsSection(),
+                            TableRowsSection(),
+                          ],
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                ),
+                PlusButtonSection(),
+              ],
+            );
+          } else {
+            return const SizedBox();
+          }
+        });
+  }
+
+  Widget BodyDataVisualization() {
+    return Placeholder();
+  }
+
+  Widget BodyGroupsOverview() {
+    return Placeholder();
   }
 
   Widget DropDown_CalendarSection() {
@@ -449,23 +462,25 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   }
 
   Future<void> _initAccounts() async {
+    final session = await widget.cloudStorageManager.isLoggedIn();
+    if (session && userLoggedIn != -1) {
+      return;
+    } // If user is already logged in, skip login process
+
     var value = await LocalStorageManager.fetchAccounts();
+
     if (value.isNotEmpty) {
       final mostRecentLogin = value.firstWhere(
         (account) => account['most_recent_login'] == 1,
         orElse: () => {},
       );
+
       if (mostRecentLogin.isNotEmpty) {
         int id = await widget.cloudStorageManager
             .login(mostRecentLogin['email'], mostRecentLogin['password']);
         if (id != -1) {
           // If login is successful, update the userLoggedIn state
           userLoggedIn = id;
-          _groups = await widget.cloudStorageManager.getGroups(userLoggedIn);
-          if (_groups.isNotEmpty && _selectedGroupItem == '') {
-            _selectedGroupItem = _groups[0].name;
-            _selectedGroupID = _groups[0].id;
-          }
           return; // Finish the future successfully
         }
       }
@@ -513,6 +528,14 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       return 0; // Login successful
     } else {
       return -1; // Login failed
+    }
+  }
+
+  Future<void> _getGroups() async {
+    _groups = await widget.cloudStorageManager.getGroups(userLoggedIn);
+    if (_groups.isNotEmpty && _selectedGroupItem == '') {
+      _selectedGroupItem = _groups[0].name;
+      _selectedGroupID = _groups[0].id;
     }
   }
 

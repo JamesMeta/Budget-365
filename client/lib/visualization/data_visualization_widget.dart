@@ -117,6 +117,40 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
+  Widget BottomNavigationBarSection() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.black, width: 1)),
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.white,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        currentIndex: _selectedNavigationalIndex,
+        onTap: _onTapedNavigation,
+        iconSize: 40,
+        elevation: 0,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(onPressed: () {}, icon: Icon(Icons.bar_chart)),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(onPressed: () {}, icon: Icon(Icons.group)),
+            label: '',
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget Gradient() {
     return Container(
       decoration: const BoxDecoration(
