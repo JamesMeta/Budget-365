@@ -7,7 +7,6 @@ import 'package:budget_365/report/report.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/utility/settings.dart';
 import 'package:budget_365/visualization/data_visualization_widget.dart';
-import 'package:budget_365/group/legacy/groups_overview_widget.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/login/login_widget.dart';
@@ -90,7 +89,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       extendBodyBehindAppBar: true,
       appBar: AppBarSection(),
       bottomNavigationBar: BottomNavigationBarSection(),
-      body: BodyHome(),
+      body: _widgetOptions.elementAt(_selectedNavigationalIndex),
     );
   }
 
@@ -119,7 +118,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         future: _initAccounts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return Stack(
+              children: [
+                Gradient(),
+                const CircularProgressIndicator(),
+              ],
+            );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           }
@@ -161,11 +165,67 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   }
 
   Widget BodyDataVisualization() {
-    return Placeholder();
+    return Gradient();
   }
 
-  Widget BodyGroupsOverview() {
-    return Placeholder();
+  FutureBuilder BodyGroupsOverview() {
+    return FutureBuilder(
+        future: _getGroups(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Stack(
+              children: [
+                Gradient(),
+                const CircularProgressIndicator(),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                Gradient(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                    itemCount: _groups.length,
+                    itemBuilder: (context, index) {
+                      final group = _groups[index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            group.name,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Code: ${group.code}',
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                          trailing:
+                              const Icon(Icons.edit, color: Colors.blueAccent),
+                          onTap:
+                              () {}, //when the user taps on a group, the edit popup opens for that group
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return const SizedBox();
+          }
+        });
   }
 
   Widget DropDown_CalendarSection() {
@@ -395,13 +455,11 @@ class _Budget365WidgetState extends State<Budget365Widget> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: IconButton(
-                onPressed: _goToDataVisualization, icon: Icon(Icons.bar_chart)),
+            icon: Icon(Icons.bar_chart),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: IconButton(
-                onPressed: _goToGroupsOverview, icon: Icon(Icons.group)),
+            icon: Icon(Icons.group),
             label: '',
           ),
         ],
