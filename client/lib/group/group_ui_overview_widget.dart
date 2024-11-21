@@ -65,12 +65,6 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        //button to open the popup to create a group
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: _showCreateGroupDialog,
-      ),
     );
   }
 
@@ -166,108 +160,6 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     );
   }
 
-  void _showCreateGroupDialog() {
-    //popup to create a new group
-    final TextEditingController groupCodeController = TextEditingController();
-    final TextEditingController groupNameController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 245, 245, 245),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text(
-            'Create New Group',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              color: Colors.black87,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: groupCodeController,
-                decoration: const InputDecoration(
-                  labelText: 'Group Code',
-                  labelStyle: TextStyle(color: Colors.blueAccent),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: groupNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Group Name',
-                  labelStyle: TextStyle(color: Colors.blueAccent),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-              ),
-              onPressed: () async {
-                final groupCode = groupCodeController.text.trim();
-                final groupName = groupNameController.text.trim();
-
-                if (groupCode.isEmpty || groupName.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please fill in all fields'),
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
-                  return;
-                }
-
-                final randomGroupId =
-                    Random().nextInt(1000000); // Generate a random ID
-                await widget.cloudStorageManager.createGroup(
-                  randomGroupId,
-                  groupCode,
-                  groupName,
-                );
-
-                setState(() {
-                  _groupsFuture =
-                      widget.cloudStorageManager.getGroups(widget.userID);
-                });
-
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Group created successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showEditGroupDialog(Group group) {
     //popup to edit a group
     final TextEditingController groupCodeController =
@@ -332,33 +224,6 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
               onPressed: () async {
                 final newCode = groupCodeController.text;
                 final newName = groupNameController.text;
-
-                final success = await widget.cloudStorageManager.updateGroup(
-                  group.id,
-                  newCode,
-                  newName,
-                );
-
-                if (success) {
-                  setState(() {
-                    _groupsFuture =
-                        widget.cloudStorageManager.getGroups(widget.userID);
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Group updated successfully'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Failed to update group'),
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
-                }
               },
               child: const Text('Save'),
             ),

@@ -13,6 +13,7 @@ import 'package:budget_365/login/login_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:budget_365/group/group_ui_overview_widget.dart';
+import 'package:budget_365/group/group_creation_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,6 +94,14 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
   }
 
+  void _onTapedNavigation(int index) {
+    setState(() {
+      _selectedNavigationalIndex = index;
+    });
+  }
+
+  //
+
   PreferredSizeWidget AppBarSection() {
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -112,6 +121,12 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       leadingWidth: 100,
     );
   }
+
+  //
+  //
+  // This Section of the Code is Dedictated to the Home Page
+  //
+  //
 
   FutureBuilder BodyHome() {
     return FutureBuilder(
@@ -155,71 +170,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
                     },
                   ),
                 ),
-                PlusButtonSection(),
-              ],
-            );
-          } else {
-            return const SizedBox();
-          }
-        });
-  }
-
-  Widget BodyDataVisualization() {
-    return Gradient();
-  }
-
-  FutureBuilder BodyGroupsOverview() {
-    return FutureBuilder(
-        future: _getGroups(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Stack(
-              children: [
-                Gradient(),
-                const CircularProgressIndicator(),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            return Stack(
-              children: [
-                Gradient(),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    itemCount: _groups.length,
-                    itemBuilder: (context, index) {
-                      final group = _groups[index];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            group.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Code: ${group.code}',
-                            style: const TextStyle(color: Colors.black54),
-                          ),
-                          trailing:
-                              const Icon(Icons.edit, color: Colors.blueAccent),
-                          onTap:
-                              () {}, //when the user taps on a group, the edit popup opens for that group
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                PlusButtonSectionBody(),
               ],
             );
           } else {
@@ -400,7 +351,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
   }
 
-  Widget PlusButtonSection() {
+  Widget PlusButtonSectionBody() {
     return Positioned(
       right: 20,
       bottom: 100,
@@ -677,9 +628,133 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     });
   }
 
-  void _onTapedNavigation(int index) {
-    setState(() {
-      _selectedNavigationalIndex = index;
+  //
+  //
+  // This Section of the Code is Dedictated to the Data Visualization Page
+  //
+  //
+
+  Widget BodyDataVisualization() {
+    return Gradient();
+  }
+
+  //
+  //
+  // This Section of the Code is Dedictated to the Groups Overview Page
+  //
+  //
+
+  FutureBuilder BodyGroupsOverview() {
+    return FutureBuilder(
+        future: _getGroups(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Stack(
+              children: [
+                Gradient(),
+                const CircularProgressIndicator(),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                Gradient(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GroupTileSection(),
+                ),
+                PlusButtonSectionGroup(),
+              ],
+            );
+          } else {
+            return const SizedBox();
+          }
+        });
+  }
+
+  Widget GroupTileSection() {
+    return ListView.builder(
+      itemCount: _groups.length,
+      itemBuilder: (context, index) {
+        final group = _groups[index];
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            title: Text(
+              group.name,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            subtitle: Text(
+              'Code: ${group.code}',
+              style: const TextStyle(color: Colors.black54),
+            ),
+            trailing: const Icon(Icons.edit, color: Colors.blueAccent),
+            onTap:
+                () {}, //when the user taps on a group, the edit popup opens for that group
+          ),
+        );
+      },
+    );
+  }
+
+  Widget PlusButtonSectionGroup() {
+    return Positioned(
+      right: 20,
+      bottom: 100,
+      child: Container(
+        width: 70, // Set size of the container
+        height: 70, // Set size of the container
+        decoration: BoxDecoration(
+          color: Colors.white, // Background color
+          shape: BoxShape.circle, // Circular shape Optional: add border
+          border: Border.all(
+            color: Colors.black, // Border color
+            width: 1, // Border width
+          ),
+        ),
+        child: IconButton(
+          onPressed: _goToGroupBuilder,
+          icon: const Icon(
+            Icons.add, // Use a plus icon
+            color: Color.fromARGB(255, 71, 162, 236), // Icon color
+            size: 55, // Adjust size to fit well
+          ),
+          padding: EdgeInsets.zero, // Remove padding
+          constraints: const BoxConstraints(), // No constraints
+          splashColor:
+              Colors.blue.withOpacity(0.4), // Splash color for feedback
+          highlightColor:
+              Colors.white.withOpacity(0.3), // Highlight color for feedback
+        ),
+      ),
+    );
+  }
+
+  void _goToGroupBuilder() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => GroupCreationWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+                userID: userLoggedIn,
+              )),
+    ).then((value) {
+      if (value == 0) {
+        _showSnackbar(context);
+        setState(() {
+          // You can update any state variables here, even if you don't actually change anything.
+        });
+      }
     });
   }
 }

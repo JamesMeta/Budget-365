@@ -244,14 +244,36 @@ class CloudStorageManager {
   }
 
   // Method to create a new group
-  Future<void> createGroup(int id, String groupCode, String groupName) async {
+  Future<void> createGroup(String groupCode, String groupName,
+      List<String> Users, int userLoggedIn) async {
     try {
-      await _supabase.from('group').insert({
-        'id': id,
-        'group_code': groupCode,
-        'group_name': groupName,
-      });
-      print('Group created successfully');
+      final response = await _supabase
+          .from('group')
+          .insert({
+            'group_code': groupCode,
+            'group_name': groupName,
+          })
+          .select('id')
+          .single();
+
+      final groupId = response['id'] as int;
+      print('Group created successfully with ID: $groupId');
+
+      await createUserGroup(userLoggedIn, groupId);
+
+      for (String user in Users) {
+        try {
+          final response = await _supabase
+              .from('account')
+              .select('id')
+              .eq('email', user)
+              .single();
+          final userId = response['id'] as int;
+          await createUserGroup(userId, groupId);
+        } catch (error) {
+          print('Error creating user group: $error');
+        }
+      }
     } catch (error) {
       print('Error creating group: $error');
     }
@@ -265,41 +287,11 @@ class CloudStorageManager {
         'id_group': groupId,
       });
 
-      print('User group created successfully');
+      print(
+          'User group created successfully for user: $userId and group: $groupId');
       return response != null;
     } catch (error) {
       print('Error creating user group: $error');
-      return false;
-    }
-  }
-
-  // Method to create a group with users
-  Future<bool> createGroupWithUsers({
-    required int groupId,
-    required String groupCode,
-    required String groupName,
-    required List<int> userIds,
-  }) async {
-    try {
-      // Insert the new group into the `group` table
-      await _supabase.from('group').insert({
-        'id': groupId,
-        'group_code': groupCode,
-        'group_name': groupName,
-      });
-
-      // Insert users into `user_groups` table
-      for (int userId in userIds) {
-        await _supabase.from('user_groups').insert({
-          'id_account': userId,
-          'id_group': groupId,
-        });
-      }
-
-      print('Group and user associations created successfully');
-      return true;
-    } catch (error) {
-      print('Error creating group with users: $error');
       return false;
     }
   }
@@ -330,31 +322,20 @@ class CloudStorageManager {
     }
   }
 
-  // Method to update group details (used in group editing UI popups)
-  Future<bool> updateGroup(
-      int groupId, String newGroupCode, String newGroupName) async {
-    try {
-      final response = await _supabase.from('group').update({
-        'group_code': newGroupCode,
-        'group_name': newGroupName,
-      }).eq('id', groupId);
-      print('Group updated successfully');
-      return response != null;
-    } catch (error) {
-      print('Error updating group: $error');
-      return false;
+  Future<String> generateUniqueGroupCode() async {
+    final random = Random();
+    final alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    final code =
+        List.generate(5, (index) => alphabet[random.nextInt(26)]).join();
+    final response = await _supabase
+        .from('group')
+        .select()
+        .eq('group_code', code)
+        .maybeSingle();
+    if (response == null) {
+      print("Generated group code: $code");
+      return code;
     }
-  }
-
-  // Method to delete a group
-  Future<bool> deleteGroup(int groupId) async {
-    try {
-      final response = await _supabase.from('group').delete().eq('id', groupId);
-      print('Group deleted successfully');
-      return response != null;
-    } catch (error) {
-      print('Error deleting group: $error');
-      return false;
-    }
+    return generateUniqueGroupCode();
   }
 }
