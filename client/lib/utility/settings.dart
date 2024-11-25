@@ -9,7 +9,7 @@ import 'package:budget_365/login/login_widget.dart';
 
 class SettingsWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
-  Future<int> Function() onLogout;
+  Future<bool> Function() onLogout;
 
   SettingsWidget(
       {super.key, required this.cloudStorageManager, required this.onLogout});
@@ -55,23 +55,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     );
   }
 
-  void deleteLocalStorage() {
-    WidgetsFlutterBinding
-        .ensureInitialized(); // Ensure Flutter bindings are initialized
-    LocalStorageManager.deleteAll();
-    print('All data deleted');
-  }
-
-  void printLocalStorage() {
-    WidgetsFlutterBinding
-        .ensureInitialized(); // Ensure Flutter bindings are initialized
-    LocalStorageManager.printAll();
-  }
-
   void logout() async {
-    int response = await widget.onLogout();
-    if (response != -1) {
-      Navigator.pop(context);
+    bool response = await widget.onLogout();
+    if (response) {
+      Navigator.pop(context, response);
     }
   }
 }

@@ -6,9 +6,15 @@ import 'package:flutter/material.dart';
 class GroupCreationWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
   final int userID;
+  final bool edit;
+  final Group? group;
 
   const GroupCreationWidget(
-      {super.key, required this.cloudStorageManager, required this.userID});
+      {super.key,
+      required this.cloudStorageManager,
+      required this.userID,
+      this.edit = false,
+      this.group = null});
 
   @override
   State<GroupCreationWidget> createState() => _GroupCreationWidgetState();

@@ -1,17 +1,21 @@
+import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report.dart';
 
 class ReportTileWidget extends StatefulWidget {
   final Report report;
+  final CloudStorageManager cloudStorageManager;
 
-  const ReportTileWidget({super.key, required this.report});
+  const ReportTileWidget(
+      {super.key, required this.report, required this.cloudStorageManager});
 
   @override
   State<ReportTileWidget> createState() => _ReportTileWidgetState();
 }
 
 class _ReportTileWidgetState extends State<ReportTileWidget> {
-  String getInitials(String name) {
+  Future<String> getInitials(int userID) async {
+    String name = await widget.cloudStorageManager.getUsername(userID);
     List<String> words = name.split(' '); // Split the name by spaces
     String initials = '';
 
@@ -71,12 +75,23 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
             alignment: Alignment.center,
             child: Column(
               children: [
-                Text(
-                  getInitials(widget.report.username),
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                FutureBuilder<String>(
+                  future: getInitials(widget.report.userID),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error');
+                    } else {
+                      return Text(
+                        snapshot.data ?? '',
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

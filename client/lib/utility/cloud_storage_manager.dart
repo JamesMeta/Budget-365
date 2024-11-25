@@ -133,63 +133,45 @@ class CloudStorageManager {
   // Method to get groups by user ID
   Future<List<Group>> getGroups(int userID) async {
     try {
+      // Fetch group data with associated user IDs in one query
       final response = await _supabase
           .from('group')
-          .select('*, user_groups!inner(id_account)')
+          .select('id, group_code, group_name, user_groups!inner(id_account)')
           .eq('user_groups.id_account', userID);
 
-      final List<Group> groups = [];
-      for (var row in response) {
-        groups.add(Group(
+      // Parse the data into a list of Group objects
+      final groups = response.map<Group>((row) {
+        return Group(
           id: row['id'] as int,
           code: row['group_code'] as String,
           name: row['group_name'] as String,
-        ));
-      }
+          userIDs: (row['user_groups'] as List)
+              .map<int>((userGroup) => userGroup['id_account'] as int)
+              .toList(),
+        );
+      }).toList();
+
       return groups;
     } catch (error) {
+      // Better error handling (e.g., logging or rethrowing)
       print('Error fetching groups: $error');
       return [];
     }
   }
 
+  SupabaseStreamBuilder getGroupsStream(int userID) {
+    final controller = _supabase.from('group').stream(primaryKey: ['id']);
+    return controller;
+  }
+
   // Method to get a stream of reports by group ID
-  Stream<List<Report>> getReportsStream(int groupID) {
-    final controller = StreamController<List<Report>>();
-
-    Future<void> fetchReports() async {
-      try {
-        final response =
-            await _supabase.from('report').select().eq('id_group', groupID);
-
-        final List<Report> reports = [];
-        for (var row in response) {
-          final username = await getUsername(row['id_user'] as int);
-
-          reports.add(Report(
-            id: row['id'] as int,
-            groupID: row['id_group'] as int,
-            username: username,
-            type: row['type'] as int,
-            amount: (row['amount'] as int).toDouble(),
-            description: row['description'] as String,
-            category: row['category'] as String,
-            date: DateTime.parse(row['date']),
-          ));
-        }
-
-        // Add the list of reports to the stream
-        controller.add(reports);
-      } catch (error) {
-        print('Error fetching reports: $error');
-        controller.addError(error);
-      }
-    }
-
-    // Call fetchReports initially and set it to repeat if needed
-    fetchReports();
-
-    return controller.stream;
+  SupabaseStreamBuilder getReportsStream(int groupID) {
+    final controller = _supabase
+        .from('report')
+        .stream(primaryKey: ['id'])
+        .eq('id_group', groupID)
+        .order('date', ascending: false);
+    return controller;
   }
 
   // Method to get username by user ID
@@ -203,6 +185,21 @@ class CloudStorageManager {
       return response['account_name'] as String;
     } catch (error) {
       print('Error fetching username: $error');
+      return '';
+    }
+  }
+
+  // Medthod to get email by user ID
+  Future<String> getEmail(int userID) async {
+    try {
+      final response = await _supabase
+          .from('account')
+          .select('email')
+          .eq('id', userID)
+          .single();
+      return response['email'] as String;
+    } catch (error) {
+      print('Error fetching email: $error');
       return '';
     }
   }
@@ -337,5 +334,10 @@ class CloudStorageManager {
       return code;
     }
     return generateUniqueGroupCode();
+  }
+
+  Future<void> logOut() async {
+    _supabase.dispose();
+    await _supabase.auth.signOut();
   }
 }

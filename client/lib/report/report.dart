@@ -2,16 +2,16 @@ class Report {
   final int id;
   final int groupID;
   final int type;
+  final int userID;
   final double amount;
   final String description;
-  final String username;
   final String category;
   final DateTime date;
 
   Report({
     required this.id,
     required this.groupID,
-    required this.username,
+    required this.userID,
     required this.type,
     required this.amount,
     required this.description,

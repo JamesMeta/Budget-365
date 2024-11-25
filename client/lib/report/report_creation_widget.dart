@@ -28,6 +28,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   String? _selectedCategory;
   String? _selectedGroup;
   String _selectedType = '';
+  String _username = '';
   bool _needsRefresh = true;
 
   late final List<Group> _groups;
@@ -70,7 +71,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          CategoryInput(),
+                          UsernameSection(),
                           SizedBox(width: 5),
                           GroupInput(),
                         ],
@@ -79,9 +80,16 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          AmountInput(),
-                          SizedBox(width: 5),
                           DateInputSelect(),
+                          SizedBox(width: 5),
+                          CategoryInput(),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AmountInput(),
                         ],
                       ),
                       SizedBox(height: 20),
@@ -166,7 +174,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           decoration: BoxDecoration(
               border: Border.all(
                   color: _selectedType == 'Expense'
-                      ? Colors.red
+                      ? const Color.fromARGB(255, 0, 238, 255)
                       : Colors.transparent,
                   width: 2.5),
               borderRadius: BorderRadius.circular(10)),
@@ -181,7 +189,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             child: Text(
               "Expense",
               style: TextStyle(
-                  color: _selectedType == 'Expense' ? Colors.red : Colors.white,
+                  color: _selectedType == 'Expense'
+                      ? const Color.fromARGB(255, 0, 238, 255)
+                      : Colors.white,
                   fontSize: fontSizeButtons,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.bold),
@@ -190,6 +200,57 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         ),
       ],
     );
+  }
+
+  Widget UsernameSection() {
+    if (_username.isEmpty) {
+      return FutureBuilder(
+        future: getUsername(widget.userID),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              width: 190,
+              height: 56,
+              child: TextField(),
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error');
+          } else {
+            return Container(
+                width: 190,
+                height: 56,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: specialColor, width: 2),
+                  borderRadius: BorderRadius.circular(26.7),
+                ),
+                child: Text(
+                  _username,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ));
+          }
+        },
+      );
+    } else {
+      return Container(
+          width: 190,
+          height: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border: Border.all(color: specialColor, width: 2),
+            borderRadius: BorderRadius.circular(26.7),
+          ),
+          child: Text(
+            _username,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          ));
+    }
   }
 
   Widget CategoryInput() {
@@ -371,7 +432,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget AmountInput() {
     return Container(
-      width: 190,
+      width: 390,
       height: 56,
       child: TextField(
         controller: _amountController,
@@ -496,13 +557,13 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     );
   }
 
-  _addIncome() {
+  void _addIncome() {
     setState(() {
       _selectedType = 'Income';
     });
   }
 
-  _addExpense() {
+  void _addExpense() {
     setState(() {
       _selectedType = 'Expense';
     });
@@ -511,6 +572,11 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   void dispose() {
     _dateController.dispose();
     super.dispose();
+  }
+
+  Future<void> getUsername(int userID) async {
+    _username = await widget.cloudStorageManager.getUsername(userID);
+    return;
   }
 
   Future<void> _selectDate(BuildContext context) async {
