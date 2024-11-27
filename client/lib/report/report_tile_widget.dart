@@ -14,6 +14,10 @@ class ReportTileWidget extends StatefulWidget {
 }
 
 class _ReportTileWidgetState extends State<ReportTileWidget> {
+  static const _fontSize = 17.5;
+  static const _fontColor = Color.fromARGB(255, 255, 255, 255);
+  static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
+
   Future<String> getInitials(int userID) async {
     String name = await widget.cloudStorageManager.getUsername(userID);
     List<String> words = name.split(' '); // Split the name by spaces
@@ -23,6 +27,9 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
       if (word.isNotEmpty) {
         initials +=
             word[0].toUpperCase(); // Take the first letter and capitalize it
+        if (initials.length == 2) {
+          break;
+        }
       }
     }
 
@@ -64,14 +71,16 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      width: double.infinity,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: Colors.black, width: 2),
+        color: _containerFillColor,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Container(
-            width: 50,
+            width: 55,
             alignment: Alignment.center,
             child: Column(
               children: [
@@ -86,9 +95,9 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
                       return Text(
                         snapshot.data ?? '',
                         style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: _fontSize,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                            color: _fontColor),
                       );
                     }
                   },
@@ -97,54 +106,58 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
             ),
           ),
           Container(
-            width: 50,
+            width: 55,
             alignment: Alignment.center,
             child: Column(children: [
               Text(widget.report.type == 1 ? '📉' : '📈',
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
                   )),
             ]),
           ),
-          Container(
-            width: 75,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(
-                  widget.report.amount.toString(),
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 120,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(widget.report.category,
+          SingleChildScrollView(
+            child: Container(
+              width: 70,
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Text(
+                    widget.report.amount.toString(),
                     style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: _fontSize,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-              ],
+                        color: _fontColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              width: 105,
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Text(widget.report.category,
+                      style: const TextStyle(
+                          fontSize: _fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: _fontColor)),
+                ],
+              ),
             ),
           ),
           Container(
-            width: 35,
+            width: 50,
             alignment: Alignment.center,
             child: Column(
               children: [
                 Text(getNameofDayofWeek(widget.report.date),
                     style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: _fontSize,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white)),
+                        color: _fontColor)),
               ],
             ),
           )

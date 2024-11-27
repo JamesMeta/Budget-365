@@ -20,11 +20,15 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  List<Report> _reports = [];
+  List<dynamic>? _reports = [];
   List<Group> _groups = [];
 
   String? _selectedGroupItem;
   int? _selectedGroupID;
+
+  static const _labelFontSize = 17.5;
+  static const _labelFontColor = Color.fromARGB(255, 255, 255, 255);
+  static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
 
   @override
   void initState() {
@@ -86,7 +90,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     return Center(
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.white),
+          border: Border.all(color: Colors.black, width: 2),
           borderRadius: BorderRadius.circular(5),
         ),
         width: 200,
@@ -94,7 +98,10 @@ class _HomeWidgetState extends State<HomeWidget> {
         child: DropdownButton<String>(
           style: const TextStyle(color: Colors.white),
           padding: const EdgeInsets.all(10),
-          dropdownColor: Colors.blue,
+          dropdownColor: const Color.fromARGB(255, 84, 136, 182),
+          iconEnabledColor: Colors.white,
+          iconDisabledColor: Colors.black,
+          borderRadius: BorderRadius.circular(20),
           menuWidth: 200,
           icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
           underline: Container(
@@ -121,9 +128,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 alignment: Alignment.center,
                 height: 40,
                 width: 180,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                ),
+                decoration: BoxDecoration(),
                 child: Text(
                   group.name,
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
@@ -139,78 +144,98 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget TableLabelsSection() {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      width: double.infinity,
+      height: 55,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white),
+        color: _containerFillColor,
+        border: Border.all(color: Colors.black, width: 2),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 50,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(
-                  "Users",
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 50,
-            alignment: Alignment.center,
-            child: Column(children: [
-              Text("Type",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  )),
-            ]),
-          ),
-          Container(
-            width: 75,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(
-                  "Amount",
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 120,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text("Category",
+          SingleChildScrollView(
+            child: Container(
+              width: 55,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Users",
                     style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: _labelFontSize,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-              ],
+                        color: _labelFontColor),
+                  ),
+                ],
+              ),
             ),
           ),
-          Container(
-            width: 35,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text("Date",
+          SingleChildScrollView(
+            child: Container(
+              width: 55,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Type",
+                        style: TextStyle(
+                          fontSize: _labelFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: _labelFontColor,
+                        )),
+                  ]),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              width: 70,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Amount",
                     style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: _labelFontSize,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-              ],
+                        color: _labelFontColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              width: 105,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Category",
+                      style: const TextStyle(
+                          fontSize: _labelFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: _labelFontColor)),
+                ],
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              width: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Date",
+                      style: const TextStyle(
+                          fontSize: _labelFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: _labelFontColor)),
+                ],
+              ),
             ),
           )
         ],
@@ -234,14 +259,14 @@ class _HomeWidgetState extends State<HomeWidget> {
               snapshot.data!.isEmpty) {
             return const Center(child: Text('No reports found.'));
           } else {
-            final reports =
+            _reports =
                 snapshot.data as List<dynamic>?; // Cast `snapshot.data` safely.
             return ListView.builder(
               padding: EdgeInsets.all(0),
               itemCount:
-                  reports?.length ?? 0, // Default to 0 if `reports` is null.
+                  _reports?.length ?? 0, // Default to 0 if `reports` is null.
               itemBuilder: (context, index) {
-                final reportData = reports?[index]
+                final reportData = _reports?[index]
                     as Map<String, dynamic>?; // Handle potential null.
                 if (reportData == null) {
                   return const SizedBox.shrink(); // Skip if the data is null.

@@ -121,7 +121,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     // If no accounts or no recent login is found, show an alert dialog
     if (!loginInProgress) {
       loginInProgress = true;
-      bool loginResult = await _goToLogin();
+      await _goToLogin();
       loginInProgress = false;
       return;
     }
@@ -192,26 +192,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       ),
     );
   }
-
-  // Widget AlertNoLoginFound() {
-  //   return AlertDialog(
-  //     title: const Text('No user logged in'),
-  //     content: const Text('Please log in to continue'),
-  //     actions: <Widget>[
-  //       TextButton(
-  //         onPressed: () async {
-  //           int result = await _goToLogin();
-  //           if (result >= 0) {
-  //             Navigator.of(context).pop(true); // Success, user logged in
-  //           } else {
-  //             Navigator.of(context).pop(false); // Failure, user did not log in
-  //           }
-  //         },
-  //         child: const Text('OK'),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Future<bool> _goToLogin() async {
     try {

@@ -81,6 +81,10 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   }
 
   Widget GroupCode() {
+    if (widget.edit) {
+      _groupCode = widget.group?.code;
+    }
+
     return Container(
       child: Column(
         children: [
