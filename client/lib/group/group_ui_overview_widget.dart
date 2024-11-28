@@ -24,6 +24,8 @@ class GroupOverviewPage extends StatefulWidget {
 class _GroupOverviewPageState extends State<GroupOverviewPage> {
   late List<Group>? _groups;
 
+  static const _fontColor = Color.fromARGB(255, 255, 255, 255);
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -57,25 +59,24 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 2,
+                        ),
                       ),
                       child: ListTile(
                         title: Text(group?.name ?? '',
                             style: const TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold)),
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: _fontColor)),
                         subtitle: Text(group?.code ?? '',
-                            style: const TextStyle(fontSize: 18)),
+                            style: const TextStyle(
+                                fontSize: 18, color: _fontColor)),
                         trailing: IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          icon: const Icon(Icons.edit, color: _fontColor),
                           onPressed: () =>
                               _goToGroupBuilderEdit(_groups?[index]),
                         ),

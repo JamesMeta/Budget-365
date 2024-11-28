@@ -14,9 +14,134 @@ class ReportTileWidget extends StatefulWidget {
 }
 
 class _ReportTileWidgetState extends State<ReportTileWidget> {
-  static const _fontSize = 17.5;
+  static const _fontSize = 19.0;
   static const _fontColor = Color.fromARGB(255, 255, 255, 255);
   static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black, width: 2),
+        color: _containerFillColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          TypeSection(),
+          Column(
+            children: [
+              CategorySection(),
+              AmountSection(),
+            ],
+          ),
+          UsersSection(),
+          DateSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget TypeSection() {
+    return Container(
+      width: 55,
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Text(widget.report.type == 1 ? '📉' : '📈',
+              style: TextStyle(
+                fontSize: 45,
+                fontWeight: FontWeight.bold,
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget AmountSection() {
+    return SingleChildScrollView(
+      child: Container(
+        width: 105,
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            Text(
+              widget.report.amount.toString(),
+              style: const TextStyle(
+                  fontSize: _fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: _fontColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget CategorySection() {
+    return SingleChildScrollView(
+      child: Container(
+        width: 105,
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            Text(widget.report.category + ":",
+                style: const TextStyle(
+                    fontSize: _fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: _fontColor)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget UsersSection() {
+    return Container(
+      width: 35,
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          FutureBuilder<String>(
+            future: getInitials(widget.report.userID),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error');
+              } else {
+                return Text(
+                  snapshot.data ?? '',
+                  style: const TextStyle(
+                      fontSize: _fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: _fontColor),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget DateSection() {
+    return Container(
+      width: 100,
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Text(getNameofDayofWeek(widget.report.date),
+              style: const TextStyle(
+                  fontSize: _fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: _fontColor)),
+        ],
+      ),
+    );
+  }
 
   Future<String> getInitials(int userID) async {
     String name = await widget.cloudStorageManager.getUsername(userID);
@@ -40,129 +165,51 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
     DateTime dateTime = date;
     String dayOfWeek = '';
 
-    switch (dateTime.weekday) {
-      case 1:
-        dayOfWeek = 'Mon';
-        break;
-      case 2:
-        dayOfWeek = 'Tue';
-        break;
-      case 3:
-        dayOfWeek = 'Wed';
-        break;
-      case 4:
-        dayOfWeek = 'Thu';
-        break;
-      case 5:
-        dayOfWeek = 'Fri';
-        break;
-      case 6:
-        dayOfWeek = 'Sat';
-        break;
-      case 7:
-        dayOfWeek = 'Sun';
-        break;
+    Duration difference = DateTime.now().difference(dateTime);
+    int daysDifference = difference.inDays;
+
+    if (daysDifference == 0) {
+      return 'Today';
+    } else if (daysDifference == 1) {
+      return 'Yesterday';
+    } else if (daysDifference < 7) {
+      switch (dateTime.weekday) {
+        case 1:
+          return 'Mon';
+        case 2:
+          return 'Tue';
+        case 3:
+          return 'Wed';
+        case 4:
+          return 'Thu';
+        case 5:
+          return 'Fri';
+        case 6:
+          return 'Sat';
+        case 7:
+          return 'Sun';
+      }
+    } else {
+      switch (dateTime.day) {
+        case 1:
+        case 21:
+        case 31:
+          dayOfWeek = '${dateTime.day}st';
+          break;
+        case 2:
+        case 22:
+          dayOfWeek = '${dateTime.day}nd';
+          break;
+        case 3:
+        case 23:
+          dayOfWeek = '${dateTime.day}rd';
+          break;
+        default:
+          dayOfWeek = '${dateTime.day}th';
+          break;
+      }
     }
 
     return dayOfWeek;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
-        color: _containerFillColor,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Container(
-            width: 55,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                FutureBuilder<String>(
-                  future: getInitials(widget.report.userID),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error');
-                    } else {
-                      return Text(
-                        snapshot.data ?? '',
-                        style: const TextStyle(
-                            fontSize: _fontSize,
-                            fontWeight: FontWeight.bold,
-                            color: _fontColor),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 55,
-            alignment: Alignment.center,
-            child: Column(children: [
-              Text(widget.report.type == 1 ? '📉' : '📈',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  )),
-            ]),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 70,
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Text(
-                    widget.report.amount.toString(),
-                    style: const TextStyle(
-                        fontSize: _fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: _fontColor),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 105,
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Text(widget.report.category,
-                      style: const TextStyle(
-                          fontSize: _fontSize,
-                          fontWeight: FontWeight.bold,
-                          color: _fontColor)),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            width: 50,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Text(getNameofDayofWeek(widget.report.date),
-                    style: const TextStyle(
-                        fontSize: _fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: _fontColor)),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 }

@@ -336,6 +336,33 @@ class CloudStorageManager {
     return generateUniqueGroupCode();
   }
 
+  Future<Map<String, double>> getReportTotals(groupID) async {
+    try {
+      final response = await _supabase
+          .from('report')
+          .select('amount, type')
+          .eq('id_group', groupID);
+      double totalIncome = 0;
+      double totalExpense = 0;
+      for (var row in response) {
+        if (row['type'] == 0) {
+          totalIncome += row['amount'];
+        } else {
+          totalExpense += row['amount'];
+        }
+      }
+
+      return {
+        'income': totalIncome,
+        'expense': totalExpense,
+        'balance': totalIncome - totalExpense
+      };
+    } catch (error) {
+      print('Error fetching report totals: $error');
+      return {'income': 0.0, 'expense': 0.0, 'balance': 0.0};
+    }
+  }
+
   Future<void> logOut() async {
     _supabase.dispose();
     await _supabase.auth.signOut();

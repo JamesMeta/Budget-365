@@ -5,6 +5,7 @@ import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/design/app_gradient.dart';
+import 'package:budget_365/report/divider_tile_widget.dart';
 
 class HomeWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -29,6 +30,10 @@ class _HomeWidgetState extends State<HomeWidget> {
   static const _labelFontSize = 17.5;
   static const _labelFontColor = Color.fromARGB(255, 255, 255, 255);
   static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
+
+  double _incomeTotal = 0;
+  double _expenseTotal = 0;
+  double _balance = 0;
 
   @override
   void initState() {
@@ -59,7 +64,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   children: [
                     DropDown_CalendarSection(),
                     const SizedBox(height: 5),
-                    TableLabelsSection(),
+                    TableTotalsSection(),
                     TableRowsSection(),
                   ],
                 );
@@ -91,10 +96,10 @@ class _HomeWidgetState extends State<HomeWidget> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(10),
         ),
         width: 200,
-        height: 40,
+        height: 50,
         child: DropdownButton<String>(
           style: const TextStyle(color: Colors.white),
           padding: const EdgeInsets.all(10),
@@ -141,106 +146,97 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget TableLabelsSection() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      width: double.infinity,
-      height: 55,
-      decoration: BoxDecoration(
-        color: _containerFillColor,
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SingleChildScrollView(
-            child: Container(
-              width: 55,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Users",
-                    style: const TextStyle(
-                        fontSize: _labelFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: _labelFontColor),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 55,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+  Widget TableTotalsSection() {
+    return FutureBuilder(
+        future: _getTotals(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                width: double.infinity,
+                height: 75,
+                decoration: BoxDecoration(
+                  color: _containerFillColor,
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: const Center(child: CircularProgressIndicator()));
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return Container(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                width: double.infinity,
+                height: 75,
+                decoration: BoxDecoration(
+                  color: _containerFillColor,
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: Row(
                   children: [
-                    Text("Type",
-                        style: TextStyle(
-                          fontSize: _labelFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: _labelFontColor,
-                        )),
-                  ]),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 70,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Amount",
-                    style: const TextStyle(
-                        fontSize: _labelFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: _labelFontColor),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 105,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text("Category",
-                      style: const TextStyle(
-                          fontSize: _labelFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: _labelFontColor)),
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              width: 50,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text("Date",
-                      style: const TextStyle(
-                          fontSize: _labelFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: _labelFontColor)),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Income',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: _labelFontColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '\$$_incomeTotal',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: const Color.fromARGB(255, 7, 236, 15),
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Expense',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: _labelFontColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '\$$_expenseTotal',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: const Color.fromARGB(255, 194, 72, 72),
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Balance',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: _labelFontColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '\$$_balance',
+                            style: TextStyle(
+                                fontSize: _labelFontSize,
+                                color: _labelFontColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ));
+          }
+        });
   }
 
   Widget TableRowsSection() {
@@ -261,34 +257,63 @@ class _HomeWidgetState extends State<HomeWidget> {
           } else {
             _reports =
                 snapshot.data as List<dynamic>?; // Cast `snapshot.data` safely.
+
+            // Ensure reports are sorted by date in descending order
+            _reports!.sort((a, b) {
+              DateTime dateA = DateTime.parse(a['date']);
+              DateTime dateB = DateTime.parse(b['date']);
+              return dateB.compareTo(dateA); // Descending order
+            });
+
             return ListView.builder(
               padding: EdgeInsets.all(0),
-              itemCount:
-                  _reports?.length ?? 0, // Default to 0 if `reports` is null.
+              itemCount: _reports!.length,
               itemBuilder: (context, index) {
-                final reportData = _reports?[index]
-                    as Map<String, dynamic>?; // Handle potential null.
-                if (reportData == null) {
-                  return const SizedBox.shrink(); // Skip if the data is null.
-                }
-
+                final reportData = _reports![index] as Map<String, dynamic>;
                 final report = Report(
-                  id: reportData['id'] as int? ??
-                      0, // Provide default values if null.
+                  id: reportData['id'] as int? ?? 0,
                   groupID: reportData['id_group'] as int? ?? 0,
                   userID: reportData['id_user'] as int? ?? 0,
                   type: reportData['type'] as int? ?? 0,
-                  amount: reportData['amount'].toDouble() ?? 0.0,
+                  amount: (reportData['amount'] as num?)?.toDouble() ?? 0.0,
                   description:
                       reportData['description'] as String? ?? 'No description',
                   category:
                       reportData['category'] as String? ?? 'Uncategorized',
-                  date: (DateTime.parse(reportData['date'])),
+                  date: DateTime.parse(reportData['date']),
                 );
 
-                return ReportTileWidget(
-                    report: report,
-                    cloudStorageManager: widget.cloudStorageManager);
+                // Determine if a divider is needed
+                bool showDivider = false;
+                if (index == 0) {
+                  showDivider = false; // Show divider for the first item
+                } else {
+                  DateTime currentReportDate = report.date;
+                  DateTime previousReportDate =
+                      DateTime.parse(_reports![index - 1]['date']);
+                  if (currentReportDate.month != previousReportDate.month ||
+                      currentReportDate.year != previousReportDate.year) {
+                    showDivider = true; // Month has changed
+                  }
+                }
+
+                // Build the list of widgets to display
+                List<Widget> widgets = [];
+                if (showDivider) {
+                  widgets.add(DividerTileWidget(
+                    month: report.date.month.toString(),
+                  ));
+                }
+
+                widgets.add(ReportTileWidget(
+                  report: report,
+                  cloudStorageManager: widget.cloudStorageManager,
+                ));
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: widgets,
+                );
               },
             );
           }
@@ -395,5 +420,13 @@ class _HomeWidgetState extends State<HomeWidget> {
         });
       }
     });
+  }
+
+  Future<void> _getTotals() async {
+    final totals =
+        await widget.cloudStorageManager.getReportTotals(_selectedGroupID ?? 0);
+    _incomeTotal = totals['income']!;
+    _expenseTotal = totals['expense']!;
+    _balance = totals['balance']!;
   }
 }

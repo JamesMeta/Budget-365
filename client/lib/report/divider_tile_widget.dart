@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DividerTileWidget extends StatelessWidget {
-  final String week;
-  const DividerTileWidget({super.key, required this.week});
+  final String month;
+  const DividerTileWidget({super.key, required this.month});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-        title: Container(
-      padding: EdgeInsets.only(left: 10),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      width: double.infinity,
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1,
+        color: const Color.fromARGB(255, 121, 121, 121),
+        border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Text(
+                    "The Month of ${DateFormat.MMMM().format(DateTime(0, int.parse(month)))}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
-      child: Text(
-        "Week of $week",
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ));
+    );
   }
 }
