@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:flutter/material.dart';
+import 'package:budget_365/design/app_gradient.dart';
 
 class GroupCreationWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -23,9 +24,43 @@ class GroupCreationWidget extends StatefulWidget {
 class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   String _groupCode = '';
   List<String> _users = [];
+  List<String> _categoryExpense = [
+    '🛒Groceries',
+    '🪟Rent',
+    '💡Utilities',
+    '🏥Health',
+    '📺Entertainment',
+    '🚌Transportation',
+    '*️⃣Miscellaneous'
+  ];
+  List<String> _categoryIncome = [
+    '💵Salary',
+    '🏦Investments',
+    '🎁Gifts',
+    '*️⃣Miscellaneous'
+  ];
 
   TextEditingController _groupNameController = TextEditingController();
   TextEditingController _userEmailController = TextEditingController();
+  TextEditingController _categoryController = TextEditingController();
+
+  Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
+  Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
+
+  double fontSizeInputs = 17;
+  double fontSizeButtons = 25;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.edit) {
+      _groupNameController.text = widget.group?.name;
+      //_users = widget.group?.users;
+      //_categoryExpense = widget.group?.categoriesExpense;
+      //_categoryIncome = widget.group?.categoriesIncome;
+    }
+    getUserEmail();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,26 +69,32 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('Create Group',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold)),
-        centerTitle: true,
+        elevation: 0,
       ),
       body: Stack(
         children: [
-          Gradient(),
+          AppGradient(),
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 120.0, 8.0, 20.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 20.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  TextFieldGroupName(),
+                  LogoSection(),
+                  SizedBox(height: 10),
+                  Title(),
+                  SizedBox(height: 30),
                   GroupCode(),
-                  AddUsersTextField(),
-                  AddUserButton(),
-                  UsersDataTable(),
+                  SizedBox(height: 140),
+                  TextFieldGroupName(),
+                  Row(
+                    children: [
+                      Expanded(child: AddUserButton()),
+                      SizedBox(width: 10),
+                      Expanded(child: AddCategoryButton()),
+                    ],
+                  ),
                   CreateGroupButton(),
                 ],
               ),
@@ -64,19 +105,21 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     );
   }
 
-  Widget Gradient() {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 80, 117, 240),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 80, 117, 240),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      )),
+  Widget LogoSection() {
+    return Image.asset(
+      'assets/images/logo1.png',
+      scale: 2,
+    );
+  }
+
+  Widget Title() {
+    return Text(
+      'Create Report Group',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 30,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 
@@ -86,20 +129,21 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     }
 
     return Container(
+      decoration: BoxDecoration(
+          color: const Color.fromARGB(94, 0, 0, 0),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black, width: 2)),
       child: Column(
         children: [
-          Text('Group Code',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold)),
           Container(
+            height: 55,
+            alignment: Alignment.center,
             child: _groupCode == ''
                 ? FutureBuilder(
                     future: _getGroupCode(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        return Text('$_groupCode',
+                        return Text('Group Code: $_groupCode',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 30,
@@ -108,7 +152,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                         return CircularProgressIndicator();
                       }
                     })
-                : Text('$_groupCode',
+                : Text('Group Code: $_groupCode',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 30,
@@ -119,95 +163,232 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     );
   }
 
-  Widget TextFieldGroupName() {
+  Widget TitleOfTextField() {
     return Container(
-      child: Column(
-        children: [
-          Text('Group Name',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold)),
-          TextField(
-            controller: _groupNameController,
-            decoration: InputDecoration(
-              hintText: 'Enter Group Name',
-              hintStyle: TextStyle(color: Colors.white),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
+      alignment: Alignment.centerLeft,
+      child: Text(
+        "Enter Group Name",
+        style: TextStyle(
+            color: _textFieldFontColor,
+            fontSize: fontSizeButtons,
+            fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  Widget AddUsersTextField() {
+  Widget TextFieldGroupName() {
     return Container(
-      child: Column(
-        children: [
-          Text('Add Users',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold)),
-          TextField(
-            controller: _userEmailController,
-            decoration: InputDecoration(
-              hintText: 'Enter User Email',
-              hintStyle: TextStyle(color: Colors.white),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-            ),
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: TextField(
+        controller: _groupNameController,
+        keyboardType: TextInputType.number,
+        style: TextStyle(
+            color: _textFieldFontColor,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: "Enter Group Name",
+          labelStyle: TextStyle(
+              color: _textFieldFontColor,
+              fontSize: fontSizeInputs,
+              fontWeight: FontWeight.bold),
+          // Set border for different states
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: _textFieldBorderColor,
+                width: 2), // Border color when enabled
+            borderRadius: BorderRadius.circular(25.7),
           ),
-        ],
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: _textFieldBorderColor,
+                width: 2), // Border color when focused
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: _textFieldFontColor,
+                width: 2), // Border color in general
+            borderRadius: BorderRadius.circular(25.7),
+          ),
+          fillColor: Colors.transparent,
+          filled: true,
+        ),
       ),
     );
   }
 
   Widget AddUserButton() {
-    return ElevatedButton(
-      onPressed: _addUser,
-      child: Text('Add User'),
+    return Container(
+      height: 60,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        onPressed: _addUser,
+        child: Text(
+          'Add User',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget AddCategoryButton() {
+    return Container(
+      height: 60,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        onPressed: _addCategory,
+        child: Text(
+          'Add Category',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeInputs,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 
   Widget UsersDataTable() {
-    return DataTable(
-      columns: [
-        DataColumn(label: Text('User Email')),
-        DataColumn(label: Text('Remove')),
-      ],
-      rows: _users
-          .map((user) => DataRow(
-                cells: [
-                  DataCell(Text(user)),
-                  DataCell(IconButton(
-                    icon: Icon(Icons.remove),
-                    onPressed: () {
-                      setState(() {
-                        _users.remove(user);
-                      });
-                    },
-                  )),
-                ],
-              ))
-          .toList(),
+    return Container(
+      height: 300,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columnSpacing: 10,
+          columns: [
+            DataColumn(label: Text('User Email')),
+            DataColumn(label: Text('Remove')),
+          ],
+          rows: _users
+              .map((user) => DataRow(
+                    cells: [
+                      DataCell(Text(user)),
+                      DataCell(IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          setState(() {
+                            _users.remove(user);
+                          });
+                        },
+                      )),
+                    ],
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget CategoryDataTable() {
+    return Container(
+      height: 300,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columnSpacing: 20,
+          columns: [
+            DataColumn(label: Text('Category')),
+            DataColumn(label: Text('Type')),
+            DataColumn(label: Text('Remove')),
+          ],
+          rows: _categoryExpense
+                  .map((category) => DataRow(
+                        cells: [
+                          DataCell(Text(category)),
+                          DataCell(Text('Expense')),
+                          DataCell(IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                _categoryExpense.remove(category);
+                              });
+                            },
+                          )),
+                        ],
+                      ))
+                  .toList() +
+              _categoryIncome
+                  .map((category) => DataRow(
+                        cells: [
+                          DataCell(Text(category)),
+                          DataCell(Text('Income')),
+                          DataCell(IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                _categoryIncome.remove(category);
+                              });
+                            },
+                          )),
+                        ],
+                      ))
+                  .toList(),
+        ),
+      ),
     );
   }
 
   Widget CreateGroupButton() {
-    return ElevatedButton(
-      onPressed: _createGroup,
-      child: Text('Create Group'),
+    return Container(
+      width: double.infinity,
+      height: 80,
+      margin: EdgeInsets.only(top: 20),
+      child: ElevatedButton(
+        onPressed: () async {
+          int response = await _createGroup();
+          if (response == 0) {
+            Navigator.pop(context, response);
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Error"),
+                    content: Text("Please fill out all fields"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          }
+        },
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        child: Text(
+          "Submit",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeButtons,
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 
@@ -221,13 +402,206 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   }
 
   void _addUser() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        List<String> dialogUsers = List.from(_users);
+        TextEditingController dialogUserEmailController =
+            TextEditingController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              scrollable: true,
+              title: Text("Add User"),
+              content: Container(
+                height: 200,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 150,
+                      child: SingleChildScrollView(
+                        child: DataTable(
+                          columnSpacing: 10,
+                          columns: [
+                            DataColumn(label: Text('User Email')),
+                            DataColumn(label: Text('Remove')),
+                          ],
+                          rows: dialogUsers
+                              .map((user) => DataRow(
+                                    cells: [
+                                      DataCell(Text(user)),
+                                      DataCell(IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () {
+                                          setState(() {
+                                            dialogUsers.remove(user);
+                                          });
+                                        },
+                                      )),
+                                    ],
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                    TextField(
+                      controller: dialogUserEmailController,
+                      decoration: InputDecoration(hintText: "Enter User Email"),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      dialogUsers.add(dialogUserEmailController.text);
+                      dialogUserEmailController.clear();
+                    });
+                  },
+                  child: Text("Add"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _users = List.from(dialogUsers);
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text("Done"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _addCategory() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        List<String> dialogCategoryExpense = List.from(_categoryExpense);
+        List<String> dialogCategoryIncome = List.from(_categoryIncome);
+        TextEditingController dialogCategoryController =
+            TextEditingController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              scrollable: true,
+              title: Text("Add Category"),
+              content: Container(
+                height: 300,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 200,
+                      child: SingleChildScrollView(
+                        child: DataTable(
+                          columnSpacing: 20,
+                          columns: [
+                            DataColumn(label: Text('Category')),
+                            DataColumn(label: Text('Type')),
+                            DataColumn(label: Text('')),
+                          ],
+                          rows: dialogCategoryExpense
+                                  .map((category) => DataRow(
+                                        cells: [
+                                          DataCell(Text(category)),
+                                          DataCell(Text('Expense')),
+                                          DataCell(IconButton(
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () {
+                                              setState(() {
+                                                dialogCategoryExpense
+                                                    .remove(category);
+                                              });
+                                            },
+                                          )),
+                                        ],
+                                      ))
+                                  .toList() +
+                              dialogCategoryIncome
+                                  .map((category) => DataRow(
+                                        cells: [
+                                          DataCell(Text(category)),
+                                          DataCell(Text('Income')),
+                                          DataCell(IconButton(
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () {
+                                              setState(() {
+                                                dialogCategoryIncome
+                                                    .remove(category);
+                                              });
+                                            },
+                                          )),
+                                        ],
+                                      ))
+                                  .toList(),
+                        ),
+                      ),
+                    ),
+                    TextField(
+                      controller: dialogCategoryController,
+                      decoration: InputDecoration(hintText: "Enter Category"),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      dialogCategoryExpense.add(dialogCategoryController.text);
+                      dialogCategoryController.clear();
+                    });
+                  },
+                  child: Text("Add Expense"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      dialogCategoryIncome.add(dialogCategoryController.text);
+                      dialogCategoryController.clear();
+                    });
+                  },
+                  child: Text("Add Income"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _categoryExpense = List.from(dialogCategoryExpense);
+                      _categoryIncome = List.from(dialogCategoryIncome);
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text("Done"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> getUserEmail() async {
+    final email = await widget.cloudStorageManager.getEmail(widget.userID);
     setState(() {
-      _users.add(_userEmailController.text);
+      _users.add(email);
     });
   }
 
-  void _createGroup() {
-    widget.cloudStorageManager.createGroup(
-        _groupCode, _groupNameController.text, _users, widget.userID);
+  Future<int> _createGroup() async {
+    if (_groupNameController.text == '') {
+      return 1;
+    }
+    await widget.cloudStorageManager
+        .createGroup(_groupCode, _groupNameController.text, _users);
+
+    return 0;
   }
 }

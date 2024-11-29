@@ -241,8 +241,8 @@ class CloudStorageManager {
   }
 
   // Method to create a new group
-  Future<void> createGroup(String groupCode, String groupName,
-      List<String> Users, int userLoggedIn) async {
+  Future<void> createGroup(
+      String groupCode, String groupName, List<String> Users) async {
     try {
       final response = await _supabase
           .from('group')
@@ -255,8 +255,6 @@ class CloudStorageManager {
 
       final groupId = response['id'] as int;
       print('Group created successfully with ID: $groupId');
-
-      await createUserGroup(userLoggedIn, groupId);
 
       for (String user in Users) {
         try {

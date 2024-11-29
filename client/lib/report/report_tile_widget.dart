@@ -129,7 +129,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
 
   Widget DateSection() {
     return Container(
-      width: 100,
+      width: 55,
       alignment: Alignment.center,
       child: Column(
         children: [
@@ -171,7 +171,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
     if (daysDifference == 0) {
       return 'Today';
     } else if (daysDifference == 1) {
-      return 'Yesterday';
+      return 'Yest';
     } else if (daysDifference < 7) {
       switch (dateTime.weekday) {
         case 1:
