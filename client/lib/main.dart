@@ -4,11 +4,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/home/budget_365_widget.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:budget_365/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase
+  //Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  //Initialize Supabase
   await Supabase.initialize(
     url: 'https://wywwdptapooirphafrqa.supabase.co',
     anonKey:
