@@ -93,35 +93,32 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
 
   Widget PlusButtonSectionGroup() {
     return Positioned(
-      right: 20,
-      bottom: 100,
-      child: Container(
-        width: 70, // Set size of the container
-        height: 70, // Set size of the container
-        decoration: BoxDecoration(
-          color: Colors.white, // Background color
-          shape: BoxShape.circle, // Circular shape Optional: add border
-          border: Border.all(
-            color: Colors.black, // Border color
-            width: 1, // Border width
+        right: 20,
+        bottom: 100,
+        child: Container(
+          width: 70,
+          height: 70,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.black,
+              width: 1, // Border width
+            ),
           ),
-        ),
-        child: IconButton(
-          onPressed: _goToGroupBuilder,
-          icon: const Icon(
-            Icons.add, // Use a plus icon
-            color: Color.fromARGB(255, 71, 162, 236), // Icon color
-            size: 55, // Adjust size to fit well
+          child: IconButton(
+            onPressed: _goToGroupBuilder,
+            icon: const Icon(
+              Icons.add, // Use a plus icon
+              color: Color.fromARGB(255, 71, 162, 236),
+              size: 55, // Adjust size to fit well
+            ),
+            padding: EdgeInsets.zero, // Remove padding
+            constraints: const BoxConstraints(),
+            splashColor: Colors.blue.withOpacity(0.4),
+            highlightColor: Colors.white.withOpacity(0.3),
           ),
-          padding: EdgeInsets.zero, // Remove padding
-          constraints: const BoxConstraints(), // No constraints
-          splashColor:
-              Colors.blue.withOpacity(0.4), // Splash color for feedback
-          highlightColor:
-              Colors.white.withOpacity(0.3), // Highlight color for feedback
-        ),
-      ),
-    );
+        ));
   }
 
   void _showSnackbar(BuildContext context) {
@@ -130,7 +127,6 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
       duration: Duration(seconds: 2),
     );
 
-    // Display the snackbar
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -145,9 +141,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(context);
-        setState(() {
-          // You can update any state variables here, even if you don't actually change anything.
-        });
+        setState(() {});
       }
     });
   }
@@ -165,9 +159,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(context);
-        setState(() {
-          // You can update any state variables here, even if you don't actually change anything.
-        });
+        setState(() {});
       }
     });
   }

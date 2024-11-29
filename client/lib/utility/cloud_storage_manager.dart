@@ -6,14 +6,13 @@ import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
 
-// Class to manage cloud storage operations using Supabase
 class CloudStorageManager {
   final SupabaseClient _supabase;
 
-  // Constructor that takes the Supabase client as a parameter
+  //constructor takes the Supabase client as a parameter
   CloudStorageManager(this._supabase);
 
-  // Method to create a new account
+  //method to create a new account
   Future<int> createAccount(
       String password, String accountName, String email) async {
     try {
@@ -42,7 +41,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to log in a user
+  //login method
   Future<int> login(String email, String password) async {
     try {
       final loginResponse = await _supabase.auth
@@ -93,14 +92,14 @@ class CloudStorageManager {
     }
   }
 
-  // Method to check if an email is already registered
+  //this method checks if an email is already used
   Future<bool> isEmailRegistered(String email) async {
     try {
       final response = await _supabase
           .from('account')
           .select()
           .eq('email', email)
-          .maybeSingle(); // Fetches a single matching record, or null if none
+          .maybeSingle(); //fetches a single matching record, or na if none
 
       return response != null;
     } catch (error) {
@@ -109,7 +108,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get user groups by user ID
+  //method to retrieve user groups by user ID
   Future<List<UserGroups>?> getUserGroups(int userID) async {
     try {
       final response =
@@ -130,7 +129,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get groups by user ID
+  //method to get groups by user ID
   Future<List<Group>> getGroups(int userID) async {
     try {
       // Fetch group data with associated user IDs in one query
@@ -153,7 +152,6 @@ class CloudStorageManager {
 
       return groups;
     } catch (error) {
-      // Better error handling (e.g., logging or rethrowing)
       print('Error fetching groups: $error');
       return [];
     }
@@ -164,7 +162,7 @@ class CloudStorageManager {
     return controller;
   }
 
-  // Method to get a stream of reports by group ID
+  //method to get a stream of reports by group ID
   SupabaseStreamBuilder getReportsStream(int groupID) {
     final controller = _supabase
         .from('report')
@@ -174,7 +172,7 @@ class CloudStorageManager {
     return controller;
   }
 
-  // Method to get username by user ID
+  //method to get username by user ID
   Future<String> getUsername(int userID) async {
     try {
       final response = await _supabase
@@ -189,7 +187,7 @@ class CloudStorageManager {
     }
   }
 
-  // Medthod to get email by user ID
+  //medthod to get email by user ID
   Future<String> getEmail(int userID) async {
     try {
       final response = await _supabase
@@ -204,7 +202,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to fetch all users
+  //method to fetch all users
   Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     try {
       final response =
@@ -221,7 +219,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get a list of categories by group ID
+  //method to get a list of categories by group ID
   Future<List<String>> getCategoryList(int GroupID) async {
     try {
       final response = await _supabase
@@ -240,7 +238,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a new group
+  //method to create a new group
   Future<void> createGroup(
       String groupCode, String groupName, List<String> Users) async {
     try {
@@ -274,7 +272,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a user group
+  //method to create a user group
   Future<bool> createUserGroup(int userId, int groupId) async {
     try {
       final response = await _supabase.from('user_groups').insert({
@@ -291,7 +289,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a report
+  //method to create a report
   Future<void> createReport({
     required double amount,
     required String description,
