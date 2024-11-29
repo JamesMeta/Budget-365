@@ -172,6 +172,34 @@ class CloudStorageManager {
     return controller;
   }
 
+  Future<List<Report>> getReports(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('report')
+          .select()
+          .eq('id_group', groupID)
+          .order('date', ascending: false);
+
+      final reports = response.map<Report>((row) {
+        return Report(
+          id: row['id'] as int,
+          amount: row['amount'] as double,
+          description: row['description'] as String,
+          category: row['category'] as String,
+          groupID: row['id_group'] as int,
+          userID: row['id_user'] as int,
+          date: DateTime.parse(row['date'] as String),
+          type: row['type'] as int,
+        );
+      }).toList();
+
+      return reports;
+    } catch (error) {
+      print('Error fetching reports: $error');
+      return [];
+    }
+  }
+
   //method to get username by user ID
   Future<String> getUsername(int userID) async {
     try {
