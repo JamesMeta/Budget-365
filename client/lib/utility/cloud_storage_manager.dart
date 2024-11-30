@@ -5,15 +5,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
+import 'package:budget_365/notifications/local_notifications.dart';
 
-// Class to manage cloud storage operations using Supabase
 class CloudStorageManager {
   final SupabaseClient _supabase;
+  final LocalNotificationsManager _notificationsManager;
 
-  // Constructor that takes the Supabase client as a parameter
-  CloudStorageManager(this._supabase);
+  //constructor takes the Supabase client as a parameter
+  CloudStorageManager(this._supabase, this._notificationsManager);
 
-  // Method to create a new account
+  //method to create a new account
   Future<int> createAccount(
       String password, String accountName, String email) async {
     try {
@@ -42,7 +43,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to log in a user
+  //login method
   Future<int> login(String email, String password) async {
     try {
       final loginResponse = await _supabase.auth
@@ -62,6 +63,14 @@ class CloudStorageManager {
         return -1;
       }
 
+      //notify the user that they have successfully logged-in
+      await _notificationsManager.showNotification(
+          title: 'Login Successful',
+          body: 'Welcome! You are now signed-in with Budget-365.',
+          channelId: 'auth_channel',
+          channelName: 'Authentication Notifications',
+          channelDescription: 'Notificatons for Login/Logout');
+
       return response['id'] as int;
     } catch (error) {
       print('Error logging in: $error');
@@ -69,9 +78,22 @@ class CloudStorageManager {
     }
   }
 
+  //method for logging-out the user
   Future<bool> logout() async {
     try {
       await _supabase.auth.signOut();
+
+      //sends the user a push notification to let them know they have logged-out
+      //Important! This only occurs if the user is signed-out from the Supabase cloud storage
+
+      await _notificationsManager.showNotification(
+          title: 'Logout Successful',
+          body: 'You are now signed out of Budget-365',
+          channelId: 'auth_channel',
+          channelName: 'Authentication Notifications',
+          channelDescription: 'Notificatons for Login/Logout');
+
+      //once the user has been logged-out from cloud storage, the function can return
       return true;
     } catch (error) {
       print('Error logging out: $error');
@@ -81,7 +103,7 @@ class CloudStorageManager {
 
   Future<bool> isLoggedIn() async {
     try {
-      final response = await _supabase.auth.currentSession;
+      final response = _supabase.auth.currentSession;
       if (response != null && response.user.id.isNotEmpty) {
         print("user is logged in");
         return true;
@@ -93,14 +115,14 @@ class CloudStorageManager {
     }
   }
 
-  // Method to check if an email is already registered
+  //this method checks if an email is already used
   Future<bool> isEmailRegistered(String email) async {
     try {
       final response = await _supabase
           .from('account')
           .select()
           .eq('email', email)
-          .maybeSingle(); // Fetches a single matching record, or null if none
+          .maybeSingle(); //fetches a single matching record, or na if none
 
       return response != null;
     } catch (error) {
@@ -109,7 +131,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get user groups by user ID
+  //method to retrieve user groups by user ID
   Future<List<UserGroups>?> getUserGroups(int userID) async {
     try {
       final response =
@@ -130,7 +152,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get groups by user ID
+  //method to get groups by user ID
   Future<List<Group>> getGroups(int userID) async {
     try {
       // Fetch group data with associated user IDs in one query
@@ -153,7 +175,6 @@ class CloudStorageManager {
 
       return groups;
     } catch (error) {
-      // Better error handling (e.g., logging or rethrowing)
       print('Error fetching groups: $error');
       return [];
     }
@@ -191,7 +212,7 @@ class CloudStorageManager {
     return controller;
   }
 
-  // Method to get a stream of reports by group ID
+  //method to get a stream of reports by group ID
   SupabaseStreamBuilder getReportsStream(int groupID) {
     final controller = _supabase
         .from('report')
@@ -201,7 +222,35 @@ class CloudStorageManager {
     return controller;
   }
 
-  // Method to get username by user ID
+  Future<List<Report>> getReports(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('report')
+          .select()
+          .eq('id_group', groupID)
+          .order('date', ascending: false);
+
+      final reports = response.map<Report>((row) {
+        return Report(
+          id: row['id'] as int,
+          amount: row['amount'] as double,
+          description: row['description'] as String,
+          category: row['category'] as String,
+          groupID: row['id_group'] as int,
+          userID: row['id_user'] as int,
+          date: DateTime.parse(row['date'] as String),
+          type: row['type'] as int,
+        );
+      }).toList();
+
+      return reports;
+    } catch (error) {
+      print('Error fetching reports: $error');
+      return [];
+    }
+  }
+
+  //method to get username by user ID
   Future<String> getUsername(int userID) async {
     try {
       final response = await _supabase
@@ -216,7 +265,7 @@ class CloudStorageManager {
     }
   }
 
-  // Medthod to get email by user ID
+  //medthod to get email by user ID
   Future<String> getEmail(int userID) async {
     try {
       final response = await _supabase
@@ -231,7 +280,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to fetch all users
+  //method to fetch all users
   Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     try {
       final response =
@@ -248,7 +297,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to get a list of categories by group ID
+  //method to get a list of categories by group ID
   Future<List<String>> getCategoryList(int GroupID) async {
     try {
       final response = await _supabase
@@ -267,7 +316,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a new group
+  //method to create a new group
   Future<void> createGroup(
       String groupCode, String groupName, List<String> Users) async {
     try {
@@ -282,6 +331,12 @@ class CloudStorageManager {
 
       final groupId = response['id'] as int;
       print('Group created successfully with ID: $groupId');
+
+      //connection with notifications/local_notifications.dart to alert the user that the group creation was successful
+      await _notificationsManager.showNotification(
+        title: 'Group Created',
+        body: 'The group $groupName has been created!',
+      );
 
       for (String user in Users) {
         try {
@@ -301,7 +356,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a user group
+  //method to create a user group
   Future<bool> createUserGroup(int userId, int groupId) async {
     try {
       final response = await _supabase.from('user_groups').insert({
@@ -318,7 +373,7 @@ class CloudStorageManager {
     }
   }
 
-  // Method to create a report
+  //method to create a report
   Future<void> createReport({
     required double amount,
     required String description,
@@ -339,6 +394,15 @@ class CloudStorageManager {
         'type': type,
       });
       print('Report created successfully');
+
+      //alert user that the report was uploaded
+      await _notificationsManager.showNotification(
+        title: 'Report Created',
+        body: 'Your report has been uploaded!',
+        channelId: 'report_channel',
+        channelName: 'Report Notifications',
+        channelDescription: 'Notifications for report-related updates',
+      );
     } catch (error) {
       print('Error creating report: $error');
     }

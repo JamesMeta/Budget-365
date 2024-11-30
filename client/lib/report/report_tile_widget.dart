@@ -87,7 +87,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
         alignment: Alignment.center,
         child: Column(
           children: [
-            Text(widget.report.category + ":",
+            Text("${widget.report.category}:",
                 style: const TextStyle(
                     fontSize: _fontSize,
                     fontWeight: FontWeight.bold,
