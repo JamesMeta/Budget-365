@@ -83,7 +83,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
   Widget CategorySection() {
     return SingleChildScrollView(
       child: Container(
-        width: 105,
+        width: 160,
         alignment: Alignment.center,
         child: Column(
           children: [
