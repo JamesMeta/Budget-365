@@ -35,7 +35,10 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   late final List<Group> _groups;
 
-  List<String> _categories = [];
+  Map<String, List<String>> _categories = {
+    'income': [],
+    'expense': [],
+  };
 
   _ReportCreationWidgetState(selectedGroup, groups) {
     _selectedGroup = selectedGroup;
@@ -132,7 +135,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         Container(
           decoration: BoxDecoration(
               border: Border.all(
-                  color: _selectedType == 'Income'
+                  color: _selectedType == 'income'
                       ? const Color.fromARGB(255, 107, 248, 112)
                       : Colors.transparent,
                   width: 2.5),
@@ -148,7 +151,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             child: Text(
               "Income",
               style: TextStyle(
-                  color: _selectedType == 'Income'
+                  color: _selectedType == 'income'
                       ? const Color.fromARGB(255, 107, 248, 112)
                       : Colors.white,
                   fontSize: fontSizeButtons,
@@ -160,7 +163,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         Container(
           decoration: BoxDecoration(
               border: Border.all(
-                  color: _selectedType == 'Expense'
+                  color: _selectedType == 'expense'
                       ? const Color.fromARGB(255, 0, 238, 255)
                       : Colors.transparent,
                   width: 2.5),
@@ -176,7 +179,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             child: Text(
               "Expense",
               style: TextStyle(
-                  color: _selectedType == 'Expense'
+                  color: _selectedType == 'expense'
                       ? const Color.fromARGB(255, 0, 238, 255)
                       : Colors.white,
                   fontSize: fontSizeButtons,
@@ -204,6 +207,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                 height: 56,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
+                  color: const Color.fromARGB(94, 117, 117, 117),
                   border: Border.all(color: _textFieldBorderColor, width: 2),
                   borderRadius: BorderRadius.circular(26.7),
                 ),
@@ -224,6 +228,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           height: 56,
           alignment: Alignment.center,
           decoration: BoxDecoration(
+            color: const Color.fromARGB(94, 117, 117, 117),
             border: Border.all(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(26.7),
           ),
@@ -239,7 +244,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget CategoryInput() {
-    if (_categories.isEmpty || _needsRefresh) {
+    if ((_categories['income']!.isEmpty && _categories['expense']!.isEmpty) ||
+        _needsRefresh) {
       _needsRefresh = false;
       return FutureBuilder(
           future: _FetchCategories(),
@@ -277,12 +283,29 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       _selectedCategory = value;
                     });
                   },
-                  items: _categories.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  items: (() {
+                    if (_selectedType.isNotEmpty) {
+                      List<String> categoryList =
+                          _categories[_selectedType] ?? [];
+                      return categoryList.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList();
+                    } else {
+                      List<String> allCategories = [];
+                      _categories.forEach((key, list) {
+                        allCategories.addAll(list);
+                      });
+                      return allCategories.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList();
+                    }
+                  })(),
                 ),
               );
             } else {
@@ -318,12 +341,29 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               _selectedCategory = value;
             });
           },
-          items: _categories.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
+          items: (() {
+            if (_selectedType.isNotEmpty) {
+              List<String> categoryList =
+                  _categories[_selectedType.toLowerCase()] ?? [];
+              return categoryList.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList();
+            } else {
+              List<String> allCategories = [];
+              _categories.forEach((key, list) {
+                allCategories.addAll(list);
+              });
+              return allCategories.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList();
+            }
+          })(),
         ),
       );
     }
@@ -568,13 +608,13 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   void _addIncome() {
     setState(() {
-      _selectedType = 'Income';
+      _selectedType = 'income';
     });
   }
 
   void _addExpense() {
     setState(() {
-      _selectedType = 'Expense';
+      _selectedType = 'expense';
     });
   }
 
@@ -603,7 +643,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     }
   }
 
-  Future<List<String>> _FetchCategories() async {
+  Future<Map<String, List<String>>> _FetchCategories() async {
     int groupID =
         _groups.firstWhere((group) => group.name == _selectedGroup).id;
     _categories = await widget.cloudStorageManager.getCategoryList(groupID);
@@ -622,7 +662,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
     int groupID =
         _groups.firstWhere((group) => group.name == _selectedGroup).id;
-    int type = _selectedType == 'Income' ? 0 : 1;
+    int type = _selectedType == 'income' ? 0 : 1;
     double amount = double.parse(_amountController.text);
     String description = _descriptionController.text;
     String category = _selectedCategory!;

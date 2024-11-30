@@ -86,7 +86,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                   Title(),
                   SizedBox(height: 30),
                   GroupCode(),
-                  SizedBox(height: 140),
+                  SizedBox(height: 10),
                   TextFieldGroupName(),
                   Row(
                     children: [
@@ -95,6 +95,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                       Expanded(child: AddCategoryButton()),
                     ],
                   ),
+                  SizedBox(height: 130),
                   CreateGroupButton(),
                 ],
               ),
@@ -599,8 +600,8 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     if (_groupNameController.text == '') {
       return 1;
     }
-    await widget.cloudStorageManager
-        .createGroup(_groupCode, _groupNameController.text, _users);
+    await widget.cloudStorageManager.createGroup(_groupCode,
+        _groupNameController.text, _users, _categoryIncome, _categoryExpense);
 
     return 0;
   }

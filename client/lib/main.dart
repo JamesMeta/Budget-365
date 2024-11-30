@@ -15,7 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "assets/keys/env");
 
   // Extract Firebase keys from .env
   DefaultFirebaseOptions.initialize(

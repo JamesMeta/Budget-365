@@ -276,27 +276,34 @@ class CloudStorageManager {
   }
 
   //method to get a list of categories by group ID
-  Future<List<String>> getCategoryList(int GroupID) async {
+  Future<Map<String, List<String>>> getCategoryList(int GroupID) async {
     try {
       final response = await _supabase
           .from('category')
-          .select('name')
+          .select('name, type')
           .eq('id_group', GroupID);
 
-      final List<String> categories = [];
+      final Map<String, List<String>> categories = {
+        'income': [],
+        'expense': [],
+      };
       for (var row in response) {
-        categories.add(row['name'] as String);
+        categories[row['type'] == 0 ? 'income' : 'expense']?.add(row['name']);
       }
       return categories;
     } catch (error) {
       print('Error fetching categories: $error');
-      return [];
+      return {'income': [], 'expense': []};
     }
   }
 
   //method to create a new group
   Future<void> createGroup(
-      String groupCode, String groupName, List<String> Users) async {
+      String groupCode,
+      String groupName,
+      List<String> Users,
+      List<String> incomeCategories,
+      List<String> expenseCategories) async {
     try {
       final response = await _supabase
           .from('group')
@@ -316,6 +323,33 @@ class CloudStorageManager {
         body: 'The group $groupName has been created!',
       );
 
+      // Create income categories
+      for (String category in incomeCategories) {
+        try {
+          await _supabase.from('category').insert({
+            'name': category,
+            'id_group': groupId,
+            'type': 0,
+          });
+        } catch (error) {
+          print('Error creating income category: $error');
+        }
+      }
+
+      // Create expense categories
+      for (String category in expenseCategories) {
+        try {
+          await _supabase.from('category').insert({
+            'name': category,
+            'id_group': groupId,
+            'type': 1,
+          });
+        } catch (error) {
+          print('Error creating expense category: $error');
+        }
+      }
+
+      // Create user groups
       for (String user in Users) {
         try {
           final response = await _supabase
