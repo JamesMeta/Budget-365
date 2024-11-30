@@ -10,8 +10,9 @@ class ReportCreationWidget extends StatefulWidget {
   final List<Group> groups;
   final int userID;
 
-  ReportCreationWidget(
-      {required this.cloudStorageManager,
+  const ReportCreationWidget(
+      {super.key,
+      required this.cloudStorageManager,
       required this.selectedGroup,
       required this.groups,
       required this.userID});
@@ -22,9 +23,9 @@ class ReportCreationWidget extends StatefulWidget {
 }
 
 class _ReportCreationWidgetState extends State<ReportCreationWidget> {
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _amountController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedGroup;
@@ -42,8 +43,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     _dateController.text = DateTime.now().toString().split(' ')[0];
   }
 
-  Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
-  Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
+  final Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
+  final Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
@@ -369,7 +370,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget DateInputSelect() {
-    return Container(
+    return SizedBox(
       width: 190,
       height: 56,
       child: TextField(
@@ -414,7 +415,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget AmountInput() {
-    return Container(
+    return SizedBox(
       width: 390,
       height: 56,
       child: TextField(
@@ -457,7 +458,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget DescriptionInput() {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 300,
       child: TextField(
@@ -577,6 +578,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     });
   }
 
+  @override
   void dispose() {
     _dateController.dispose();
     super.dispose();

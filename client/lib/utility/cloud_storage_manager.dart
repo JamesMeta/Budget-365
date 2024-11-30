@@ -5,12 +5,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
+import 'package:budget_365/notifications/local_notifications.dart';
 
 class CloudStorageManager {
   final SupabaseClient _supabase;
+  final LocalNotificationsManager _notificationsManager;
 
   //constructor takes the Supabase client as a parameter
-  CloudStorageManager(this._supabase);
+  CloudStorageManager(this._supabase, this._notificationsManager);
 
   //method to create a new account
   Future<int> createAccount(
@@ -61,6 +63,14 @@ class CloudStorageManager {
         return -1;
       }
 
+      //notify the user that they have successfully logged-in
+      await _notificationsManager.showNotification(
+          title: 'Login Successful',
+          body: 'Welcome! You are now signed-in with Budget-365.',
+          channelId: 'auth_channel',
+          channelName: 'Authentication Notifications',
+          channelDescription: 'Notificatons for Login/Logout');
+
       return response['id'] as int;
     } catch (error) {
       print('Error logging in: $error');
@@ -68,9 +78,22 @@ class CloudStorageManager {
     }
   }
 
+  //method for logging-out the user
   Future<bool> logout() async {
     try {
       await _supabase.auth.signOut();
+
+      //sends the user a push notification to let them know they have logged-out
+      //Important! This only occurs if the user is signed-out from the Supabase cloud storage
+
+      await _notificationsManager.showNotification(
+          title: 'Logout Successful',
+          body: 'You are now signed out of Budget-365',
+          channelId: 'auth_channel',
+          channelName: 'Authentication Notifications',
+          channelDescription: 'Notificatons for Login/Logout');
+
+      //once the user has been logged-out from cloud storage, the function can return
       return true;
     } catch (error) {
       print('Error logging out: $error');
@@ -80,7 +103,7 @@ class CloudStorageManager {
 
   Future<bool> isLoggedIn() async {
     try {
-      final response = await _supabase.auth.currentSession;
+      final response = _supabase.auth.currentSession;
       if (response != null && response.user.id.isNotEmpty) {
         print("user is logged in");
         return true;
@@ -282,6 +305,12 @@ class CloudStorageManager {
       final groupId = response['id'] as int;
       print('Group created successfully with ID: $groupId');
 
+      //connection with notifications/local_notifications.dart to alert the user that the group creation was successful
+      await _notificationsManager.showNotification(
+        title: 'Group Created',
+        body: 'The group $groupName has been created!',
+      );
+
       for (String user in Users) {
         try {
           final response = await _supabase
@@ -338,6 +367,15 @@ class CloudStorageManager {
         'type': type,
       });
       print('Report created successfully');
+
+      //alert user that the report was uploaded
+      await _notificationsManager.showNotification(
+        title: 'Report Created',
+        body: 'Your report has been uploaded!',
+        channelId: 'report_channel',
+        channelName: 'Report Notifications',
+        channelDescription: 'Notifications for report-related updates',
+      );
     } catch (error) {
       print('Error creating report: $error');
     }
