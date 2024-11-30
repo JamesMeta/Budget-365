@@ -1,8 +1,18 @@
+import 'package:budget_365/report/report.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:budget_365/design/app_gradient.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
+import 'package:budget_365/group/group.dart';
 
 class DataVisualizationWidget extends StatefulWidget {
-  const DataVisualizationWidget({super.key});
+  final CloudStorageManager cloudStorageManager;
+  final int userLoggedIn;
+  DataVisualizationWidget({
+    required this.cloudStorageManager,
+    required this.userLoggedIn,
+  });
 
   @override
   State<DataVisualizationWidget> createState() =>
@@ -10,22 +20,16 @@ class DataVisualizationWidget extends StatefulWidget {
 }
 
 class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
-  final List<double> data = [1000, 1200, 80, -1200, -75, -213, -12];
+  List<double> data = [];
+  List<Group> _groups = [];
+  List<Report> _reports = [];
+  String? _selectedGroupItem;
+  int? _selectedGroupID;
   int _selectedNavigationalIndex = 0;
+  String? selectedGroup;
+  final List<String> items = ['thing1','thing2','thing3'];
+  final List<String> graphType = ['Line Graph','Bar Graph','Pie Chart'];
 
-  @override
-  void initState() {
-    super.initState();
-    // Schedule the dialog to show after the current build phase is complete
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ThisFeatureHasNotBeenImplemented();
-        },
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +39,46 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Data Visualization'),
+        title: Text('Data Visualization',
+          style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
       ),
       body: Stack(
         children: [
-          Gradient(),
-          _widgetOptions().elementAt(_selectedNavigationalIndex),
+          const AppGradient(),
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(8, 80, 8, 8),
+                child: ScreenAspectRatio(),
+              ),
+              FutureBuilder(future: _getGroups(), 
+                  builder: (context, snapshot){
+                    if(snapshot.connectionState == ConnectionState.waiting){
+                      return const Stack(
+                        children: [
+                          CircularProgressIndicator(),
+                          AppGradient(),
+                        ],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (snapshot.connectionState == ConnectionState.done) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GroupInput(),
+                          SizedBox(width: 5,),
+                          GraphTypeMenu(),
+                        ],
+                      );
+                    }
+                    return SizedBox();
+                  }),
+            ],
+          )
         ],
       ),
     );
@@ -50,17 +88,32 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     return [LineChartScreen(), BarChartScreen(), PieChartScreen()];
   }
 
+  Widget ScreenAspectRatio(){
+    return AspectRatio(
+      aspectRatio: 0.8,
+      child: _widgetOptions().elementAt(_selectedNavigationalIndex),
+    );
+  }
+
   Widget LineChartScreen() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
+    return Container(
+      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
+      padding: const EdgeInsets.fromLTRB(10, 60, 10, 20),
       child: LineChart(LineChartData(
         gridData: FlGridData(show: true),
         titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
+            sideTitles: SideTitles(showTitles: false),
           ),
           leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
+            sideTitles: SideTitles(showTitles: false),
           ),
         ),
         borderData: FlBorderData(show: true),
@@ -117,61 +170,122 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-  Widget BottomNavigationBarSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.black, width: 1)),
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.grey,
-        unselectedItemColor: Colors.white,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        currentIndex: _selectedNavigationalIndex,
-        onTap: _onTapedNavigation,
-        iconSize: 40,
-        elevation: 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: IconButton(onPressed: () {}, icon: Icon(Icons.bar_chart)),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: IconButton(onPressed: () {}, icon: Icon(Icons.group)),
-            label: '',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget Gradient() {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 80, 117, 240),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 80, 117, 240),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      )),
-    );
-  }
 
   List<FlSpot> _convertToSpots(List<double> data) {
+    // _getReports();
+    print(_groups);
     return List.generate(
-      data.length,
-      (index) => FlSpot(index.toDouble(), data[index]),
+      _reports.length,
+      (index) => FlSpot(_reports[index].date.month.toDouble(), _reports[index].amount),
     );
+  }
+
+  Widget GroupInput() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+      width: 190,
+      height: 56,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black, width: 2),
+        borderRadius: BorderRadius.circular(25.7),
+      ),
+      child: DropdownButton<String>(
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.bold),
+        dropdownColor: Colors.blue,
+        icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+        isExpanded: true,
+        underline: Container(color: Colors.transparent),
+        value: _selectedGroupItem,
+        hint: Text('Select Group',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold)), // Placeholder text
+        onChanged: (String? value) {
+          final newGroupID = _groups
+                .firstWhere((group) => group.name == value)
+                .id; // Get the ID of the selected group
+            setState(() {
+              _selectedGroupItem = value;
+              _selectedGroupID = newGroupID;
+            });
+        },
+        items: _groups.map<DropdownMenuItem<String>>((Group group){
+          return DropdownMenuItem<String>(
+            value: group.name,
+            child: Text(group.name),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget GraphTypeMenu(){
+    return Container(
+      padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+      width: 190,
+      height: 56,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black, width: 2),
+        borderRadius: BorderRadius.circular(25.7),
+      ),
+      child: DropdownButton<int>(
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.bold),
+        dropdownColor: Colors.blue,
+        icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+        isExpanded: true,
+        underline: Container(color: Colors.transparent),
+        value: _selectedNavigationalIndex,
+        hint: Text('Select Graph',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold)), // Placeholder text
+        onChanged: (int? value) {
+          if(value != null){
+            setState(() {
+              _selectedNavigationalIndex = value;
+            });
+          }
+        },
+        items: List.generate(
+          graphType.length, 
+          (index) => DropdownMenuItem<int>(
+            value: index,
+            child: Text(graphType[index]),
+          )),
+      ),
+    );
+  }
+
+  Future<void> _getGroups() async {
+    _groups = await widget.cloudStorageManager.getGroups(widget.userLoggedIn);
+    if (_groups.isNotEmpty && _selectedGroupItem == null) {
+      _selectedGroupItem = _groups[0].name;
+      _selectedGroupID = _groups[0].id;
+    }
+  }
+
+  Future<void> _getReports(int groupID) async {
+    _reports = await widget.cloudStorageManager.getReports(groupID);
+  }
+
+  int _dateToInt(DateTime date, String select){
+    if(select == 'year'){
+      return date.year;
+    } else if(select == 'month'){
+      return date.month;
+    } else if(select == 'day'){
+      return date.day;
+    } else{
+      return 0;
+    }
   }
 
   void _onTapedNavigation(int index) {
