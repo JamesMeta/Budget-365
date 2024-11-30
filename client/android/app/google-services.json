@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324583014458",
+    "project_id": "budget365-cloud",
+    "storage_bucket": "budget365-cloud.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324583014458:android:012a5eb7ad3a1bd9127503",
+        "android_client_info": {
+          "package_name": "com.example.budget_365"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANKn22gsGRZoJBnDIFyBCtLDD2pBbI6q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

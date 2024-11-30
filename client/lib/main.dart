@@ -18,6 +18,7 @@ import 'package:budget_365/group/group_ui_overview_widget.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Supabase
   await Supabase.initialize(
     url: 'https://wywwdptapooirphafrqa.supabase.co',
     anonKey:

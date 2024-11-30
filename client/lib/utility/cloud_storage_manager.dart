@@ -6,13 +6,14 @@ import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
 
+// Class to manage cloud storage operations using Supabase
 class CloudStorageManager {
   final SupabaseClient _supabase;
 
-  //constructor that takes the Supabase client as a parameter
+  // Constructor that takes the Supabase client as a parameter
   CloudStorageManager(this._supabase);
 
-  //method to create a new account
+  // Method to create a new account
   Future<int> createAccount(
       String password, String accountName, String email) async {
     try {
@@ -41,6 +42,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to log in a user
   Future<int> login(String email, String password) async {
     try {
       final loginResponse = await _supabase.auth
@@ -67,6 +69,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to check if an email is already registered
   Future<bool> isEmailRegistered(String email) async {
     try {
       final response = await _supabase
@@ -82,6 +85,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to get user groups by user ID
   Future<List<UserGroups>?> getUserGroups(int userID) async {
     try {
       final response =
@@ -102,6 +106,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to get groups by user ID
   Future<List<Group>> getGroups(int userID) async {
     try {
       final response = await _supabase
@@ -124,6 +129,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to get a stream of reports by group ID
   Stream<List<Report>> getReportsStream(int groupID) {
     final controller = StreamController<List<Report>>();
 
@@ -162,6 +168,7 @@ class CloudStorageManager {
     return controller.stream;
   }
 
+  // Method to get username by user ID
   Future<String> getUsername(int userID) async {
     try {
       final response = await _supabase
@@ -176,6 +183,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to fetch all users
   Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     try {
       final response =
@@ -192,8 +200,8 @@ class CloudStorageManager {
     }
   }
 
+  // Method to get a list of categories by group ID
   Future<List<String>> getCategoryList(int GroupID) async {
-    //returns a list of categories for groups
     try {
       final response = await _supabase
           .from('category')
@@ -211,7 +219,7 @@ class CloudStorageManager {
     }
   }
 
-  //method to create a new group
+  // Method to create a new group
   Future<void> createGroup(int id, String groupCode, String groupName) async {
     try {
       await _supabase.from('group').insert({
@@ -225,6 +233,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to create a user group
   Future<bool> createUserGroup(int userId, int groupId) async {
     try {
       final response = await _supabase.from('user_groups').insert({
@@ -240,6 +249,7 @@ class CloudStorageManager {
     }
   }
 
+  // Method to create a group with users
   Future<bool> createGroupWithUsers({
     required int groupId,
     required String groupCode,
@@ -247,7 +257,7 @@ class CloudStorageManager {
     required List<int> userIds,
   }) async {
     try {
-      //insert the new group into the `group` table
+      // Insert the new group into the `group` table
       await _supabase.from('group').insert({
         'id': groupId,
         'group_code': groupCode,
@@ -270,14 +280,16 @@ class CloudStorageManager {
     }
   }
 
-  Future<void> createReport(
-      {required double amount,
-      required String description,
-      required String Category,
-      required int groupID,
-      required int userID,
-      required DateTime date,
-      required int type}) async {
+  // Method to create a report
+  Future<void> createReport({
+    required double amount,
+    required String description,
+    required String Category,
+    required int groupID,
+    required int userID,
+    required DateTime date,
+    required int type,
+  }) async {
     try {
       await _supabase.from('report').insert({
         'amount': amount,
@@ -294,7 +306,7 @@ class CloudStorageManager {
     }
   }
 
-  //method to update group details (used in group editing ui popups)
+  // Method to update group details (used in group editing UI popups)
   Future<bool> updateGroup(
       int groupId, String newGroupCode, String newGroupName) async {
     try {
@@ -310,7 +322,7 @@ class CloudStorageManager {
     }
   }
 
-//method to delete a group
+  // Method to delete a group
   Future<bool> deleteGroup(int groupId) async {
     try {
       final response = await _supabase.from('group').delete().eq('id', groupId);
