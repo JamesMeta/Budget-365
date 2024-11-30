@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
+import 'dart:convert';
 
+import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
 import 'package:budget_365/notifications/local_notifications.dart';
+import 'package:file_picker/file_picker.dart';
 
 class CloudStorageManager {
   final SupabaseClient _supabase;
@@ -346,7 +350,6 @@ class CloudStorageManager {
     }
   }
 
-  //method to create a report
   Future<void> createReport({
     required double amount,
     required String description,
@@ -368,14 +371,19 @@ class CloudStorageManager {
       });
       print('Report created successfully');
 
-      //alert user that the report was uploaded
-      await _notificationsManager.showNotification(
-        title: 'Report Created',
-        body: 'Your report has been uploaded!',
-        channelId: 'report_channel',
-        channelName: 'Report Notifications',
-        channelDescription: 'Notifications for report-related updates',
-      );
+      // Check if user wants notifications
+      bool receiveNotifications =
+          await LocalStorageManager.getNotificationSetting();
+      if (receiveNotifications) {
+        // Send notification if user prefers it
+        await _notificationsManager.showNotification(
+          title: 'Report Created',
+          body: 'Your report has been uploaded!',
+          channelId: 'report_channel',
+          channelName: 'Report Notifications',
+          channelDescription: 'Notifications for report-related updates',
+        );
+      }
     } catch (error) {
       print('Error creating report: $error');
     }
@@ -428,5 +436,86 @@ class CloudStorageManager {
   Future<void> logOut() async {
     _supabase.dispose();
     await _supabase.auth.signOut();
+  }
+
+  Future<List<Report>> getReportsForExport(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('report')
+          .select()
+          .eq('id_group', groupID)
+          .order('date', ascending: false);
+
+      final reports = response.map<Report>((row) {
+        return Report(
+          id: row['id'] as int? ?? 0, // Default to 0 if null
+          amount: (row['amount'] as num?)?.toDouble() ??
+              0.0, // Safely cast and default to 0.0
+          description: row['description'] as String? ??
+              'No description', // Default to 'No description'
+          category: row['category'] as String? ??
+              'Uncategorized', // Default to 'Uncategorized'
+          groupID: row['id_group'] as int? ?? 0, // Default to 0
+          userID: row['id_user'] as int? ?? 0, // Default to 0
+          date: row['date'] != null
+              ? DateTime.parse(row['date'] as String)
+              : DateTime.now(), // Default to current date
+          type: row['type'] as int? ?? 0, // Default to 0
+        );
+      }).toList();
+
+      return reports;
+    } catch (error) {
+      print('Error fetching reports for export: $error');
+      return [];
+    }
+  }
+
+  //This method will retrieve all report data from groups the user is in,
+  //and exports that data to the local device.
+
+  Future<void> exportUserReports() async {
+    try {
+      // Step 1: Get the current user's ID from LocalStorageManager
+      final userID = await LocalStorageManager.getCurrentUserID();
+      if (userID == null) {
+        print('No user is currently logged in.');
+        return;
+      }
+
+      // Step 2: Fetch all groups associated with the user
+      final groups = await getGroups(userID);
+      if (groups.isEmpty) {
+        print('No groups found for the user.');
+        return;
+      }
+
+      // Step 3: Fetch all reports for each group using the new method
+      List<Report> allReports = [];
+      for (final group in groups) {
+        final reports = await getReportsForExport(group.id); // New method
+        allReports.addAll(reports);
+      }
+
+      if (allReports.isEmpty) {
+        print('No reports found for user groups.');
+        return;
+      }
+
+      // Step 4: Prompt user for save directory and save the file
+      final directoryPath = await FilePicker.platform.getDirectoryPath();
+      if (directoryPath == null) {
+        print('No directory selected.');
+        return;
+      }
+
+      final reportsData = allReports.map((report) => report.toJson()).toList();
+      final file = File('$directoryPath/user_reports.json');
+      await file.writeAsString(jsonEncode(reportsData), flush: true);
+
+      print('Reports saved successfully to ${file.path}');
+    } catch (error) {
+      print('Error exporting reports: $error');
+    }
   }
 }

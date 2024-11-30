@@ -47,6 +47,9 @@ dependencies:
   firebase_core: ^3.8.0
   firebase_messaging: ^15.1.5
   firebase_analytics: ^11.3.5
+  shared_preferences: ^2.3.3
+  csv: ^6.0.0
+  file_picker: ^8.1.4
 
 dev_dependencies:
   flutter_test:

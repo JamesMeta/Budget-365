@@ -18,4 +18,18 @@ class Report {
     required this.category,
     required this.date,
   });
+
+  // Convert the Report instance to a JSON-compatible map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'groupID': groupID,
+      'type': type,
+      'userID': userID,
+      'amount': amount,
+      'description': description,
+      'category': category,
+      'date': date.toIso8601String(), // Convert DateTime to ISO 8601 string
+    };
+  }
 }
