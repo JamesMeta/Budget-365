@@ -159,6 +159,33 @@ class CloudStorageManager {
     }
   }
 
+  Future<List<Report>> getReports(int groupID) async {
+    try {
+      final response = await _supabase
+        .from('report')
+        .select('id, type, amount, description, category, id_group, id_user, date')
+        .eq('id_group', groupID);
+
+      final reports = response.map<Report>((row) {
+        return Report(
+          id: row['id'] as int,
+          type: row['type'] as int,
+          amount: row['amount'] as double,
+          description: row['description'] as String,
+          category: row['category'] as String,
+          groupID: row['id_group'] as int,
+          userID: row['id_user'] as int,
+          date: row['date'] as DateTime,
+        );
+      }).toList();
+
+      return reports;
+    } catch (error) {
+      print('Error fetching reports: $error');
+      return [];
+    }
+  }
+
   SupabaseStreamBuilder getGroupsStream(int userID) {
     final controller = _supabase.from('group').stream(primaryKey: ['id']);
     return controller;
