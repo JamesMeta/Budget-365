@@ -476,24 +476,25 @@ class CloudStorageManager {
 
   Future<void> exportUserReports() async {
     try {
-      // Step 1: Get the current user's ID from LocalStorageManager
+      //the LocalStorageManager has the method to retrieve the userID of the person logged-in to the local instance of the app
       final userID = await LocalStorageManager.getCurrentUserID();
       if (userID == null) {
         print('No user is currently logged in.');
         return;
       }
 
-      // Step 2: Fetch all groups associated with the user
+      //by assigning the user's ID to the userID variable, that can then be passed to the getGroups() method
+      //This then retuns a set of groupIDs that the user is associated with
       final groups = await getGroups(userID);
       if (groups.isEmpty) {
         print('No groups found for the user.');
         return;
       }
 
-      // Step 3: Fetch all reports for each group using the new method
+      //the list of reports is compiled by iteratively sending group IDs to report getter method
       List<Report> allReports = [];
       for (final group in groups) {
-        final reports = await getReportsForExport(group.id); // New method
+        final reports = await getReportsForExport(group.id);
         allReports.addAll(reports);
       }
 
@@ -502,13 +503,14 @@ class CloudStorageManager {
         return;
       }
 
-      // Step 4: Prompt user for save directory and save the file
+      //flutter filepicker allows the user to select where they want to savethe file
       final directoryPath = await FilePicker.platform.getDirectoryPath();
       if (directoryPath == null) {
         print('No directory selected.');
         return;
       }
 
+      //toJson() is in the report.dart file, as an associated method to the report class
       final reportsData = allReports.map((report) => report.toJson()).toList();
       final file = File('$directoryPath/user_reports.json');
       await file.writeAsString(jsonEncode(reportsData), flush: true);

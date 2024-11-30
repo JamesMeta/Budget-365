@@ -73,6 +73,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  #IMPORTANT!!! - Ensure that the line "- .env" is in your assets list - otherwise, the app will not build.
   assets:
     - assets/images/logo.png
     - assets/images/logo1.png
