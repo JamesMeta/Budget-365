@@ -1,10 +1,10 @@
 import 'package:budget_365/utility/cloud_storage_manager.dart';
-import 'package:flutter/material.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:budget_365/design/app_gradient.dart';
+import 'package:flutter/material.dart';
 
 class SettingsWidget extends StatefulWidget {
-  final CloudStorageManager
-      cloudStorageManager; //connection with cloud storage manager
+  final CloudStorageManager cloudStorageManager;
   final Future<bool> Function() onLogout;
 
   const SettingsWidget({
@@ -19,51 +19,49 @@ class SettingsWidget extends StatefulWidget {
 
 class _SettingsWidgetState extends State<SettingsWidget> {
   bool receiveNotifications =
-      false; //notifications reception defaults to false (to avoid spamming users)
+      false; //default setting - when the value is false, the user won't get a push notification (prevents spam)
 
   @override
   void initState() {
     super.initState();
-    _loadNotificationSetting(); //retrieve the notification preference
+    _loadNotificationSetting();
   }
 
-  //method connects to the local storage manager, which has a getter for notification prefs
   Future<void> _loadNotificationSetting() async {
+    //retrieves the user's notification preference from local database
     bool shouldReceive = await LocalStorageManager.getNotificationSetting();
     setState(() {
       receiveNotifications = shouldReceive;
     });
   }
 
-  //method saves the selected notification value to local storage
   Future<void> _saveNotificationSetting(bool value) async {
+    //when the user sets the notification preference, that value is stored using localstoragemanager
     setState(() {
       receiveNotifications = value;
     });
     await LocalStorageManager.setNotificationSetting(value);
   }
 
-  //method connects to the report export method in the cloud storage manager
   Future<void> _exportUserReports() async {
+    //defines the response to the user pressing the export reports button
     try {
-      await widget.cloudStorageManager.exportUserReports();
+      await widget.cloudStorageManager
+          .exportUserReports(); //main functionality - cloudstoragemanager handles the actual export process
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          //snackbars display either success or failure messages
-          content: Text("Reports exported successfully!"),
-        ),
+        //snackbar carries the response message
+        const SnackBar(content: Text("Reports exported successfully!")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Oops! Failed to export reports: $e"),
-        ),
+        SnackBar(content: Text("Oops! Failed to export reports: $e")),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    //settings construction
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -79,84 +77,75 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
         centerTitle: true,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF123456), // Start color
-              Color(0xFF654321), // End color
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: Stack(
+        children: [
+          const AppGradient(), //app theme gradient from app_gradient.dart is invoked
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const SizedBox(height: 100),
+                SwitchListTile(
+                  activeColor: Colors.lightBlueAccent,
+                  activeTrackColor: Colors.blueGrey,
+                  inactiveThumbColor: Colors.grey.shade700,
+                  inactiveTrackColor: Colors.grey.shade600,
+                  title: const Text(
+                    'Receive Report Notifications',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  value: receiveNotifications,
+                  onChanged: _saveNotificationSetting,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 40, 176, 218),
+                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: _exportUserReports,
+                  child: const Text(
+                    'Export Reports',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 40, 176, 218),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: logout,
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const SizedBox(height: 100), // Space below the AppBar
-              SwitchListTile(
-                activeColor: Colors.lightBlueAccent,
-                activeTrackColor: Colors.blueGrey,
-                inactiveThumbColor: Colors.grey.shade700,
-                inactiveTrackColor: Colors.grey.shade600,
-                title: const Text(
-                  'Receive Report Notifications',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                value: receiveNotifications,
-                onChanged: (bool value) {
-                  _saveNotificationSetting(value);
-                },
-              ),
-              const SizedBox(height: 20), // Add some spacing
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF654321), // Button color
-                  foregroundColor: Colors.white, // Text color
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12, horizontal: 20), // Button padding
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: _exportUserReports,
-                child: const Text(
-                  'Export Reports',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF654321),
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: logout,
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

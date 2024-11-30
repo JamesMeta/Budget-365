@@ -4,6 +4,18 @@ import 'package:flutter/foundation.dart';
 /// A class to manage FirebaseOptions dynamically.
 ///
 /// Initialize the `DefaultFirebaseOptions` by calling `initialize` in `main.dart`.
+///
+///
+///
+///
+/// This file was added automatically after running flutterfire. It has been modified to
+/// protect the API keys from being exposed.
+///
+/// IMPORTANT! This app must be run with the .env file in the /client folder for proper
+/// connectivity. If you do not have the .env file, please contact Dennis Martin, James Mata
+/// or Jared Henley.
+///
+///
 class DefaultFirebaseOptions {
   static late FirebaseOptions web;
   static late FirebaseOptions android;
@@ -64,7 +76,7 @@ class DefaultFirebaseOptions {
     );
   }
 
-  /// Return FirebaseOptions based on the current platform.
+  ///Return FirebaseOptions based on the current platform.
   static FirebaseOptions get currentPlatform {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:

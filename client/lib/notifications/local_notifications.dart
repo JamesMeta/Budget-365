@@ -4,14 +4,17 @@ class LocalNotificationsManager {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  bool _isInitialized = false; // To track initialization state
+  bool _isInitialized =
+      false; //determines whether or not the notifications have been initialized
 
   LocalNotificationsManager() {
+    //starts notification service when called
     _initializeNotifications();
   }
 
   void _initializeNotifications() async {
-    if (_isInitialized) return; // Avoid multiple initializations
+    if (_isInitialized)
+      return; //exits without reinitializing an existing service
 
     const androidInitializationSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -28,6 +31,7 @@ class LocalNotificationsManager {
   }
 
   Future<void> showNotification({
+    //method which handles showing notifications
     required String title,
     required String body,
     String channelId = 'default_channel',

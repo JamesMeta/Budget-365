@@ -14,10 +14,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
+  //loads the environment variables from the .env file (not included in GH repo)
   await dotenv.load(fileName: ".env");
 
-  // Extract Firebase keys from .env
+  //associates loaded env variables with api variables
   DefaultFirebaseOptions.initialize(
     webApiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
     androidApiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
@@ -26,17 +26,15 @@ Future<void> main() async {
     windowsApiKey: dotenv.env['FIREBASE_WINDOWS_API_KEY'] ?? '',
   );
 
-  // Initialize Firebase
+  //initializes firebase connection
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-
-  // Initialize Firebase messaging
   await FirebaseApi().initNotifications();
 
-  // Extract Supabase credentials from .env
+  //as with the firebase options, the supabase env variables are loaded
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
   final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
 
@@ -44,25 +42,21 @@ Future<void> main() async {
     throw Exception('Supabase URL or Anon Key is missing from .env');
   }
 
-  // Initialize Supabase
   await Supabase.initialize(
     url: supabaseUrl,
     anonKey: supabaseAnonKey,
   );
 
-  // Rename the variable to avoid conflict with the class name
   final localNotificationsManager = LocalNotificationsManager();
   final cloudStorageManager = CloudStorageManager(
     Supabase.instance.client,
     localNotificationsManager,
   );
 
-  // Ensure LocalStorageManager is ready
+  //wait for local storage to activate
   await LocalStorageManager.database;
 
-  // Run your app
   runApp(Budget365(cloudStorageManager));
 
-  // Handle background messages for Firebase Messaging
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 }
