@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:budget_365/report/legacy/report_creation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/group/group.dart';
+import 'package:budget_365/design/app_gradient.dart';
 
 class ReportCreationWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -10,8 +10,9 @@ class ReportCreationWidget extends StatefulWidget {
   final List<Group> groups;
   final int userID;
 
-  ReportCreationWidget(
-      {required this.cloudStorageManager,
+  const ReportCreationWidget(
+      {super.key,
+      required this.cloudStorageManager,
       required this.selectedGroup,
       required this.groups,
       required this.userID});
@@ -22,13 +23,14 @@ class ReportCreationWidget extends StatefulWidget {
 }
 
 class _ReportCreationWidgetState extends State<ReportCreationWidget> {
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _amountController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedGroup;
   String _selectedType = '';
+  String _username = '';
   bool _needsRefresh = true;
 
   late final List<Group> _groups;
@@ -41,7 +43,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     _dateController.text = DateTime.now().toString().split(' ')[0];
   }
 
-  Color specialColor = const Color.fromARGB(143, 0, 0, 0);
+  final Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
+  final Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
@@ -55,7 +58,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       appBar: AppBarSection(),
       body: Stack(
         children: [
-          Gradient(),
+          AppGradient(),
           Padding(
             padding: EdgeInsets.fromLTRB(10, 120, 10, 10),
             child: SingleChildScrollView(
@@ -71,7 +74,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          CategoryInput(),
+                          UsernameSection(),
                           SizedBox(width: 5),
                           GroupInput(),
                         ],
@@ -80,9 +83,16 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          AmountInput(),
-                          SizedBox(width: 5),
                           DateInputSelect(),
+                          SizedBox(width: 5),
+                          CategoryInput(),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          AmountInput(),
                         ],
                       ),
                       SizedBox(height: 20),
@@ -112,22 +122,6 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
-    );
-  }
-
-  Widget Gradient() {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 80, 117, 240),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 71, 162, 236),
-          Color.fromARGB(255, 80, 117, 240),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      )),
     );
   }
 
@@ -167,7 +161,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           decoration: BoxDecoration(
               border: Border.all(
                   color: _selectedType == 'Expense'
-                      ? Colors.red
+                      ? const Color.fromARGB(255, 0, 238, 255)
                       : Colors.transparent,
                   width: 2.5),
               borderRadius: BorderRadius.circular(10)),
@@ -182,7 +176,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             child: Text(
               "Expense",
               style: TextStyle(
-                  color: _selectedType == 'Expense' ? Colors.red : Colors.white,
+                  color: _selectedType == 'Expense'
+                      ? const Color.fromARGB(255, 0, 238, 255)
+                      : Colors.white,
                   fontSize: fontSizeButtons,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.bold),
@@ -193,6 +189,55 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     );
   }
 
+  Widget UsernameSection() {
+    if (_username.isEmpty) {
+      return FutureBuilder(
+        future: getUsername(widget.userID),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return MockTextField();
+          } else if (snapshot.hasError) {
+            return Text('Error');
+          } else {
+            return Container(
+                width: 190,
+                height: 56,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: _textFieldBorderColor, width: 2),
+                  borderRadius: BorderRadius.circular(26.7),
+                ),
+                child: Text(
+                  _username,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: _textFieldFontColor),
+                ));
+          }
+        },
+      );
+    } else {
+      return Container(
+          width: 190,
+          height: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border: Border.all(color: _textFieldBorderColor, width: 2),
+            borderRadius: BorderRadius.circular(26.7),
+          ),
+          child: Text(
+            _username,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _textFieldFontColor),
+          ));
+    }
+  }
+
   Widget CategoryInput() {
     if (_categories.isEmpty || _needsRefresh) {
       _needsRefresh = false;
@@ -200,11 +245,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           future: _FetchCategories(),
           builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                width: 190,
-                height: 56,
-                child: TextField(),
-              );
+              return MockTextField();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else if (snapshot.connectionState == ConnectionState.done) {
@@ -213,22 +254,22 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                 width: 190,
                 height: 56,
                 decoration: BoxDecoration(
-                  border: Border.all(color: specialColor, width: 2),
+                  border: Border.all(color: _textFieldBorderColor, width: 2),
                   borderRadius: BorderRadius.circular(26.7),
                 ),
                 child: DropdownButton<String>(
                   style: TextStyle(
-                      color: Colors.white,
+                      color: _textFieldFontColor,
                       fontSize: fontSizeInputs,
                       fontWeight: FontWeight.bold),
                   dropdownColor: Colors.blue,
-                  icon: Icon(Icons.arrow_drop_down, color: specialColor),
+                  icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
                   isExpanded: true,
                   underline: Container(color: Colors.transparent),
                   value: _selectedCategory,
                   hint: Text('Select Category',
                       style: TextStyle(
-                          color: specialColor,
+                          color: _textFieldFontColor,
                           fontSize: fontSizeInputs,
                           fontWeight: FontWeight.bold)), // Placeholder text
                   onChanged: (String? value) {
@@ -254,22 +295,22 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         width: 190,
         height: 56,
         decoration: BoxDecoration(
-          border: Border.all(color: specialColor, width: 2),
+          border: Border.all(color: _textFieldBorderColor, width: 2),
           borderRadius: BorderRadius.circular(26.7),
         ),
         child: DropdownButton<String>(
           style: TextStyle(
-              color: Colors.white,
+              color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
           dropdownColor: Colors.blue,
-          icon: Icon(Icons.arrow_drop_down, color: specialColor),
+          icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
           isExpanded: true,
           underline: Container(color: Colors.transparent),
           value: _selectedCategory,
           hint: Text('Select Category',
               style: TextStyle(
-                  color: specialColor,
+                  color: _textFieldFontColor,
                   fontSize: fontSizeInputs,
                   fontWeight: FontWeight.bold)), // Placeholder text
           onChanged: (String? value) {
@@ -294,22 +335,22 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       width: 190,
       height: 56,
       decoration: BoxDecoration(
-        border: Border.all(color: specialColor, width: 2),
+        border: Border.all(color: _textFieldBorderColor, width: 2),
         borderRadius: BorderRadius.circular(25.7),
       ),
       child: DropdownButton<String>(
         style: TextStyle(
-            color: Colors.white,
+            color: _textFieldFontColor,
             fontSize: fontSizeInputs,
             fontWeight: FontWeight.bold),
         dropdownColor: Colors.blue,
-        icon: Icon(Icons.arrow_drop_down, color: specialColor),
+        icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
         isExpanded: true,
         underline: Container(color: Colors.transparent),
         value: _selectedGroup,
         hint: Text('Select Group',
             style: TextStyle(
-                color: specialColor,
+                color: _textFieldFontColor,
                 fontSize: fontSizeInputs,
                 fontWeight: FontWeight.bold)), // Placeholder text
         onChanged: (String? value) {
@@ -329,39 +370,42 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget DateInputSelect() {
-    return Container(
+    return SizedBox(
       width: 190,
       height: 56,
       child: TextField(
         controller: _dateController,
         readOnly: true,
         style: TextStyle(
-            color: Colors.white,
+            color: _textFieldFontColor,
             fontSize: fontSizeInputs,
             fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: 'Select Date',
           labelStyle: TextStyle(
-              color: specialColor,
+              color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
           // Set border for different states
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when enabled
+                color: _textFieldBorderColor,
+                width: 2), // Border color when enabled
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when focused
+                color: _textFieldBorderColor,
+                width: 2), // Border color when focused
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color in general
+                color: _textFieldBorderColor,
+                width: 2), // Border color in general
             borderRadius: BorderRadius.circular(25.7),
           ),
-          suffixIcon: Icon(Icons.calendar_today, color: specialColor),
+          suffixIcon: Icon(Icons.calendar_today, color: _textFieldFontColor),
           fillColor: Colors.transparent,
           filled: true,
         ),
@@ -371,36 +415,39 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget AmountInput() {
-    return Container(
-      width: 190,
+    return SizedBox(
+      width: 390,
       height: 56,
       child: TextField(
         controller: _amountController,
         keyboardType: TextInputType.number,
         style: TextStyle(
-            color: Colors.white,
+            color: _textFieldFontColor,
             fontSize: fontSizeInputs,
             fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: "Enter Amount",
           labelStyle: TextStyle(
-              color: specialColor,
+              color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
           // Set border for different states
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when enabled
+                color: _textFieldBorderColor,
+                width: 2), // Border color when enabled
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when focused
+                color: _textFieldBorderColor,
+                width: 2), // Border color when focused
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color in general
+                color: _textFieldFontColor,
+                width: 2), // Border color in general
             borderRadius: BorderRadius.circular(25.7),
           ),
           fillColor: Colors.transparent,
@@ -411,37 +458,40 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget DescriptionInput() {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
-      height: 380,
+      height: 300,
       child: TextField(
         controller: _descriptionController,
         textAlignVertical: TextAlignVertical.top,
         maxLines: null,
         expands: true,
         style: TextStyle(
-            color: Colors.white,
+            color: _textFieldFontColor,
             fontSize: fontSizeInputs,
             fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           hintText: "Enter description here...",
-          hintStyle: TextStyle(color: specialColor),
+          hintStyle: TextStyle(color: _textFieldFontColor),
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           // Set border for different states
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when enabled
+                color: _textFieldBorderColor,
+                width: 2), // Border color when enabled
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color when focused
+                color: _textFieldBorderColor,
+                width: 2), // Border color when focused
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-                color: specialColor, width: 2), // Border color in general
+                color: _textFieldBorderColor,
+                width: 2), // Border color in general
           ),
           filled: true,
           fillColor: Colors.transparent,
@@ -497,21 +547,46 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     );
   }
 
-  _addIncome() {
+  Widget MockTextField() {
+    return Container(
+        width: 190,
+        height: 56,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: _textFieldBorderColor, width: 2),
+          borderRadius: BorderRadius.circular(26.7),
+        ),
+        child: Text(
+          'Loading...',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: _textFieldFontColor),
+        ));
+  }
+
+  void _addIncome() {
     setState(() {
       _selectedType = 'Income';
     });
   }
 
-  _addExpense() {
+  void _addExpense() {
     setState(() {
       _selectedType = 'Expense';
     });
   }
 
+  @override
   void dispose() {
     _dateController.dispose();
     super.dispose();
+  }
+
+  Future<void> getUsername(int userID) async {
+    _username = await widget.cloudStorageManager.getUsername(userID);
+    return;
   }
 
   Future<void> _selectDate(BuildContext context) async {

@@ -36,12 +36,20 @@ dependencies:
   path: ^1.8.0
   fl_chart: ^0.69.0
   flutter_local_notifications: ^18.0.1
+  intl: ^0.17.0
+  flutter_dotenv: ^5.2.1
 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  firebase_core: ^3.8.0
+  firebase_messaging: ^15.1.5
+  firebase_analytics: ^11.3.5
+  shared_preferences: ^2.3.3
+  csv: ^6.0.0
+  file_picker: ^8.1.4
 
 dev_dependencies:
   flutter_test:
@@ -65,11 +73,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  #IMPORTANT!!! - Ensure that the line "- .env" is in your assets list - otherwise, the app will not build.
   assets:
     - assets/images/logo.png
     - assets/images/logo1.png
     - assets/images/plus_icon.png
     - assets/images/app_icon.png
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

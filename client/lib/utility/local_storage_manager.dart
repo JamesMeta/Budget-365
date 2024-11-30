@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 
@@ -23,8 +24,8 @@ class LocalStorageManager {
 
     return await openDatabase(
       path,
-      version: 2, // Increment this when you change the schema
-      onCreate: _createDB, // This will create the table if it does not exist
+      version: 2, //increment this when you change the schema
+      onCreate: _createDB, //this will create the table if it does not exist
     );
   }
 
@@ -50,7 +51,7 @@ class LocalStorageManager {
     final List<Map<String, dynamic>> result = await db.rawQuery('''
     SELECT name FROM sqlite_master WHERE type='table' AND name='account';
   ''');
-    return result.isNotEmpty; // Returns true if the table exists
+    return result.isNotEmpty; //returns true if the table exists
   }
 
   static Future<int> setMostRecentLogin(int id) async {
@@ -102,7 +103,7 @@ class LocalStorageManager {
       return id;
     } catch (e) {
       print('Error creating account: $e');
-      return -1; // Or consider throwing an exception
+      return -1;
     }
   }
 
@@ -166,5 +167,39 @@ class LocalStorageManager {
     final accounts = await db.query('account');
 
     print(accounts);
+  }
+
+  // Load the notification setting from local storage
+  static Future<bool> getNotificationSetting() async {
+    // You can use SharedPreferences or any other local storage method
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('receive_notifications') ?? false; // Default to false
+  }
+
+  // Save the notification setting to local storage
+  static Future<void> setNotificationSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('receive_notifications', value);
+  }
+
+  static Future<int?> getCurrentUserID() async {
+    final db = await database;
+
+    try {
+      final response = await db.query(
+        'account',
+        columns: ['id'],
+        where: 'most_recent_login = ?',
+        whereArgs: [1], // The most recent login account
+      );
+
+      if (response.isNotEmpty) {
+        return response.first['id'] as int;
+      }
+    } catch (e) {
+      print('Error fetching current user ID: $e');
+    }
+
+    return null; // Return null if no user is logged in
   }
 }

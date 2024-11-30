@@ -18,7 +18,7 @@ import 'package:budget_365/design/app_gradient.dart';
 class Budget365 extends StatelessWidget {
   final CloudStorageManager cloudStorageManager;
 
-  Budget365(this.cloudStorageManager);
+  const Budget365(this.cloudStorageManager, {super.key});
 
   // This widget is the root of your application.
   @override
@@ -37,7 +37,7 @@ class Budget365 extends StatelessWidget {
 class Budget365Widget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
 
-  Budget365Widget(
+  const Budget365Widget(
       {super.key, required this.title, required this.cloudStorageManager});
 
   final String title;
@@ -132,7 +132,10 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       HomeWidget(
           cloudStorageManager: widget.cloudStorageManager,
           userLoggedIn: userLoggedIn),
-      DataVisualizationWidget(),
+      DataVisualizationWidget(
+        cloudStorageManager: widget.cloudStorageManager,
+        userLoggedIn: userLoggedIn,
+      ),
       GroupOverviewPage(
           cloudStorageManager: widget.cloudStorageManager,
           userLoggedIn: userLoggedIn),
@@ -210,8 +213,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     );
 
     if (result != null) {
-      if (!mounted)
+      if (!mounted) {
         return false; // Ensure widget is mounted before calling setState
+      }
       setState(() {
         userLoggedIn = result;
       });
