@@ -27,9 +27,8 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   int? _selectedGroupID;
   int _selectedNavigationalIndex = 0;
   String? selectedGroup;
-  final List<String> items = ['thing1','thing2','thing3'];
-  final List<String> graphType = ['Line Graph','Bar Graph','Pie Chart'];
-
+  final List<String> items = ['thing1', 'thing2', 'thing3'];
+  final List<String> graphType = ['Line Graph', 'Bar Graph', 'Pie Chart'];
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +39,10 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text('Data Visualization',
-          style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
+            style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
       ),
       body: Stack(
         children: [
@@ -54,9 +53,10 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                 padding: EdgeInsets.fromLTRB(8, 80, 8, 8),
                 child: ScreenAspectRatio(),
               ),
-              FutureBuilder(future: _getGroups(), 
-                  builder: (context, snapshot){
-                    if(snapshot.connectionState == ConnectionState.waiting){
+              FutureBuilder(
+                  future: _getGroups(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Stack(
                         children: [
                           CircularProgressIndicator(),
@@ -65,12 +65,15 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                       );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.connectionState == ConnectionState.done) {
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.done) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           GroupInput(),
-                          SizedBox(width: 5,),
+                          SizedBox(
+                            width: 5,
+                          ),
                           GraphTypeMenu(),
                         ],
                       );
@@ -88,7 +91,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     return [LineChartScreen(), BarChartScreen(), PieChartScreen()];
   }
 
-  Widget ScreenAspectRatio(){
+  Widget ScreenAspectRatio() {
     return AspectRatio(
       aspectRatio: 0.8,
       child: _widgetOptions().elementAt(_selectedNavigationalIndex),
@@ -98,13 +101,13 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   Widget LineChartScreen() {
     return Container(
       decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 2,
-                        ),
-                      ),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.black,
+          width: 2,
+        ),
+      ),
       padding: const EdgeInsets.fromLTRB(10, 60, 10, 20),
       child: LineChart(LineChartData(
         gridData: FlGridData(show: true),
@@ -170,13 +173,13 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-
   List<FlSpot> _convertToSpots(List<double> data) {
     // _getReports();
     print(_groups);
     return List.generate(
       _reports.length,
-      (index) => FlSpot(_reports[index].date.month.toDouble(), _reports[index].amount),
+      (index) =>
+          FlSpot(_reports[index].date.month.toDouble(), _reports[index].amount),
     );
   }
 
@@ -191,9 +194,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       ),
       child: DropdownButton<String>(
         style: TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.bold),
+            color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
         dropdownColor: Colors.blue,
         icon: Icon(Icons.arrow_drop_down, color: Colors.white),
         isExpanded: true,
@@ -206,14 +207,14 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                 fontWeight: FontWeight.bold)), // Placeholder text
         onChanged: (String? value) {
           final newGroupID = _groups
-                .firstWhere((group) => group.name == value)
-                .id; // Get the ID of the selected group
-            setState(() {
-              _selectedGroupItem = value;
-              _selectedGroupID = newGroupID;
-            });
+              .firstWhere((group) => group.name == value)
+              .id; // Get the ID of the selected group
+          setState(() {
+            _selectedGroupItem = value;
+            _selectedGroupID = newGroupID;
+          });
         },
-        items: _groups.map<DropdownMenuItem<String>>((Group group){
+        items: _groups.map<DropdownMenuItem<String>>((Group group) {
           return DropdownMenuItem<String>(
             value: group.name,
             child: Text(group.name),
@@ -223,7 +224,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-  Widget GraphTypeMenu(){
+  Widget GraphTypeMenu() {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
       width: 190,
@@ -234,9 +235,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       ),
       child: DropdownButton<int>(
         style: TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.bold),
+            color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
         dropdownColor: Colors.blue,
         icon: Icon(Icons.arrow_drop_down, color: Colors.white),
         isExpanded: true,
@@ -248,18 +247,18 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                 fontSize: 17,
                 fontWeight: FontWeight.bold)), // Placeholder text
         onChanged: (int? value) {
-          if(value != null){
+          if (value != null) {
             setState(() {
               _selectedNavigationalIndex = value;
             });
           }
         },
         items: List.generate(
-          graphType.length, 
-          (index) => DropdownMenuItem<int>(
-            value: index,
-            child: Text(graphType[index]),
-          )),
+            graphType.length,
+            (index) => DropdownMenuItem<int>(
+                  value: index,
+                  child: Text(graphType[index]),
+                )),
       ),
     );
   }
@@ -276,14 +275,14 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     _reports = await widget.cloudStorageManager.getReports(groupID);
   }
 
-  int _dateToInt(DateTime date, String select){
-    if(select == 'year'){
+  int _dateToInt(DateTime date, String select) {
+    if (select == 'year') {
       return date.year;
-    } else if(select == 'month'){
+    } else if (select == 'month') {
       return date.month;
-    } else if(select == 'day'){
+    } else if (select == 'day') {
       return date.day;
-    } else{
+    } else {
       return 0;
     }
   }
