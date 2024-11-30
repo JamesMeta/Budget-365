@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
 
 class SettingsWidget extends StatefulWidget {
-  final CloudStorageManager cloudStorageManager;
+  final CloudStorageManager
+      cloudStorageManager; //connection with cloud storage manager
   final Future<bool> Function() onLogout;
 
   const SettingsWidget({
@@ -17,15 +18,16 @@ class SettingsWidget extends StatefulWidget {
 }
 
 class _SettingsWidgetState extends State<SettingsWidget> {
-  bool receiveNotifications = false; // Default to false
+  bool receiveNotifications =
+      false; //notifications reception defaults to false (to avoid spamming users)
 
   @override
   void initState() {
     super.initState();
-    _loadNotificationSetting(); // Load saved notification setting
+    _loadNotificationSetting(); //retrieve the notification preference
   }
 
-  // Load the notification setting from local storage
+  //method connects to the local storage manager, which has a getter for notification prefs
   Future<void> _loadNotificationSetting() async {
     bool shouldReceive = await LocalStorageManager.getNotificationSetting();
     setState(() {
@@ -33,7 +35,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     });
   }
 
-  // Save the notification setting to local storage
+  //method saves the selected notification value to local storage
   Future<void> _saveNotificationSetting(bool value) async {
     setState(() {
       receiveNotifications = value;
@@ -41,18 +43,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     await LocalStorageManager.setNotificationSetting(value);
   }
 
+  //method connects to the report export method in the cloud storage manager
   Future<void> _exportUserReports() async {
     try {
       await widget.cloudStorageManager.exportUserReports();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          //snackbars display either success or failure messages
           content: Text("Reports exported successfully!"),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Failed to export reports: $e"),
+          content: Text("Oops! Failed to export reports: $e"),
         ),
       );
     }
@@ -130,13 +134,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20), // Add some spacing
+              const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF654321), // Button color
-                  foregroundColor: Colors.white, // Text color
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12, horizontal: 20), // Button padding
+                  backgroundColor: const Color(0xFF654321),
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

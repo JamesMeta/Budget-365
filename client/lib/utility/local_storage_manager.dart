@@ -169,28 +169,28 @@ class LocalStorageManager {
     print(accounts);
   }
 
-  // Load the notification setting from local storage
+  //method retrieves the notification preference stored locally for the user
   static Future<bool> getNotificationSetting() async {
-    // You can use SharedPreferences or any other local storage method
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('receive_notifications') ?? false; // Default to false
+    return prefs.getBool('receive_notifications') ?? false;
   }
 
-  // Save the notification setting to local storage
+  //method uses shared preferences to store the boolean storage preference value
   static Future<void> setNotificationSetting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool('receive_notifications', value);
   }
 
+  //method retrieves the ID of the user logged-in with the local session
   static Future<int?> getCurrentUserID() async {
-    final db = await database;
+    final db = await database; //connects to the local storage
 
     try {
       final response = await db.query(
         'account',
         columns: ['id'],
         where: 'most_recent_login = ?',
-        whereArgs: [1], // The most recent login account
+        whereArgs: [1], //the most recent login is the logged-in user
       );
 
       if (response.isNotEmpty) {
@@ -200,6 +200,6 @@ class LocalStorageManager {
       print('Error fetching current user ID: $e');
     }
 
-    return null; // Return null if no user is logged in
+    return null;
   }
 }

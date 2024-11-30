@@ -12,8 +12,9 @@ import 'package:budget_365/notifications/local_notifications.dart';
 import 'package:file_picker/file_picker.dart';
 
 class CloudStorageManager {
-  final SupabaseClient _supabase;
-  final LocalNotificationsManager _notificationsManager;
+  final SupabaseClient _supabase; //supabase client connection
+  final LocalNotificationsManager
+      _notificationsManager; //notification manager connection for report notifications etc
 
   //constructor takes the Supabase client as a parameter
   CloudStorageManager(this._supabase, this._notificationsManager);
@@ -438,29 +439,32 @@ class CloudStorageManager {
     await _supabase.auth.signOut();
   }
 
+  //method specifically for retrieving report data for the export function
+  // (this method maps the supabase response with added error handling in case of null values)
   Future<List<Report>> getReportsForExport(int groupID) async {
     try {
-      final response = await _supabase
+      final response = await _supabase //supabase call
           .from('report')
           .select()
           .eq('id_group', groupID)
           .order('date', ascending: false);
 
+      //definition of the reports object
       final reports = response.map<Report>((row) {
         return Report(
-          id: row['id'] as int? ?? 0, // Default to 0 if null
+          id: row['id'] as int? ??
+              0, //error handling, values are set to 0 in the case of NULL
           amount: (row['amount'] as num?)?.toDouble() ??
-              0.0, // Safely cast and default to 0.0
+              0.0, //int value casting from int to double
           description: row['description'] as String? ??
-              'No description', // Default to 'No description'
-          category: row['category'] as String? ??
-              'Uncategorized', // Default to 'Uncategorized'
-          groupID: row['id_group'] as int? ?? 0, // Default to 0
-          userID: row['id_user'] as int? ?? 0, // Default to 0
+              'No description', //error handling
+          category: row['category'] as String? ?? 'Uncategorized',
+          groupID: row['id_group'] as int? ?? 0,
+          userID: row['id_user'] as int? ?? 0,
           date: row['date'] != null
               ? DateTime.parse(row['date'] as String)
-              : DateTime.now(), // Default to current date
-          type: row['type'] as int? ?? 0, // Default to 0
+              : DateTime.now(),
+          type: row['type'] as int? ?? 0,
         );
       }).toList();
 
