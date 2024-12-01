@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:budget_365/main.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budget_365/home/budget_365_widget.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

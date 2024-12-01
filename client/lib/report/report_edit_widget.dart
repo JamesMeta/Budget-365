@@ -24,13 +24,12 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  String? _selectedCategory;
+  late Group _originalGroup;
   String? _selectedGroup;
+  String? _selectedCategory;
   String _selectedType = '';
   String _username = '';
   bool _needsRefresh = true;
-
-  late final List<Group> _groups;
 
   Map<String, List<String>> _categories = {
     'income': [],
@@ -42,6 +41,17 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.report!.category;
+    _selectedType = widget.report!.type == 0 ? 'income' : 'expense';
+    _amountController.text = widget.report!.amount.toString();
+    _descriptionController.text = widget.report!.description;
+    _dateController.text =
+        widget.report!.date.toIso8601String().split('T').first; // YYYY-MM-DD
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +121,46 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       title: Text(
-        "Create Report",
+        "Report Editor",
         style: TextStyle(
             color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete, color: Colors.white, size: 30),
+          onPressed: () {
+            // open menu with delete option
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Delete Report"),
+                    content:
+                        Text("Are you sure you want to delete this report?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                        child: Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await widget.cloudStorageManager
+                              .deleteReport(widget.report!.id);
+                          Navigator.pop(context); // Close the dialog
+                          Navigator.pop(
+                              context, 0); // Close the page return success
+                        },
+                        child: Text("Delete"),
+                      ),
+                    ],
+                  );
+                });
+          },
+        ),
+      ],
     );
   }
 
@@ -361,43 +406,53 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
   }
 
   Widget GroupInput() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-      width: 190,
-      height: 56,
-      decoration: BoxDecoration(
-        border: Border.all(color: _textFieldBorderColor, width: 2),
-        borderRadius: BorderRadius.circular(25.7),
-      ),
-      child: DropdownButton<String>(
-        style: TextStyle(
-            color: _textFieldFontColor,
-            fontSize: fontSizeInputs,
-            fontWeight: FontWeight.bold),
-        dropdownColor: Colors.blue,
-        icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
-        isExpanded: true,
-        underline: Container(color: Colors.transparent),
-        value: _selectedGroup,
-        hint: Text('Select Group',
-            style: TextStyle(
-                color: _textFieldFontColor,
-                fontSize: fontSizeInputs,
-                fontWeight: FontWeight.bold)), // Placeholder text
-        onChanged: (String? value) {
-          setState(() {
-            _selectedGroup = value;
-            _needsRefresh = true;
+    if (_selectedGroup == null) {
+      return FutureBuilder(
+          future: _fetchGroup(widget.report!.groupID),
+          builder: (BuildContext context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return MockTextField();
+            } else if (snapshot.hasError) {
+              return Text('Error');
+            } else {
+              return Container(
+                  width: 190,
+                  height: 56,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(94, 117, 117, 117),
+                    border: Border.all(color: _textFieldBorderColor, width: 2),
+                    borderRadius: BorderRadius.circular(26.7),
+                  ),
+                  child: Text(
+                    _selectedGroup ?? "Unknown Group",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: _textFieldFontColor),
+                  ));
+            }
           });
-        },
-        items: _groups.map((Group value) {
-          return DropdownMenuItem<String>(
-            value: value.name,
-            child: Text(value.name),
-          );
-        }).toList(),
-      ),
-    );
+    } else {
+      return Container(
+          width: 190,
+          height: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(94, 117, 117, 117),
+            border: Border.all(color: _textFieldBorderColor, width: 2),
+            borderRadius: BorderRadius.circular(26.7),
+          ),
+          child: Text(
+            _selectedGroup ?? "Unknown Group",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _textFieldFontColor),
+          ));
+    }
   }
 
   Widget DateInputSelect() {
@@ -531,6 +586,25 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
     );
   }
 
+  Widget MockTextField() {
+    return Container(
+        width: 190,
+        height: 56,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: _textFieldBorderColor, width: 2),
+          borderRadius: BorderRadius.circular(26.7),
+        ),
+        child: Text(
+          'Loading...',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: _textFieldFontColor),
+        ));
+  }
+
   Widget BottomSubmitButton() {
     return Container(
       height: 100,
@@ -540,13 +614,30 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
           int response = await _createReport();
           if (response == 0) {
             Navigator.pop(context, response);
-          } else {
+          } else if (response == -1) {
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text("Error"),
                     content: Text("Please fill out all fields"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          } else if (response == -2) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Error"),
+                    content: Text("Amount must be a number"),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -566,7 +657,7 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
           fixedSize: WidgetStatePropertyAll(Size(400, 80)),
         ),
         child: Text(
-          "Submit",
+          "Submit Changes",
           style: TextStyle(
             color: Colors.white,
             fontSize: fontSizeButtons,
@@ -576,25 +667,6 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
         ),
       ),
     );
-  }
-
-  Widget MockTextField() {
-    return Container(
-        width: 190,
-        height: 56,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border.all(color: _textFieldBorderColor, width: 2),
-          borderRadius: BorderRadius.circular(26.7),
-        ),
-        child: Text(
-          'Loading...',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: _textFieldFontColor),
-        ));
   }
 
   void _addIncome() {
@@ -635,8 +707,7 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
   }
 
   Future<Map<String, List<String>>> _FetchCategories() async {
-    int groupID =
-        _groups.firstWhere((group) => group.name == _selectedGroup).id;
+    int groupID = widget.report!.groupID;
     _categories = await widget.cloudStorageManager.getCategoryList(groupID);
     return _categories;
   }
@@ -651,15 +722,22 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
       return -1;
     }
 
-    int groupID =
-        _groups.firstWhere((group) => group.name == _selectedGroup).id;
+    // check if amount is a number
+    try {
+      double.parse(_amountController.text);
+    } catch (e) {
+      return -2;
+    }
+
+    int groupID = widget.report!.groupID;
     int type = _selectedType == 'income' ? 0 : 1;
     double amount = double.parse(_amountController.text);
     String description = _descriptionController.text;
     String category = _selectedCategory!;
     DateTime date = DateTime.parse(_dateController.text);
 
-    await widget.cloudStorageManager.createReport(
+    await widget.cloudStorageManager.editReport(
+        reportID: widget.report!.id,
         amount: amount,
         description: description,
         Category: category,
@@ -669,5 +747,14 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
         type: type);
 
     return 0;
+  }
+
+  Future<void> _fetchGroup(int groupID) async {
+    final response = await widget.cloudStorageManager.getGroup(groupID);
+    if (response != null) {
+      _originalGroup = response;
+      _selectedGroup = _originalGroup.name;
+    }
+    return;
   }
 }

@@ -17,7 +17,7 @@ Future<void> main() async {
 
   // Load environment variables
 
-  await dotenv.load();
+  await dotenv.load(fileName: "assets/keys/env");
 
   //associates loaded env variables with api variables
   DefaultFirebaseOptions.initialize(

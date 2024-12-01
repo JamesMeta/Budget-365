@@ -551,13 +551,30 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           int response = await _createReport();
           if (response == 0) {
             Navigator.pop(context, response);
-          } else {
+          } else if (response == -1) {
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text("Error"),
                     content: Text("Please fill out all fields"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          } else if (response == -2) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Error"),
+                    content: Text("Please enter a valid amount"),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -660,6 +677,13 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         _selectedCategory == null ||
         _dateController.text.isEmpty) {
       return -1;
+    }
+
+    // check if amount is a valid number
+    try {
+      double.parse(_amountController.text);
+    } catch (e) {
+      return -2;
     }
 
     int groupID =

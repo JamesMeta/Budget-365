@@ -394,9 +394,9 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  void _showSnackbar(BuildContext context) {
+  void _showSnackbar(BuildContext context, String message) {
     final snackBar = SnackBar(
-      content: Text('Report successfully created'),
+      content: Text(message),
       duration: Duration(seconds: 2),
     );
 
@@ -416,7 +416,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar(context);
+        _showSnackbar(context, 'Report created successfully.');
         setState(() {
           // You can update any state variables here, even if you don't actually change anything.
         });
@@ -434,7 +434,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar(context);
+        _showSnackbar(context, 'Report updated successfully.');
         setState(() {
           // You can update any state variables here, even if you don't actually change anything.
         });

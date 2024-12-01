@@ -185,6 +185,29 @@ class CloudStorageManager {
     }
   }
 
+  Future<Group?> getGroup(int groupID) async {
+    try {
+      // Fetch group data with associated group ID in one query
+      final response = await _supabase
+          .from('group')
+          .select('group_name')
+          .eq('id', groupID)
+          .single();
+
+      final group = Group(
+        id: groupID,
+        code: '',
+        name: response['group_name'] as String,
+        userIDs: [],
+      );
+
+      return group;
+    } catch (error) {
+      print('Error fetching groups: $error');
+      return null;
+    }
+  }
+
   SupabaseStreamBuilder getGroupsStream(int userID) {
     final controller = _supabase.from('group').stream(primaryKey: ['id']);
     return controller;
@@ -421,6 +444,42 @@ class CloudStorageManager {
       }
     } catch (error) {
       print('Error creating report: $error');
+    }
+  }
+
+  Future<void> deleteReport(int reportID) async {
+    try {
+      await _supabase.from('report').delete().eq('id', reportID);
+      print('Report deleted successfully');
+    } catch (error) {
+      print('Error deleting report: $error');
+    }
+  }
+
+  Future<void> editReport({
+    required int reportID,
+    required double amount,
+    required String description,
+    required String Category,
+    required int groupID,
+    required int userID,
+    required DateTime date,
+    required int type,
+  }) async {
+    //method to edit a report
+    try {
+      await _supabase.from('report').update({
+        'amount': amount,
+        'description': description,
+        'category': Category,
+        'id_group': groupID,
+        'id_user': userID,
+        'date': date.toIso8601String(),
+        'type': type,
+      }).eq('id', reportID);
+      print('Report edited successfully');
+    } catch (error) {
+      print('Error editing report: $error');
     }
   }
 
