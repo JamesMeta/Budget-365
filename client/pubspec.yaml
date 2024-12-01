@@ -50,6 +50,7 @@ dependencies:
   shared_preferences: ^2.3.3
   csv: ^6.0.0
   file_picker: ^8.1.4
+  mailer: ^6.2.0
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +81,7 @@ flutter:
     - assets/images/plus_icon.png
     - assets/images/app_icon.png
     - assets/keys/env
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

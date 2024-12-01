@@ -10,12 +10,14 @@ import 'notifications/firebase_api.dart';
 import 'notifications/local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:budget_365/notifications/email_sender.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  await dotenv.load(fileName: "assets/keys/env");
+
+  await dotenv.load();
 
   //associates loaded env variables with api variables
   DefaultFirebaseOptions.initialize(
@@ -56,6 +58,14 @@ Future<void> main() async {
   //wait for local storage to activate
   await LocalStorageManager.database;
 
+  //initializes email functionality
+  final emailSender = EmailSender(
+    username: dotenv.env['EMAIL_USER']!,
+    appPassword: dotenv.env['EMAIL_KEY']!,
+  );
+
+  //for the time being, test emails are sent on app startup
+  await emailSender.sendTestEmail();
   runApp(Budget365(cloudStorageManager));
 
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
