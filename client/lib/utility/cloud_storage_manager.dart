@@ -617,4 +617,25 @@ class CloudStorageManager {
       print('Error exporting reports: $error');
     }
   }
+
+  Future<String> joinExistingGroup(String groupCode, userID) async {
+    try {
+      final response = await _supabase
+          .from('group')
+          .select('id')
+          .eq('group_code', groupCode)
+          .single();
+      final groupID = response['id'] as int;
+
+      if (userID == null) {
+        return 'No user is currently logged in.';
+      }
+
+      await createUserGroup(userID, groupID);
+      return '0';
+    } catch (error) {
+      print('Error joining group: $error');
+      return 'Error joining group check the group code and connection before trying again';
+    }
+  }
 }

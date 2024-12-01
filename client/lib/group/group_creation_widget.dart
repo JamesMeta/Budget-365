@@ -43,9 +43,11 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   TextEditingController _groupNameController = TextEditingController();
   TextEditingController _userEmailController = TextEditingController();
   TextEditingController _categoryController = TextEditingController();
+  TextEditingController _groupCodeController = TextEditingController();
 
   Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
   Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
+  Color _textPopupColor = const Color.fromARGB(255, 0, 0, 0);
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
@@ -95,8 +97,10 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                       Expanded(child: AddCategoryButton()),
                     ],
                   ),
-                  SizedBox(height: 130),
+                  SizedBox(height: 50),
                   CreateGroupButton(),
+                  SizedBox(height: 20),
+                  HaveCodeButton(),
                 ],
               ),
             ),
@@ -182,7 +186,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
       margin: EdgeInsets.symmetric(vertical: 10),
       child: TextField(
         controller: _groupNameController,
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.text,
         style: TextStyle(
             color: _textFieldFontColor,
             fontSize: fontSizeInputs,
@@ -391,6 +395,108 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
         ),
       ),
     );
+  }
+
+  Widget HaveCodeButton() {
+    return Container(
+      width: double.infinity,
+      height: 80,
+      margin: EdgeInsets.only(top: 20),
+      child: TextButton(
+        onPressed: () {
+          //open code input
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Enter Group Code"),
+                alignment: Alignment.center,
+                titlePadding: EdgeInsets.fromLTRB(30, 20, 0, 5),
+                content: TextField(
+                  controller: _groupCodeController,
+                  keyboardType: TextInputType.text,
+                  style: TextStyle(
+                    color: _textPopupColor,
+                    fontSize: fontSizeInputs,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "Enter Group Code",
+                    labelStyle: TextStyle(
+                      color: _textPopupColor,
+                      fontSize: fontSizeInputs,
+                    ),
+                    // Set border for different states
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _textFieldBorderColor,
+                          width: 2), // Border color when enabled
+                      borderRadius: BorderRadius.circular(25.7),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _textFieldBorderColor,
+                          width: 2), // Border color when focused
+                      borderRadius: BorderRadius.circular(25.7),
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _textFieldFontColor,
+                          width: 2), // Border color in general
+                      borderRadius: BorderRadius.circular(25.7),
+                    ),
+                    fillColor: Colors.transparent,
+                    filled: true,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final response = await widget.cloudStorageManager
+                          .joinExistingGroup(
+                              _groupCodeController.text, widget.userID);
+                      if (response == "0") {
+                        _showSnackbar(context, "Group Joined Successfully");
+                        Navigator.pop(context);
+                      } else {
+                        _showSnackbar(context, "Invalid Group Code");
+                      }
+                      Navigator.pop(context, 0);
+                    },
+                    child: Text("Submit"),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        style: ButtonStyle(),
+        child: Text(
+          "Already have a code?",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSizeButtons,
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSnackbar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 2),
+    );
+
+    // Display the snackbar
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> _getGroupCode() async {

@@ -32,8 +32,11 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
       children: [
         const AppGradient(),
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GroupTileSection(),
+          padding: const EdgeInsets.fromLTRB(10, 110, 10, 75),
+          child: Container(
+            alignment: Alignment.topCenter,
+            child: GroupTileSection(),
+          ),
         ),
         PlusButtonSectionGroup(),
       ],
@@ -42,6 +45,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
 
   Widget GroupTileSection() {
     return Container(
+      alignment: Alignment.topCenter,
       child: FutureBuilder(
           future: widget.cloudStorageManager.getGroups(widget.userLoggedIn),
           builder: (context, snapshot) {
@@ -52,6 +56,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
             } else {
               _groups = snapshot.data;
               return ListView.builder(
+                padding: const EdgeInsets.all(0),
                 itemCount: _groups?.length ?? 0,
                 itemBuilder: (context, index) {
                   final group = _groups?[index];
