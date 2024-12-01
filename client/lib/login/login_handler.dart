@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 
@@ -6,20 +8,20 @@ class LoginHandler {
 
   LoginHandler(this._cloudStorageManager);
 
-  Future<int> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     final id = await _cloudStorageManager.login(email, password);
-    if (id == -1) {
-      return -1;
+    if (int.tryParse(id!) == null) {
+      return id;
     }
 
     print('Login successful');
 
     if (await LocalStorageManager.isAccountCashed(email)) {
-      await LocalStorageManager.setMostRecentLogin(id);
+      await LocalStorageManager.setMostRecentLogin(int.parse(id));
       return id;
     } else {
       final row = {
-        'id': id,
+        'id': int.parse(id),
         'username': 'username',
         'email': email,
         'password': password,
@@ -31,18 +33,25 @@ class LoginHandler {
     return id;
   }
 
-  Future<int> register(String email, String username, String password) async {
+  Future<String?> register(
+      String email, String username, String password) async {
+    email = email.toLowerCase().trim();
+    username = username.trim();
     final isEmailRegistered =
         await _cloudStorageManager.isEmailRegistered(email);
     if (isEmailRegistered) {
-      return -1;
+      return 'Email already registered to an account';
     }
 
-    final id =
+    final response =
         await _cloudStorageManager.createAccount(password, username, email);
-    if (id == -1) {
-      return -1;
+
+    //if response is not string number, then it is an error message
+    if (int.tryParse(response!) == null) {
+      return response;
     }
+
+    int id = int.parse(response);
 
     final row = {
       'id': id,
@@ -53,6 +62,6 @@ class LoginHandler {
     };
     await LocalStorageManager.createAccount(row);
 
-    return id;
+    return response;
   }
 }

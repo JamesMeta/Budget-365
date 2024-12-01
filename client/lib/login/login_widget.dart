@@ -238,20 +238,20 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Future<dynamic> _onLoginPressed() async {
-    int result = await loginHandler.login(
+    String? result = await loginHandler.login(
         usernameController.text, passwordController.text);
 
     if (!mounted) return;
 
-    if (result != -1) {
-      return Navigator.pop(context, result);
+    if (int.tryParse(result!) != null) {
+      return Navigator.pop(context, int.parse(result));
     } else {
       return showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Error'),
-              content: Text("Invalid username or password"),
+              content: Text(result),
             );
           });
     }
@@ -302,10 +302,24 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
         ));
   }
 
-  Future<int> _onCreatePressed() async {
+  Future<String?> _onCreatePressed() async {
     if (passwordController.text != confirmPasswordController.text) {
       print('Passwords do not match');
-      return -1;
+      return 'Passwords do not match';
+    }
+    if (passwordController.text.length < 6) {
+      print('Password must be at least 6 characters long');
+      return 'Password must be at least 6 characters long';
+    }
+
+    if (emailController.text.isEmpty ||
+        usernameController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      print('All fields must be filled');
+      return 'All fields must be filled';
+    }
+    if (usernameController.text.split(' ').length < 2) {
+      return 'Username must be at least 2 words eg. Firstname Lastname';
     }
 
     return await LoginHandler(widget.cloudStorageManager).register(
@@ -458,10 +472,10 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
       alignment: Alignment.centerLeft,
       child: ElevatedButton(
           onPressed: () async {
-            int result = await _onCreatePressed();
-            if (result != -1) {
+            final result = await _onCreatePressed();
+            if (int.tryParse(result!) != null) {
               if (!mounted) return;
-              Navigator.pop(context, result);
+              Navigator.pop(context, int.parse(result));
             } else {
               if (!mounted) return;
               return showDialog(
@@ -469,8 +483,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text('Error'),
-                      content: Text(
-                          'Passwords do not match or account already exists'),
+                      content: Text(result),
                     );
                   });
             }

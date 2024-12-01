@@ -20,7 +20,7 @@ class CloudStorageManager {
   CloudStorageManager(this._supabase, this._notificationsManager);
 
   //method to create a new account
-  Future<int> createAccount(
+  Future<String?> createAccount(
       String password, String accountName, String email) async {
     try {
       final creationResponse =
@@ -29,7 +29,7 @@ class CloudStorageManager {
       if (creationResponse.user == null) {
         print(
             'Error creating account: ${creationResponse.session?.toString()}');
-        return -1;
+        return creationResponse.session?.toString();
       }
 
       final tableResponse = await _supabase
@@ -41,21 +41,21 @@ class CloudStorageManager {
           .select('id')
           .single();
       print('Account created successfully');
-      return tableResponse['id'] as int;
+      return tableResponse['id'].toString();
     } catch (error) {
       print('Error creating account: $error');
-      return -1;
+      return error.toString();
     }
   }
 
   //login method
-  Future<int> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
       final loginResponse = await _supabase.auth
           .signInWithPassword(password: password, email: email);
 
       if (loginResponse.user == null) {
-        return -1;
+        return "Server responded with no user for given credentials";
       }
 
       final response = await _supabase
@@ -65,7 +65,7 @@ class CloudStorageManager {
           .single();
 
       if (response.isEmpty) {
-        return -1;
+        return "No user found with the given email";
       }
 
       //notify the user that they have successfully logged-in
@@ -76,10 +76,10 @@ class CloudStorageManager {
           channelName: 'Authentication Notifications',
           channelDescription: 'Notificatons for Login/Logout');
 
-      return response['id'] as int;
+      return response['id'].toString();
     } catch (error) {
       print('Error logging in: $error');
-      return -1;
+      return error.toString();
     }
   }
 

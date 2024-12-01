@@ -108,11 +108,11 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       );
 
       if (mostRecentLogin.isNotEmpty) {
-        int id = await widget.cloudStorageManager
+        final response = await widget.cloudStorageManager
             .login(mostRecentLogin['email'], mostRecentLogin['password']);
-        if (id != -1) {
+        if (int.tryParse(response!) != null) {
           // If login is successful, update the userLoggedIn state
-          userLoggedIn = id;
+          userLoggedIn = int.parse(response);
           return; // Finish the future successfully
         }
       }
