@@ -11,7 +11,7 @@ class DividerTileWidget extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 121, 121, 121),
+        color: const Color.fromARGB(255, 80, 80, 80),
         border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),
       child: Row(
@@ -26,6 +26,7 @@ class DividerTileWidget extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 0, 0, 0),
                     )),
               ],
             ),

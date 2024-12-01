@@ -109,7 +109,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   Widget LogoSection() {
     return Image.asset(
       'assets/images/logo1.png',
-      scale: 2,
+      scale: 3,
     );
   }
 

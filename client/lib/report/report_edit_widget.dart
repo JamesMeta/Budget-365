@@ -5,26 +5,21 @@ import 'package:budget_365/group/group.dart';
 import 'package:budget_365/design/app_gradient.dart';
 import 'package:budget_365/report/report.dart';
 
-class ReportCreationWidget extends StatefulWidget {
+class ReportEditWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
-  final String selectedGroup;
-  final List<Group> groups;
-  final int userID;
+  final Report? report;
 
-  const ReportCreationWidget({
+  const ReportEditWidget({
     super.key,
     required this.cloudStorageManager,
-    required this.selectedGroup,
-    required this.groups,
-    required this.userID,
+    required this.report,
   });
 
   @override
-  State<ReportCreationWidget> createState() =>
-      _ReportCreationWidgetState(selectedGroup, groups);
+  State<ReportEditWidget> createState() => _ReportEditWidgetState();
 }
 
-class _ReportCreationWidgetState extends State<ReportCreationWidget> {
+class _ReportEditWidgetState extends State<ReportEditWidget> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -41,12 +36,6 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     'income': [],
     'expense': [],
   };
-
-  _ReportCreationWidgetState(selectedGroup, groups) {
-    _selectedGroup = selectedGroup;
-    _groups = groups;
-    _dateController.text = DateTime.now().toString().split(' ')[0];
-  }
 
   final Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
   final Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
@@ -197,7 +186,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   Widget UsernameSection() {
     if (_username.isEmpty) {
       return FutureBuilder(
-        future: getUsername(widget.userID),
+        future: getUsername(widget.report!.userID),
         builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return MockTextField();
@@ -675,7 +664,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         description: description,
         Category: category,
         groupID: groupID,
-        userID: widget.userID,
+        userID: widget.report!.userID,
         date: date,
         type: type);
 

@@ -5,9 +5,13 @@ import 'package:budget_365/report/report.dart';
 class ReportTileWidget extends StatefulWidget {
   final Report report;
   final CloudStorageManager cloudStorageManager;
+  final void Function() onEdit;
 
   const ReportTileWidget(
-      {super.key, required this.report, required this.cloudStorageManager});
+      {super.key,
+      required this.report,
+      required this.cloudStorageManager,
+      required this.onEdit});
 
   @override
   State<ReportTileWidget> createState() => _ReportTileWidgetState();
@@ -20,26 +24,29 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
-        color: _containerFillColor,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          TypeSection(),
-          Column(
-            children: [
-              CategorySection(),
-              AmountSection(),
-            ],
-          ),
-          UsersSection(),
-          DateSection(),
-        ],
+    return GestureDetector(
+      onTap: widget.onEdit,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+          color: _containerFillColor,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TypeSection(),
+            Column(
+              children: [
+                CategorySection(),
+                AmountSection(),
+              ],
+            ),
+            UsersSection(),
+            DateSection(),
+          ],
+        ),
       ),
     );
   }

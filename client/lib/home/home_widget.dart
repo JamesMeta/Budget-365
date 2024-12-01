@@ -6,6 +6,7 @@ import 'package:budget_365/report/report_tile_widget.dart';
 import 'package:budget_365/report/report_creation_widget.dart';
 import 'package:budget_365/design/app_gradient.dart';
 import 'package:budget_365/report/divider_tile_widget.dart';
+import 'package:budget_365/report/report_edit_widget.dart';
 
 class HomeWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -306,6 +307,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 }
 
                 widgets.add(ReportTileWidget(
+                  onEdit: () => _goToReportEditor(report),
                   report: report,
                   cloudStorageManager: widget.cloudStorageManager,
                 ));
@@ -411,6 +413,24 @@ class _HomeWidgetState extends State<HomeWidget> {
                 selectedGroup: _selectedGroupItem ?? '',
                 groups: _groups,
                 userID: widget.userLoggedIn,
+              )),
+    ).then((value) {
+      if (value == 0) {
+        _showSnackbar(context);
+        setState(() {
+          // You can update any state variables here, even if you don't actually change anything.
+        });
+      }
+    });
+  }
+
+  void _goToReportEditor(Report report) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ReportEditWidget(
+                cloudStorageManager: widget.cloudStorageManager,
+                report: report,
               )),
     ).then((value) {
       if (value == 0) {

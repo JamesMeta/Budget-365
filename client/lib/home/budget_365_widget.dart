@@ -170,7 +170,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.grey,
+        selectedItemColor: const Color.fromARGB(255, 80, 80, 80),
         unselectedItemColor: Colors.white,
         showSelectedLabels: false,
         showUnselectedLabels: false,
