@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/group/group.dart';
@@ -5,6 +7,7 @@ import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/group/group_creation_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/design/app_gradient.dart';
+import 'package:budget_365/group/group_edit_widget.dart';
 
 class GroupOverviewPage extends StatefulWidget {
   final CloudStorageManager
@@ -126,9 +129,9 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
         ));
   }
 
-  void _showSnackbar(BuildContext context) {
+  void _showSnackbar(BuildContext context, String message) {
     final snackBar = SnackBar(
-      content: Text('Report successfully created'),
+      content: Text(message),
       duration: Duration(seconds: 2),
     );
 
@@ -145,7 +148,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar(context);
+        _showSnackbar(context, 'Group created successfully');
         setState(() {});
       }
     });
@@ -155,15 +158,17 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => GroupCreationWidget(
+          builder: (context) => GroupEditWidget(
                 cloudStorageManager: widget.cloudStorageManager,
-                userID: widget.userLoggedIn,
                 group: group,
-                edit: true,
+                userLoggedIn: widget.userLoggedIn,
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar(context);
+        _showSnackbar(context, 'Group edited successfully');
+        setState(() {});
+      } else if (value == 1) {
+        _showSnackbar(context, 'Group deleted successfully');
         setState(() {});
       }
     });

@@ -4,38 +4,27 @@ import 'package:budget_365/group/group.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/design/app_gradient.dart';
 
-class GroupCreationWidget extends StatefulWidget {
+class GroupEditWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
-  final int userID;
+  final Group? group;
+  final int userLoggedIn;
 
-  const GroupCreationWidget({
+  const GroupEditWidget({
     super.key,
     required this.cloudStorageManager,
-    required this.userID,
+    required this.group,
+    required this.userLoggedIn,
   });
 
   @override
-  State<GroupCreationWidget> createState() => _GroupCreationWidgetState();
+  State<GroupEditWidget> createState() => _GroupEditWidgetState();
 }
 
-class _GroupCreationWidgetState extends State<GroupCreationWidget> {
+class _GroupEditWidgetState extends State<GroupEditWidget> {
   String _groupCode = '';
   List<String> _users = [];
-  List<String> _categoryExpense = [
-    '🛒Groceries',
-    '🪟Rent',
-    '💡Utilities',
-    '🏥Health',
-    '📺Entertainment',
-    '🚌Transportation',
-    '*️⃣Miscellaneous'
-  ];
-  List<String> _categoryIncome = [
-    '💵Salary',
-    '🏦Investments',
-    '🎁Gifts',
-    '*️⃣Miscellaneous'
-  ];
+  List<String> _categoryExpense = [];
+  List<String> _categoryIncome = [];
 
   TextEditingController _groupNameController = TextEditingController();
   TextEditingController _userEmailController = TextEditingController();
@@ -52,7 +41,12 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   @override
   void initState() {
     super.initState();
-    getUserEmail();
+    _groupCodeController.text = widget.group!.code;
+    _groupNameController.text = widget.group!.name;
+    _groupCode = widget.group!.code;
+    _getUsers();
+    _getIncomeCategories();
+    _getExpenseCategories();
   }
 
   @override
@@ -92,7 +86,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                   SizedBox(height: 5),
                   CreateGroupButton(),
                   SizedBox(height: 40),
-                  HaveCodeButton(),
+                  RemoveSelfFromGroupElevatedButton(),
                 ],
               ),
             ),
@@ -111,7 +105,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
 
   Widget Title() {
     return Text(
-      'Create Report Group',
+      'Edit Report Group',
       style: TextStyle(
         color: Colors.white,
         fontSize: 30,
@@ -131,25 +125,11 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
           Container(
             height: 55,
             alignment: Alignment.center,
-            child: _groupCode == ''
-                ? FutureBuilder(
-                    future: _getGroupCode(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return Text('Group Code: $_groupCode',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold));
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    })
-                : Text('Group Code: $_groupCode',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold)),
+            child: Text('Group Code: $_groupCode',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -160,7 +140,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     return Container(
       alignment: Alignment.centerLeft,
       child: Text(
-        "Enter Group Name",
+        "Group Name:",
         style: TextStyle(
             color: _textFieldFontColor,
             fontSize: fontSizeButtons,
@@ -344,7 +324,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
       margin: EdgeInsets.only(top: 20),
       child: ElevatedButton(
         onPressed: () async {
-          int response = await _createGroup();
+          int response = await _editGroup();
           if (response == 0) {
             Navigator.pop(context, response);
           } else {
@@ -373,7 +353,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
           ),
         ),
         child: Text(
-          "Submit",
+          "Submit Changes",
           style: TextStyle(
             color: Colors.white,
             fontSize: fontSizeButtons,
@@ -385,90 +365,26 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     );
   }
 
-  Widget HaveCodeButton() {
+  Widget RemoveSelfFromGroupElevatedButton() {
     return Container(
       width: double.infinity,
       height: 80,
       margin: EdgeInsets.only(top: 20),
-      child: TextButton(
-        onPressed: () {
-          //open code input
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Enter Group Code"),
-                alignment: Alignment.center,
-                titlePadding: EdgeInsets.fromLTRB(30, 20, 0, 5),
-                content: TextField(
-                  controller: _groupCodeController,
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(
-                    color: _textPopupColor,
-                    fontSize: fontSizeInputs,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: "Enter Group Code",
-                    labelStyle: TextStyle(
-                      color: _textPopupColor,
-                      fontSize: fontSizeInputs,
-                    ),
-                    // Set border for different states
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: _textFieldBorderColor,
-                          width: 2), // Border color when enabled
-                      borderRadius: BorderRadius.circular(25.7),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: _textFieldBorderColor,
-                          width: 2), // Border color when focused
-                      borderRadius: BorderRadius.circular(25.7),
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: _textFieldFontColor,
-                          width: 2), // Border color in general
-                      borderRadius: BorderRadius.circular(25.7),
-                    ),
-                    fillColor: Colors.transparent,
-                    filled: true,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Cancel"),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      final response = await widget.cloudStorageManager
-                          .joinExistingGroup(
-                              _groupCodeController.text, widget.userID);
-                      if (response == "0") {
-                        _showSnackbar(context, "Group Joined Successfully");
-                        Navigator.pop(context);
-                      } else {
-                        _showSnackbar(context, "Invalid Group Code");
-                      }
-                      Navigator.pop(context, 0);
-                    },
-                    child: Text("Submit"),
-                  ),
-                ],
-              );
-            },
-          );
+      child: ElevatedButton(
+        onPressed: () async {
+          await _confirmLeaveGroup();
         },
-        style: ButtonStyle(),
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
         child: Text(
-          "Already have a code?",
+          "Leave Group",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: fontSizeInputs,
+            color: const Color.fromARGB(255, 148, 18, 18),
+            fontSize: fontSizeButtons,
             fontFamily: 'Arial',
             fontWeight: FontWeight.bold,
           ),
@@ -485,15 +401,6 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
 
     // Display the snackbar
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  Future<void> _getGroupCode() async {
-    final groupCode =
-        await widget.cloudStorageManager.generateUniqueGroupCode();
-    setState(() {
-      _groupCode = groupCode;
-    });
-    return;
   }
 
   void _addUser() {
@@ -686,19 +593,76 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     );
   }
 
-  Future<void> getUserEmail() async {
-    final email = await widget.cloudStorageManager.getEmail(widget.userID);
-    setState(() {
-      _users.add(email);
-    });
+  Future<void> _getUsers() async {
+    _users = await widget.cloudStorageManager.getGroupUsers(widget.group!.id);
   }
 
-  Future<int> _createGroup() async {
+  Future<void> _getIncomeCategories() async {
+    _categoryIncome = await widget.cloudStorageManager
+        .getGroupIncomeCategories(widget.group!.id);
+  }
+
+  Future<void> _getExpenseCategories() async {
+    _categoryExpense = await widget.cloudStorageManager
+        .getGroupExpenseCategories(widget.group!.id);
+  }
+
+  Future<void> _leaveGroup() async {
+    final response = await widget.cloudStorageManager
+        .leaveGroup(widget.group!.id, widget.userLoggedIn);
+  }
+
+  Future<void> _confirmLeaveGroup() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Leave Group"),
+          content: Text("Are you sure you want to leave this group?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _leaveGroup();
+                Navigator.pop(context);
+                Navigator.pop(context, 1);
+              },
+              child: Text("Confirm"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<int> _editGroup() async {
     if (_groupNameController.text == '') {
-      return 1;
+      return -1;
     }
-    await widget.cloudStorageManager.createGroup(_groupCode,
-        _groupNameController.text, _users, _categoryIncome, _categoryExpense);
+
+    if (_users.isEmpty) {
+      return -1;
+    }
+
+    if (_categoryExpense.isEmpty && _categoryIncome.isEmpty) {
+      return -1;
+    }
+
+    _showSnackbar(context, "loading...");
+
+    await widget.cloudStorageManager.UpdateExistingGroup(
+      widget.group!.id,
+      _groupCodeController.text,
+      _groupNameController.text,
+      _users,
+      _categoryIncome,
+      _categoryExpense,
+    );
 
     return 0;
   }

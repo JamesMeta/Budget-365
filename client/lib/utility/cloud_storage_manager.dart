@@ -638,4 +638,160 @@ class CloudStorageManager {
       return 'Error joining group check the group code and connection before trying again';
     }
   }
+
+  Future<String> leaveGroup(int groupID, int userID) async {
+    try {
+      await _supabase
+          .from('user_groups')
+          .delete()
+          .eq('id_group', groupID)
+          .eq('id_account', userID);
+      return '0';
+    } catch (error) {
+      print('Error leaving group: $error');
+      return 'Error leaving group';
+    }
+  }
+
+  Future<String> UpdateExistingGroup(
+      int groupID,
+      String groupCode,
+      String groupName,
+      List<String> Users,
+      List<String> incomeCategories,
+      List<String> expenseCategories) async {
+    try {
+      await _supabase.from('group').update({
+        'group_name': groupName,
+      }).eq('id', groupID);
+
+      //Delete existing categories
+      try {
+        await _supabase
+            .from('category')
+            .delete()
+            .eq('id_group', groupID)
+            .eq('type', 0);
+        await _supabase
+            .from('category')
+            .delete()
+            .eq('id_group', groupID)
+            .eq('type', 1);
+      } catch (e) {
+        return 'Error updating group: $e';
+      }
+
+      // Create income categories
+      for (String category in incomeCategories) {
+        try {
+          await _supabase.from('category').insert({
+            'name': category,
+            'id_group': groupID,
+            'type': 0,
+          });
+        } catch (error) {
+          print('Error creating income category: $error');
+        }
+      }
+
+      // Create expense categories
+      for (String category in expenseCategories) {
+        try {
+          await _supabase.from('category').insert({
+            'name': category,
+            'id_group': groupID,
+            'type': 1,
+          });
+        } catch (error) {
+          print('Error creating expense category: $error');
+        }
+      }
+
+      // Delete existing user groups
+      try {
+        await _supabase.from('user_groups').delete().eq('id_group', groupID);
+      } catch (error) {
+        print('Error deleting user groups: $error');
+        return 'Error updating group: $error';
+      }
+
+      // Create user groups
+      for (String user in Users) {
+        try {
+          final userID = await _supabase
+              .from('account')
+              .select('id')
+              .eq('email', user)
+              .single();
+
+          await createUserGroup(userID['id'], groupID);
+        } catch (error) {
+          print('Error creating user group: $error');
+        }
+      }
+
+      return 'Group updated successfully';
+    } catch (error) {
+      print('Error updating group: $error');
+      return 'Error updating group';
+    }
+  }
+
+  Future<List<String>> getGroupUsers(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('user_groups')
+          .select('id_account')
+          .eq('id_group', groupID);
+      List<String> users = [];
+      for (var row in response) {
+        final user = await _supabase
+            .from('account')
+            .select('email')
+            .eq('id', row['id_account'] as int)
+            .single();
+        users.add(user['email'] as String);
+      }
+      return users;
+    } catch (error) {
+      print('Error fetching group users: $error');
+      return [];
+    }
+  }
+
+  Future<List<String>> getGroupIncomeCategories(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('category')
+          .select('name')
+          .eq('id_group', groupID)
+          .eq('type', 0);
+      List<String> categories = [];
+      for (var row in response) {
+        categories.add(row['name'] as String);
+      }
+      return categories;
+    } catch (error) {
+      print('Error fetching group income categories: $error');
+      return [];
+    }
+  }
+
+  Future<List<String>> getGroupExpenseCategories(int groupID) async {
+    try {
+      final response = await _supabase
+          .from('category')
+          .select('name')
+          .eq('id_group', groupID)
+          .eq('type', 1);
+      List<String> categories = [];
+      for (var row in response) {
+        categories.add(row['name'] as String);
+      }
+      return categories;
+    } catch (error) {
+      print('Error fetching group expense categories: $error');
+      return [];
+    }
+  }
 }
