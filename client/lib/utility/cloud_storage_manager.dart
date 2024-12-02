@@ -72,17 +72,18 @@ class CloudStorageManager {
         return "No user found with the given email";
       }
 
+      //conditional of whether or not the user has disabled the login notification
       bool loginNotification = await LocalStorageManager.getLoginSetting();
       if (loginNotification) {
         await _notificationsManager.showNotification(
+            //notify the user that they have successfully logged-in
+
             title: 'Login Successful',
             body: 'Welcome! You are now signed-in with Budget-365.',
             channelId: 'auth_channel',
             channelName: 'Authentication Notifications',
             channelDescription: 'Notificatons for Login/Logout');
       }
-
-      //notify the user that they have successfully logged-in
 
       return response['id'].toString();
     } catch (error) {
@@ -96,7 +97,7 @@ class CloudStorageManager {
     try {
       await _supabase.auth.signOut();
 
-      // Check logoff notification setting
+      //check logoff notification setting
       bool logoffNotification = await LocalStorageManager.getLogoffSetting();
       if (logoffNotification) {
         await _notificationsManager.showNotification(
@@ -175,7 +176,7 @@ class CloudStorageManager {
           .select('id, group_code, group_name, user_groups!inner(id_account)')
           .eq('user_groups.id_account', userID);
 
-      // Parse the data into a list of Group objects
+      //parses the data into a list of Group objects
       final groups = response.map<Group>((row) {
         return Group(
           id: row['id'] as int,
@@ -196,7 +197,7 @@ class CloudStorageManager {
 
   Future<Group?> getGroup(int groupID) async {
     try {
-      // Fetch group data with associated group ID in one query
+      //retrieves group data from cloud storage with associated group ID in one query
       final response = await _supabase
           .from('group')
           .select('group_name')
@@ -235,10 +236,12 @@ class CloudStorageManager {
   Future<List<Map<String, dynamic>>> getReportDots(groupID) async {
     try {
       final response = await _supabase
-        .from('report')
-        .select('amount, date, type',)
-        .eq('id_group', groupID)
-        .order('date', ascending: true);
+          .from('report')
+          .select(
+            'amount, date, type',
+          )
+          .eq('id_group', groupID)
+          .order('date', ascending: true);
 
       if (response is List) {
         return response.map((report) {
@@ -257,6 +260,7 @@ class CloudStorageManager {
     }
   }
 
+  //retrieves a list of reports with child data from cloud storage, based on group passed as an arg
   Future<List<Report>> getReports(int groupID) async {
     try {
       final response = await _supabase
@@ -266,6 +270,7 @@ class CloudStorageManager {
           .order('date', ascending: false);
 
       final reports = response.map<Report>((row) {
+        //parses the response from supabase
         return Report(
           id: row['id'] as int,
           amount: row['amount'] as double,
@@ -406,7 +411,7 @@ class CloudStorageManager {
         }
       }
 
-      // Create user groups
+      //ceates user groups
       for (String user in Users) {
         try {
           final response = await _supabase
@@ -749,7 +754,7 @@ class CloudStorageManager {
         'group_name': groupName,
       }).eq('id', groupID);
 
-      //Delete existing categories
+      //delete existing categories
       try {
         await _supabase
             .from('category')
@@ -765,7 +770,7 @@ class CloudStorageManager {
         return 'Error updating group: $e';
       }
 
-      // Create income categories
+      //create income categories
       for (String category in incomeCategories) {
         try {
           await _supabase.from('category').insert({
@@ -778,7 +783,7 @@ class CloudStorageManager {
         }
       }
 
-      // Create expense categories
+      //create expense categories
       for (String category in expenseCategories) {
         try {
           await _supabase.from('category').insert({
@@ -791,7 +796,7 @@ class CloudStorageManager {
         }
       }
 
-      // Delete existing user groups
+      //delete existing user groups
       try {
         await _supabase.from('user_groups').delete().eq('id_group', groupID);
       } catch (error) {
@@ -799,7 +804,7 @@ class CloudStorageManager {
         return 'Error updating group: $error';
       }
 
-      // Create user groups
+      //create user groups
       for (String user in Users) {
         try {
           final userID = await _supabase
@@ -883,8 +888,7 @@ class CloudStorageManager {
     try {
       //calls the functio to fetch the current user ID
       int? target = await LocalStorageManager.getCurrentUserID();
-      String userEmail =
-          await getEmail(target!); // Make sure getEmail is correct
+      String userEmail = await getEmail(target!);
 
       //gets the formatted body
       String emailBody = await formatReportsForEmail();
@@ -906,22 +910,18 @@ class CloudStorageManager {
     required String subject,
     required String body,
   }) async {
-    // Configure the SMTP server using the gmail helper
     String? username = dotenv.env['EMAIL_USER'];
     String? appPassword = dotenv.env['EMAIL_KEY'];
 
     final smtpServer = gmail(username!, appPassword!);
 
-    // Create the email message
     final message = Message()
-      ..from = Address(username, 'Budget 365 Notifications') // Sender's name
-      ..recipients.add(recipient) // Recipient's email
-      ..subject = subject // Email subject
-      ..text = body; // Plain-text body
-    // Optionally, add an HTML body or attachments
+      ..from = Address(username, 'Budget 365 Notifications')
+      ..recipients.add(recipient)
+      ..subject = subject
+      ..text = body;
 
     try {
-      // Send the email
       final sendReport = await send(message, smtpServer);
       print('Email sent successfully: $sendReport');
     } on MailerException catch (e) {
@@ -929,7 +929,7 @@ class CloudStorageManager {
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
       }
-      rethrow; // Optionally rethrow the error
+      rethrow;
     }
   }
 }

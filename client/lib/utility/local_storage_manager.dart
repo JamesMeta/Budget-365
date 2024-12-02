@@ -182,21 +182,25 @@ class LocalStorageManager {
   }
 
   static Future<bool> getLoginSetting() async {
+    //returns the login notification value
     final loginPref = await SharedPreferences.getInstance();
     return loginPref.getBool('receive_logon') ?? true;
   }
 
   static Future<void> setLoginSetting(bool value) async {
+    //allows user to set their login notification preference
     final loginPref = await SharedPreferences.getInstance();
     loginPref.setBool('receive_logon', value);
   }
 
   static Future<bool> getLogoffSetting() async {
+    //returns the boolean preference value for logoff notifications
     final logoffPref = await SharedPreferences.getInstance();
     return logoffPref.getBool('receive_logoff') ?? true;
   }
 
   static Future<void> setLogoffSetting(bool value) async {
+    //takes settings value and saves it to shared preferences
     final logoffPref = await SharedPreferences.getInstance();
     logoffPref.setBool('receive_logoff', value);
   }
@@ -220,6 +224,6 @@ class LocalStorageManager {
       print('Error fetching current user ID: $e');
     }
 
-    return null; // Return null if no user is logged in
+    return null;
   }
 }
