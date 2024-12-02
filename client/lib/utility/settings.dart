@@ -22,10 +22,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   bool receiveNotifications =
       false; //default setting - when the value is false, the user won't get a push notification (prevents spam)
 
+  bool receiveLogin = true;
+  bool receiveLogoff = true;
   @override
   void initState() {
     super.initState();
     _loadNotificationSetting();
+    _loadLogoffSetting();
+    _loadLogonSetting();
   }
 
   Future<void> _loadNotificationSetting() async {
@@ -36,12 +40,41 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     });
   }
 
+  Future<void> _loadLogonSetting() async {
+    bool logonNotificationEnabled = await LocalStorageManager.getLoginSetting();
+    setState(() {
+      receiveLogin = logonNotificationEnabled;
+    });
+  }
+
+  Future<void> _loadLogoffSetting() async {
+    bool logoffNotificationEnabled =
+        await LocalStorageManager.getLogoffSetting();
+    setState(() {
+      receiveLogoff = logoffNotificationEnabled;
+    });
+  }
+
   Future<void> _saveNotificationSetting(bool value) async {
     //when the user sets the notification preference, that value is stored using localstoragemanager
     setState(() {
       receiveNotifications = value;
     });
     await LocalStorageManager.setNotificationSetting(value);
+  }
+
+  Future<void> _saveLogonSetting(bool value) async {
+    setState(() {
+      receiveLogin = value;
+    });
+    await LocalStorageManager.setLoginSetting(value);
+  }
+
+  Future<void> _saveLogoffSetting(bool value) async {
+    setState(() {
+      receiveLogoff = value;
+    });
+    await LocalStorageManager.setLogoffSetting(value);
   }
 
   Future<void> _exportUserReports() async {
@@ -100,7 +133,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const SizedBox(height: 100),
+                const SizedBox(height: 50),
                 SwitchListTile(
                   activeColor: Colors.lightBlueAccent,
                   activeTrackColor: Colors.blueGrey,
@@ -116,6 +149,40 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   ),
                   value: receiveNotifications,
                   onChanged: _saveNotificationSetting,
+                ),
+                const SizedBox(height: 50),
+                SwitchListTile(
+                  activeColor: Colors.lightBlueAccent,
+                  activeTrackColor: Colors.blueGrey,
+                  inactiveThumbColor: Colors.grey.shade700,
+                  inactiveTrackColor: Colors.grey.shade600,
+                  title: const Text(
+                    'Receive Login Notifications',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  value: receiveLogin,
+                  onChanged: _saveLogonSetting,
+                ),
+                const SizedBox(height: 50),
+                SwitchListTile(
+                  activeColor: Colors.lightBlueAccent,
+                  activeTrackColor: Colors.blueGrey,
+                  inactiveThumbColor: Colors.grey.shade700,
+                  inactiveTrackColor: Colors.grey.shade600,
+                  title: const Text(
+                    'Receive Logoff Notifications',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  value: receiveLogoff,
+                  onChanged: _saveLogoffSetting,
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(

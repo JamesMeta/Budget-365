@@ -181,6 +181,26 @@ class LocalStorageManager {
     prefs.setBool('receive_notifications', value);
   }
 
+  static Future<bool> getLoginSetting() async {
+    final loginPref = await SharedPreferences.getInstance();
+    return loginPref.getBool('receive_logon') ?? true;
+  }
+
+  static Future<void> setLoginSetting(bool value) async {
+    final loginPref = await SharedPreferences.getInstance();
+    loginPref.setBool('receive_logon', value);
+  }
+
+  static Future<bool> getLogoffSetting() async {
+    final logoffPref = await SharedPreferences.getInstance();
+    return logoffPref.getBool('receive_logoff') ?? true;
+  }
+
+  static Future<void> setLogoffSetting(bool value) async {
+    final logoffPref = await SharedPreferences.getInstance();
+    logoffPref.setBool('receive_logoff', value);
+  }
+
   //method retrieves the ID of the user logged-in with the local session
   static Future<int?> getCurrentUserID() async {
     final db = await database; //connects to the local storage
