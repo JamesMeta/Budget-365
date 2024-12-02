@@ -935,25 +935,25 @@ class CloudStorageManager {
 
   Future<List<Map<String, dynamic>>?> getReportsForGraph() async {
     try {
-      // Retrieve the current user ID using LocalStorageManager
+      //retrieves the current user ID using LocalStorageManager
       final userID = await LocalStorageManager.getCurrentUserID();
       if (userID == null) {
         print('No user is currently logged in.');
         return null;
       }
 
-      // Get the list of groups the user is associated with
+      //fetches the list of groups the user is associated with
       final groups = await getGroups(userID);
       if (groups.isEmpty) {
         print('No groups found for the user.');
         return null;
       }
 
-      // Compile a list of reports for all groups
+      //the result is a list of all reports associated with the user
       List<Map<String, dynamic>> allReports = [];
       for (final group in groups) {
         final reports = await getReportsForExport(group.id);
-        // Convert each report to a Map representation for the graph
+
         final reportMaps = reports.map((report) => report.toJson()).toList();
         allReports.addAll(reportMaps);
       }
@@ -963,7 +963,6 @@ class CloudStorageManager {
         return null;
       }
 
-      // Return the list of report data
       return allReports;
     } catch (error) {
       print('Error fetching reports for graph: $error');
