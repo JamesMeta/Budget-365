@@ -51,6 +51,7 @@ dependencies:
   csv: ^6.0.0
   file_picker: ^8.1.4
   mailer: ^6.2.0
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:

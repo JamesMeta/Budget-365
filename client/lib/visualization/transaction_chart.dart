@@ -79,7 +79,7 @@ class _TransactionChartState extends State<TransactionChart> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Transactions by Category',
+          'Activity by Category',
           style: TextStyle(
             color: Color.fromARGB(255, 255, 255, 255),
             fontSize: 19.0,
