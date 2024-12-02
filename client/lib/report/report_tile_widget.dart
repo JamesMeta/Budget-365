@@ -169,13 +169,12 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
 
   Future<String> getInitials(int userID) async {
     String name = await widget.cloudStorageManager.getUsername(userID);
-    List<String> words = name.split(' '); // Split the name by spaces
+    List<String> words = name.split(' '); //splits the name by spaces
     String initials = '';
 
     for (var word in words) {
       if (word.isNotEmpty) {
-        initials +=
-            word[0].toUpperCase(); // Take the first letter and capitalize it
+        initials += word[0].toUpperCase();
         if (initials.length == 2) {
           break;
         }

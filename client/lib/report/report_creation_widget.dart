@@ -113,7 +113,6 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           ),
         ],
       ),
-      // bottomNavigationBar: BottomAppBarSection(),
     );
   }
 
@@ -279,7 +278,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                       style: TextStyle(
                           color: _textFieldFontColor,
                           fontSize: fontSizeInputs,
-                          fontWeight: FontWeight.bold)), // Placeholder text
+                          fontWeight: FontWeight.bold)),
                   onChanged: (String? value) {
                     setState(() {
                       _selectedCategory = value;
@@ -337,7 +336,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               style: TextStyle(
                   color: _textFieldFontColor,
                   fontSize: fontSizeInputs,
-                  fontWeight: FontWeight.bold)), // Placeholder text
+                  fontWeight: FontWeight.bold)),
           onChanged: (String? value) {
             setState(() {
               _selectedCategory = value;
@@ -394,7 +393,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             style: TextStyle(
                 color: _textFieldFontColor,
                 fontSize: fontSizeInputs,
-                fontWeight: FontWeight.bold)), // Placeholder text
+                fontWeight: FontWeight.bold)),
         onChanged: (String? value) {
           setState(() {
             _selectedGroup = value;
@@ -428,23 +427,16 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           suffixIcon: Icon(Icons.calendar_today, color: _textFieldFontColor),
@@ -473,23 +465,16 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldFontColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldFontColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           fillColor: Colors.transparent,
@@ -516,24 +501,17 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           hintText: "Enter description here...",
           hintStyle: TextStyle(color: _textFieldFontColor),
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           filled: true,
           fillColor: Colors.transparent,
@@ -679,7 +657,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       return -1;
     }
 
-    // check if amount is a valid number
+    //check if amount is a valid number
     try {
       double.parse(_amountController.text);
     } catch (e) {
