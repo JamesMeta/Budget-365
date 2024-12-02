@@ -2,6 +2,7 @@ import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/design/app_gradient.dart';
 import 'package:flutter/material.dart';
+import 'package:budget_365/notifications/email_sender.dart';
 
 class SettingsWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -55,6 +56,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Oops! Failed to export reports: $e")),
+      );
+    }
+  }
+
+  // New function to send balance email
+  Future<void> _sendBalanceEmail() async {
+    try {
+      await widget.cloudStorageManager.sendBalanceEmail();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Balance email sent successfully!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Oops! Failed to send balance email: $e")),
       );
     }
   }
@@ -116,6 +131,26 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   onPressed: _exportUserReports,
                   child: const Text(
                     'Export Reports',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 40, 176, 218),
+                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: _sendBalanceEmail, // Trigger sendBalanceEmail
+                  child: const Text(
+                    'Send Balance Email',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

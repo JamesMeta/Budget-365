@@ -4,6 +4,9 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
@@ -359,7 +362,7 @@ class CloudStorageManager {
         }
       }
 
-      // Create expense categories
+      //create expense categories
       for (String category in expenseCategories) {
         try {
           await _supabase.from('category').insert({
@@ -429,11 +432,11 @@ class CloudStorageManager {
       });
       print('Report created successfully');
 
-      // Check if user wants notifications
+      //check if user wants notifications
       bool receiveNotifications =
           await LocalStorageManager.getNotificationSetting();
       if (receiveNotifications) {
-        // Send notification if user prefers it
+        //if the user wants report notifications,
         await _notificationsManager.showNotification(
           title: 'Report Created',
           body: 'Your report has been uploaded!',
@@ -573,7 +576,7 @@ class CloudStorageManager {
     }
   }
 
-  //This method will retrieve all report data from groups the user is in,
+  //this method will retrieve all report data from groups the user is in,
   //and exports that data to the local device.
 
   Future<void> exportUserReports() async {
@@ -620,6 +623,51 @@ class CloudStorageManager {
       print('Reports saved successfully to ${file.path}');
     } catch (error) {
       print('Error exporting reports: $error');
+    }
+  }
+
+  Future<String> formatReportsForEmail() async {
+    try {
+      //gets the current user's ID
+      final userID = await LocalStorageManager.getCurrentUserID();
+      if (userID == null) {
+        return 'No user is currently logged in.';
+      }
+
+      final groups = await getGroups(userID);
+      if (groups.isEmpty) {
+        return 'No groups found for the user.';
+      }
+
+      List<Report> allReports = [];
+      for (final group in groups) {
+        final reports = await getReportsForExport(group.id);
+        allReports.addAll(reports);
+      }
+
+      if (allReports.isEmpty) {
+        return 'No reports found for user groups.';
+      }
+
+      //creates a formatted string for email body
+      final buffer = StringBuffer();
+      buffer.writeln('User Report Summary');
+      buffer.writeln('--------------------');
+      buffer.writeln();
+
+      for (final report in allReports) {
+        buffer.writeln('Date: ${report.date}');
+        buffer.writeln('Description: ${report.description}');
+        buffer.writeln('Amount: \$${report.amount.toStringAsFixed(2)}');
+        buffer.writeln('Category: ${report.category}');
+        buffer.writeln('Type: ${report.type == 0 ? "Income" : "Expense"}');
+        buffer.writeln('--------------------');
+      }
+
+      return buffer.toString();
+    } catch (error) {
+      print('Error formatting reports for email: $error');
+      return 'An error occurred while generating the report.';
     }
   }
 
@@ -797,6 +845,60 @@ class CloudStorageManager {
     } catch (error) {
       print('Error fetching group expense categories: $error');
       return [];
+    }
+  }
+
+  Future<void> sendBalanceEmail() async {
+    try {
+      //calls the functio to fetch the current user ID
+      int? target = await LocalStorageManager.getCurrentUserID();
+      String userEmail =
+          await getEmail(target!); // Make sure getEmail is correct
+
+      //gets the formatted body
+      String emailBody = await formatReportsForEmail();
+
+      await sendEmail(
+        recipient: userEmail,
+        subject: "Budget-365 Balance Report",
+        body: emailBody,
+      );
+
+      print('Balance email sent to $userEmail');
+    } catch (e) {
+      print('Failed to send balance email: $e');
+    }
+  }
+
+  Future<void> sendEmail({
+    required String recipient,
+    required String subject,
+    required String body,
+  }) async {
+    // Configure the SMTP server using the gmail helper
+    String? username = dotenv.env['EMAIL_USER'];
+    String? appPassword = dotenv.env['EMAIL_KEY'];
+
+    final smtpServer = gmail(username!, appPassword!);
+
+    // Create the email message
+    final message = Message()
+      ..from = Address(username, 'Budget 365 Notifications') // Sender's name
+      ..recipients.add(recipient) // Recipient's email
+      ..subject = subject // Email subject
+      ..text = body; // Plain-text body
+    // Optionally, add an HTML body or attachments
+
+    try {
+      // Send the email
+      final sendReport = await send(message, smtpServer);
+      print('Email sent successfully: $sendReport');
+    } on MailerException catch (e) {
+      print('Failed to send email: ${e.message}');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+      }
+      rethrow; // Optionally rethrow the error
     }
   }
 }

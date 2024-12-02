@@ -3,6 +3,9 @@ import 'package:mailer/smtp_server.dart';
 
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:budget_365/utility/cloud_storage_manager.dart';
+import 'package:budget_365/main.dart';
 
 class EmailSender {
   final String username;
@@ -54,6 +57,36 @@ class EmailSender {
       print('Test email sent successfully!');
     } catch (e) {
       print('Failed to send test email: $e');
+    }
+  }
+
+  // Sends an email to the logged-in user's email with balance data
+  // Modify the sendBalanceEmail function to accept cloudStorageManager as a parameter
+  Future<void> sendBalanceEmail(CloudStorageManager cloudStorageManager) async {
+    try {
+      // Get the current user's ID (nullable)
+      int? target = await LocalStorageManager.getCurrentUserID();
+      if (target == null) {
+        print('No user is currently logged in.');
+        return;
+      }
+
+      // Get the email of the user using the cloudStorageManager instance
+      String userEmail = await cloudStorageManager.getEmail(target);
+
+      // Format the reports for the email body using the cloudStorageManager instance
+      String emailBody = await cloudStorageManager.formatReportsForEmail();
+
+      // Send the email
+      await sendEmail(
+        recipient: userEmail,
+        subject: "Budget-365 Balance Report",
+        body: emailBody,
+      );
+
+      print('Balance email sent to $userEmail');
+    } catch (e) {
+      print('Failed to send report email: $e');
     }
   }
 }

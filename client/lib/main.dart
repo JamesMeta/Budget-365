@@ -15,7 +15,7 @@ import 'package:budget_365/notifications/email_sender.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
+  //load environment variables
 
   await dotenv.load(fileName: "assets/keys/env");
 
@@ -64,8 +64,6 @@ Future<void> main() async {
     appPassword: dotenv.env['EMAIL_KEY']!,
   );
 
-  //for the time being, test emails are sent on app startup
-  await emailSender.sendTestEmail();
   runApp(Budget365(cloudStorageManager));
 
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);

@@ -200,6 +200,6 @@ class LocalStorageManager {
       print('Error fetching current user ID: $e');
     }
 
-    return null;
+    return null; // Return null if no user is logged in
   }
 }
