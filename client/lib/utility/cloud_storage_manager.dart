@@ -72,13 +72,17 @@ class CloudStorageManager {
         return "No user found with the given email";
       }
 
+      bool loginNotification = await LocalStorageManager.getLoginSetting();
+      if (loginNotification) {
+        await _notificationsManager.showNotification(
+            title: 'Login Successful',
+            body: 'Welcome! You are now signed-in with Budget-365.',
+            channelId: 'auth_channel',
+            channelName: 'Authentication Notifications',
+            channelDescription: 'Notificatons for Login/Logout');
+      }
+
       //notify the user that they have successfully logged-in
-      await _notificationsManager.showNotification(
-          title: 'Login Successful',
-          body: 'Welcome! You are now signed-in with Budget-365.',
-          channelId: 'auth_channel',
-          channelName: 'Authentication Notifications',
-          channelDescription: 'Notificatons for Login/Logout');
 
       return response['id'].toString();
     } catch (error) {
@@ -92,17 +96,18 @@ class CloudStorageManager {
     try {
       await _supabase.auth.signOut();
 
-      //sends the user a push notification to let them know they have logged-out
-      //Important! This only occurs if the user is signed-out from the Supabase cloud storage
+      // Check logoff notification setting
+      bool logoffNotification = await LocalStorageManager.getLogoffSetting();
+      if (logoffNotification) {
+        await _notificationsManager.showNotification(
+            title: 'Logout Successful',
+            body: 'You are now signed out of Budget-365',
+            channelId: 'auth_channel',
+            channelName: 'Authentication Notifications',
+            channelDescription: 'Notifications for Login/Logout');
+      }
 
-      await _notificationsManager.showNotification(
-          title: 'Logout Successful',
-          body: 'You are now signed out of Budget-365',
-          channelId: 'auth_channel',
-          channelName: 'Authentication Notifications',
-          channelDescription: 'Notificatons for Login/Logout');
-
-      //once the user has been logged-out from cloud storage, the function can return
+      //return true after successful sign-out and optional notification
       return true;
     } catch (error) {
       print('Error logging out: $error');
