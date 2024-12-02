@@ -27,13 +27,10 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
   List<String> _categoryIncome = [];
 
   TextEditingController _groupNameController = TextEditingController();
-  TextEditingController _userEmailController = TextEditingController();
-  TextEditingController _categoryController = TextEditingController();
   TextEditingController _groupCodeController = TextEditingController();
 
   Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
   Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
-  Color _textPopupColor = const Color.fromARGB(255, 0, 0, 0);
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
@@ -155,6 +152,7 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
       child: TextField(
         controller: _groupNameController,
         keyboardType: TextInputType.text,
+        maxLength: 25,
         style: TextStyle(
             color: _textFieldFontColor,
             fontSize: fontSizeInputs,
@@ -552,6 +550,7 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
                     TextField(
                       controller: dialogCategoryController,
                       decoration: InputDecoration(hintText: "Enter Category"),
+                      maxLength: 15,
                     ),
                   ],
                 ),
@@ -608,7 +607,7 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
   }
 
   Future<void> _leaveGroup() async {
-    final response = await widget.cloudStorageManager
+    await widget.cloudStorageManager
         .leaveGroup(widget.group!.id, widget.userLoggedIn);
   }
 

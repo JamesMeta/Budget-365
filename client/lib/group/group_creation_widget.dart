@@ -38,8 +38,6 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   ];
 
   TextEditingController _groupNameController = TextEditingController();
-  TextEditingController _userEmailController = TextEditingController();
-  TextEditingController _categoryController = TextEditingController();
   TextEditingController _groupCodeController = TextEditingController();
 
   Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
@@ -175,6 +173,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
       child: TextField(
         controller: _groupNameController,
         keyboardType: TextInputType.text,
+        maxLength: 25,
         style: TextStyle(
             color: _textFieldFontColor,
             fontSize: fontSizeInputs,
@@ -645,6 +644,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                     TextField(
                       controller: dialogCategoryController,
                       decoration: InputDecoration(hintText: "Enter Category"),
+                      maxLength: 15,
                     ),
                   ],
                 ),

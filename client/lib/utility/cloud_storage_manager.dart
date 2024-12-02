@@ -500,15 +500,20 @@ class CloudStorageManager {
     return generateUniqueGroupCode();
   }
 
-  Future<Map<String, double>> getReportTotals(groupID) async {
+  Future<Map<String, double>> getReportTotals(groupID, days) async {
     try {
       final response = await _supabase
           .from('report')
-          .select('amount, type')
+          .select('amount, type, date')
           .eq('id_group', groupID);
       double totalIncome = 0;
       double totalExpense = 0;
       for (var row in response) {
+        final date = DateTime.parse(row['date'] as String);
+        if (date.isBefore(DateTime.now().subtract(Duration(days: days))) ||
+            date.isAfter(DateTime.now())) {
+          continue;
+        }
         if (row['type'] == 0) {
           totalIncome += row['amount'];
         } else {

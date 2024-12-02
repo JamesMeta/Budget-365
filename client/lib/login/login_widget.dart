@@ -400,6 +400,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
       margin: EdgeInsets.only(top: 10, left: 20, right: 20),
       child: TextField(
         controller: usernameController,
+        maxLength: 15,
         decoration: InputDecoration(
           hintText: "Enter Your Username",
           hintStyle: TextStyle(color: Colors.grey),

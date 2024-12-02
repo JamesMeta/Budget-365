@@ -36,6 +36,16 @@ class _HomeWidgetState extends State<HomeWidget> {
   double _expenseTotal = 0;
   double _balance = 0;
 
+  final List<String> _dateRange = [
+    "1 Day",
+    "1 Week",
+    "1 Month",
+    "1 Year",
+    "All Time"
+  ];
+  final List<int> _dateRangeNumerical = [1, 7, 30, 365, 2147483647];
+  int _selectedDateRangeIndex = 3;
+
   @override
   void initState() {
     super.initState();
@@ -243,7 +253,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget TableRowsSection() {
     return Expanded(
       child: StreamBuilder(
-        key: ValueKey(_selectedGroupID),
         stream:
             widget.cloudStorageManager.getReportsStream(_selectedGroupID ?? 0),
         builder: (context, snapshot) {
@@ -283,6 +292,15 @@ class _HomeWidgetState extends State<HomeWidget> {
                       reportData['category'] as String? ?? 'Uncategorized',
                   date: DateTime.parse(reportData['date']),
                 );
+
+                //Determine if its within the datarange
+                DateTime currentDate = DateTime.now();
+                DateTime reportDate = report.date;
+
+                if (currentDate.difference(reportDate).inDays >
+                    _dateRangeNumerical[_selectedDateRangeIndex]) {
+                  return const SizedBox();
+                }
 
                 // Determine if a divider is needed
                 bool showDivider = false;
@@ -382,14 +400,48 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   void _goToCalendar() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const CalendarPage()),
-    // );
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ThisFeatureHasNotBeenImplemented();
+        return AlertDialog(
+          title: const Text('Date Range'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: List<Widget>.generate(_dateRange.length, (int index) {
+                  return RadioListTile<int>(
+                    title: Text(_dateRange[index]),
+                    value: index,
+                    groupValue: _selectedDateRangeIndex,
+                    onChanged: (int? value) {
+                      setState(() {
+                        _selectedDateRangeIndex = value!;
+                      });
+                    },
+                  );
+                }),
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  // You can update any state variables here, even if you don't actually change anything.
+                });
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
       },
     );
   }
@@ -405,6 +457,12 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   void _goToReportBuilder() {
+    if (_groups.isEmpty) {
+      _showSnackbar(context,
+          'No groups found. Please navigate to the group window and create a group first.');
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -443,8 +501,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> _getTotals() async {
-    final totals =
-        await widget.cloudStorageManager.getReportTotals(_selectedGroupID ?? 0);
+    final totals = await widget.cloudStorageManager.getReportTotals(
+        _selectedGroupID ?? 0, _dateRangeNumerical[_selectedDateRangeIndex]);
     _incomeTotal = totals['income']!;
     _expenseTotal = totals['expense']!;
     _balance = totals['balance']!;
