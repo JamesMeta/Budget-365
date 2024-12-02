@@ -49,8 +49,10 @@ Future<void> main() async {
     anonKey: supabaseAnonKey,
   );
 
-  final localNotificationsManager = LocalNotificationsManager();
+  final localNotificationsManager =
+      LocalNotificationsManager(); //creates and instance of the notifications manager
   final cloudStorageManager = CloudStorageManager(
+    //passes supabase and localnotifications manager to init cloud storage manager
     Supabase.instance.client,
     localNotificationsManager,
   );
