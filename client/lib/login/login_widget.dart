@@ -18,39 +18,73 @@ class _LoginWidgetState extends State<LoginWidget> {
   TextEditingController passwordController = TextEditingController();
   late LoginHandler loginHandler;
 
+  late double _titleFontSize;
+  late double _textFieldFontSize;
+  late double _textButtonFontSize;
+  late double _logoScalingFactor;
+  late double _spacingHeight;
+  late double _horizontalPadding;
+  late double _elevatedButtonWidth;
+
   @override
   void initState() {
     loginHandler = LoginHandler(widget.cloudStorageManager);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    _titleFontSize = MediaQuery.of(context).size.width * 0.05;
+    _logoScalingFactor = MediaQuery.of(context).size.width * 0.0075;
+    _textFieldFontSize = MediaQuery.of(context).size.width * 0.03;
+    _textButtonFontSize = MediaQuery.of(context).size.width * 0.045;
+    _spacingHeight = MediaQuery.of(context).size.height * 0.02;
+    _horizontalPadding = MediaQuery.of(context).size.width * 0.05;
+    _elevatedButtonWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+        ),
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.blue,
         body: Container(
           alignment: Alignment.center,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                LogoSection(),
-                WelcomeTextSection(),
-                UsernameTextSection(),
-                UsernameInputSection(),
-                PasswordTextSection(),
-                PasswordInputSection(),
-                CreateAccount_ForgotPasswordSection(),
-                LoginButtonSection(),
-              ],
+            child: Padding(
+              padding: EdgeInsets.only(
+                  right: _horizontalPadding, left: _horizontalPadding),
+              child: Column(
+                children: [
+                  LogoSection(),
+                  WelcomeTextSection(),
+                  SizedBox(height: _spacingHeight),
+                  UsernameTextSection(),
+                  UsernameInputSection(),
+                  SizedBox(height: _spacingHeight),
+                  PasswordTextSection(),
+                  PasswordInputSection(),
+                  SizedBox(height: _spacingHeight * 2),
+                  LoginButtonSection(),
+                  SizedBox(height: _spacingHeight * 2),
+                  CreateAccount_ForgotPasswordSection(),
+                ],
+              ),
             ),
           ),
         ));
   }
 
   Widget LogoSection() {
-    return Image.asset(
-      'assets/images/logo1.png',
-      scale: 3,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.65,
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: Image.asset(
+        'assets/images/logo1.png',
+        fit: BoxFit.contain,
+      ),
     );
   }
 
@@ -61,7 +95,7 @@ class _LoginWidgetState extends State<LoginWidget> {
         'Welcome to Budget 365',
         style: TextStyle(
             color: Colors.white,
-            fontSize: 30,
+            fontSize: _titleFontSize,
             fontFamily: 'Arial',
             fontWeight: FontWeight.bold),
       ),
@@ -71,7 +105,6 @@ class _LoginWidgetState extends State<LoginWidget> {
   Widget UsernameTextSection() {
     return Container(
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(top: 40, left: 20),
       child: Text(
         'Email',
         style: TextStyle(
@@ -85,7 +118,6 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget UsernameInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20),
       child: TextField(
         controller: usernameController,
         decoration: InputDecoration(
@@ -104,7 +136,6 @@ class _LoginWidgetState extends State<LoginWidget> {
   Widget PasswordTextSection() {
     return Container(
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(top: 30, left: 20),
       child: Text(
         'Password',
         style: TextStyle(
@@ -118,7 +149,6 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget PasswordInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
       child: TextField(
         controller: passwordController,
         obscureText: true,
@@ -137,44 +167,24 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget CreateAccount_ForgotPasswordSection() {
     return Container(
-      margin: EdgeInsets.only(top: 0, right: 20),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
               onPressed: _onCreateAccountPressed,
-              child: const Text(
-                'Create Account',
+              style: ButtonStyle(
+                padding: WidgetStatePropertyAll(EdgeInsets.zero),
+              ),
+              child: Text(
+                "Don't have an account?",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 15,
+                    fontSize: _textButtonFontSize,
                     fontFamily: 'Arial',
                     fontWeight: FontWeight.normal,
                     decoration: TextDecoration.underline,
                     decorationColor: Colors.white),
               )),
-          SizedBox(
-            width: 100,
-          ),
-          TextButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return ThisFeatureHasNotBeenImplemented();
-                  });
-            },
-            child: Text(
-              'Forgot Password?',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontFamily: 'Arial',
-                  fontWeight: FontWeight.normal,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Colors.white),
-            ),
-          ),
         ],
       ),
     );
@@ -182,15 +192,14 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget LoginButtonSection() {
     return Container(
-      margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: ElevatedButton(
           onPressed: _onLoginPressed,
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(Colors.white),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10))),
-            fixedSize: WidgetStatePropertyAll(Size(400, 60)),
+            fixedSize: WidgetStatePropertyAll(Size(_elevatedButtonWidth, 60)),
           ),
           child: Text(
             'Login',
@@ -200,22 +209,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                 fontFamily: 'Arial',
                 fontWeight: FontWeight.bold),
           )),
-    );
-  }
-
-  Widget ThisFeatureHasNotBeenImplemented() {
-    return AlertDialog(
-      title: const Text('Feature Not Implemented'),
-      content: const Text(
-          'This feature has not been implemented yet check back in the full release of Budget365'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('OK'),
-        ),
-      ],
     );
   }
 
@@ -273,30 +266,53 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
+  late double _titleFontSize;
+  late double _textFieldFontSize;
+  late double _textButtonFontSize;
+  late double _logoScalingFactor;
+  late double _spacingHeight;
+  late double _horizontalPadding;
+  late double _elevatedButtonWidth;
+
   @override
   Widget build(BuildContext context) {
+    _titleFontSize = MediaQuery.of(context).size.width * 0.05;
+    _logoScalingFactor = MediaQuery.of(context).size.width * 0.0075;
+    _textFieldFontSize = MediaQuery.of(context).size.width * 0.03;
+    _textButtonFontSize = MediaQuery.of(context).size.width * 0.045;
+    _spacingHeight = MediaQuery.of(context).size.height * 0.02;
+    _horizontalPadding = MediaQuery.of(context).size.width * 0.05;
+    _elevatedButtonWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
-          toolbarHeight: 30,
+          backgroundColor: Colors.transparent,
         ),
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.blue,
-        body: Container(
-          alignment: Alignment.center,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                LogoSection(),
-                WelcomeTextSection(),
-                EmailTextSection(),
-                EmailInputSection(),
-                UsernameTextSection(),
-                UsernameInputSection(),
-                PasswordTextSection(),
-                PasswordInputSection(),
-                ConfirmPasswordInputSection(),
-                CreateAccountButtonSection(),
-              ],
+        body: SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  right: _horizontalPadding, left: _horizontalPadding),
+              child: Column(
+                children: [
+                  LogoSection(),
+                  WelcomeTextSection(),
+                  SizedBox(height: _spacingHeight),
+                  EmailTextSection(),
+                  EmailInputSection(),
+                  SizedBox(height: _spacingHeight),
+                  UsernameTextSection(),
+                  UsernameInputSection(),
+                  PasswordTextSection(),
+                  PasswordInputSection(),
+                  ConfirmPasswordInputSection(),
+                  SizedBox(height: _spacingHeight * 2),
+                  CreateAccountButtonSection(),
+                ],
+              ),
             ),
           ),
         ));
@@ -327,20 +343,23 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   }
 
   Widget LogoSection() {
-    return Image.asset(
-      'assets/images/logo1.png',
-      scale: 3,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.65,
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: Image.asset(
+        'assets/images/logo1.png',
+        fit: BoxFit.contain,
+      ),
     );
   }
 
   Widget WelcomeTextSection() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
       child: Text(
-        'Create Your Budget 365 Account',
+        'Create Budget365 Account',
         style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: _titleFontSize,
             fontFamily: 'Arial',
             fontWeight: FontWeight.bold),
       ),
@@ -350,7 +369,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   Widget EmailTextSection() {
     return Container(
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(top: 10, left: 20),
       child: Text(
         'Email',
         style: TextStyle(
@@ -364,7 +382,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
 
   Widget EmailInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20),
       child: TextField(
         controller: emailController,
         decoration: InputDecoration(
@@ -383,7 +400,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   Widget UsernameTextSection() {
     return Container(
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(top: 10, left: 20),
       child: Text(
         'Username',
         style: TextStyle(
@@ -397,7 +413,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
 
   Widget UsernameInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20),
       child: TextField(
         controller: usernameController,
         maxLength: 15,
@@ -417,7 +432,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   Widget PasswordTextSection() {
     return Container(
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(top: 10, left: 20),
       child: Text(
         'Password',
         style: TextStyle(
@@ -431,7 +445,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
 
   Widget PasswordInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
       child: TextField(
         controller: passwordController,
         obscureText: true,
@@ -450,7 +463,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
 
   Widget ConfirmPasswordInputSection() {
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 0),
       child: TextField(
         controller: confirmPasswordController,
         obscureText: true,
@@ -469,7 +481,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
 
   Widget CreateAccountButtonSection() {
     return Container(
-      margin: EdgeInsets.only(top: 40, left: 20, right: 20),
       alignment: Alignment.centerLeft,
       child: ElevatedButton(
           onPressed: () async {
@@ -493,7 +504,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
             backgroundColor: WidgetStatePropertyAll(Colors.white),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10))),
-            fixedSize: WidgetStatePropertyAll(Size(400, 60)),
+            fixedSize: WidgetStatePropertyAll(Size(_elevatedButtonWidth, 60)),
           ),
           child: Text(
             'Create Account',

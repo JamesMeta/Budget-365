@@ -28,9 +28,12 @@ class _HomeWidgetState extends State<HomeWidget> {
   String? _selectedGroupItem;
   int? _selectedGroupID;
 
-  static const _labelFontSize = 17.5;
   static const _labelFontColor = Color.fromARGB(255, 255, 255, 255);
   static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
+
+  late double _labelFontSize;
+  late double _rowHeight;
+  late double _dropDownMenuWidth;
 
   double _incomeTotal = 0;
   double _expenseTotal = 0;
@@ -53,6 +56,10 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _labelFontSize = MediaQuery.of(context).size.width * 0.035;
+    _rowHeight = MediaQuery.of(context).size.width * 0.15;
+    _dropDownMenuWidth = MediaQuery.of(context).size.width * 0.5;
+
     return Stack(
       children: [
         const AppGradient(),
@@ -109,7 +116,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           border: Border.all(color: Colors.black, width: 2),
           borderRadius: BorderRadius.circular(10),
         ),
-        width: 200,
+        width: _dropDownMenuWidth,
         height: 50,
         child: DropdownButton<String>(
           style: const TextStyle(color: Colors.white),
@@ -174,18 +181,19 @@ class _HomeWidgetState extends State<HomeWidget> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            return Container(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                width: double.infinity,
-                height: 75,
-                decoration: BoxDecoration(
-                  color: _containerFillColor,
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
+            return SingleChildScrollView(
+              child: Container(
+                  width: double.infinity,
+                  height: _rowHeight,
+                  decoration: BoxDecoration(
+                    color: _containerFillColor,
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Income',
@@ -203,9 +211,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                           ),
                         ],
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Expense',
@@ -223,9 +230,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                           ),
                         ],
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Balance',
@@ -243,9 +249,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ));
+                    ],
+                  )),
+            );
           }
         });
   }

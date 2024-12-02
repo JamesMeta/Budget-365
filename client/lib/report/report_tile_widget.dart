@@ -18,34 +18,55 @@ class ReportTileWidget extends StatefulWidget {
 }
 
 class _ReportTileWidgetState extends State<ReportTileWidget> {
-  static const _fontSize = 19.0;
   static const _fontColor = Color.fromARGB(255, 255, 255, 255);
   static const _containerFillColor = Color.fromARGB(0, 255, 255, 255);
 
+  late double _fontSize;
+  late double _rowHeight;
+  late double _iconSize;
+  late double _iconWidth;
+  late double _CategoryWidth;
+  late double _AmountWidth;
+  late double _UsersWidth;
+  late double _DateWidth;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onEdit,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(5, 5, 0, 5),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 2),
-          color: _containerFillColor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            TypeSection(),
-            Column(
-              children: [
-                CategorySection(),
-                AmountSection(),
-              ],
-            ),
-            UsersSection(),
-            DateSection(),
-          ],
+    _fontSize = MediaQuery.of(context).size.width * 0.035;
+    _rowHeight = MediaQuery.of(context).size.width * 0.15;
+    _iconSize = MediaQuery.of(context).size.width * 0.065;
+    _iconWidth = MediaQuery.of(context).size.width * 0.065;
+    _CategoryWidth = MediaQuery.of(context).size.width * 0.4;
+    _AmountWidth = MediaQuery.of(context).size.width * 0.4;
+    _UsersWidth = MediaQuery.of(context).size.width * 0.1;
+    _DateWidth = MediaQuery.of(context).size.width * 0.15;
+
+    return SingleChildScrollView(
+      child: GestureDetector(
+        onTap: widget.onEdit,
+        child: Container(
+          width: double.infinity,
+          height: _rowHeight,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 2),
+            color: _containerFillColor,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TypeSection(),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CategorySection(),
+                  AmountSection(),
+                ],
+              ),
+              UsersSection(),
+              DateSection(),
+            ],
+          ),
         ),
       ),
     );
@@ -53,13 +74,13 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
 
   Widget TypeSection() {
     return Container(
-      width: 55,
-      alignment: Alignment.center,
+      width: _iconWidth,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(widget.report.type == 1 ? '📉' : '📈',
               style: TextStyle(
-                fontSize: 45,
+                fontSize: _iconSize,
                 fontWeight: FontWeight.bold,
               )),
         ],
@@ -68,48 +89,44 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
   }
 
   Widget AmountSection() {
-    return SingleChildScrollView(
-      child: Container(
-        width: 105,
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            Text(
-              widget.report.amount.toString(),
-              style: const TextStyle(
-                  fontSize: _fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: _fontColor),
-            ),
-          ],
-        ),
+    return Container(
+      width: _AmountWidth,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.report.amount.toString(),
+            style: TextStyle(
+                fontSize: _fontSize,
+                fontWeight: FontWeight.bold,
+                color: _fontColor),
+          ),
+        ],
       ),
     );
   }
 
   Widget CategorySection() {
-    return SingleChildScrollView(
-      child: Container(
-        width: 160,
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            Text("${widget.report.category}:",
-                style: const TextStyle(
-                    fontSize: _fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: _fontColor)),
-          ],
-        ),
+    return Container(
+      width: _CategoryWidth,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("${widget.report.category}:",
+              style: TextStyle(
+                  fontSize: _fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: _fontColor)),
+        ],
       ),
     );
   }
 
   Widget UsersSection() {
     return Container(
-      width: 35,
-      alignment: Alignment.center,
+      width: _UsersWidth,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           FutureBuilder<String>(
             future: getInitials(widget.report.userID),
@@ -121,7 +138,7 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
               } else {
                 return Text(
                   snapshot.data ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: _fontSize,
                       fontWeight: FontWeight.bold,
                       color: _fontColor),
@@ -136,12 +153,12 @@ class _ReportTileWidgetState extends State<ReportTileWidget> {
 
   Widget DateSection() {
     return Container(
-      width: 55,
-      alignment: Alignment.center,
+      width: _DateWidth,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(getNameofDayofWeek(widget.report.date),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: _fontSize,
                   fontWeight: FontWeight.bold,
                   color: _fontColor)),

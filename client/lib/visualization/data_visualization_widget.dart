@@ -38,7 +38,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   int _selectedDateRangeIndex = 3;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _getReportDots();
   }
@@ -52,9 +52,8 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Padding(
-                padding: EdgeInsets.fromLTRB(0, 25, 0, 8),
-                child: GraphTypeNavigation()
-              ),
+            padding: EdgeInsets.fromLTRB(0, 25, 0, 8),
+            child: GraphTypeNavigation()),
       ),
       body: Stack(
         children: [
@@ -62,9 +61,9 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
           Column(
             children: [
               Padding(
-                      padding: EdgeInsets.fromLTRB(8, 140, 8, 8),
-                      child: ScreenAspectRatio(),
-                    ),
+                padding: EdgeInsets.fromLTRB(8, 140, 8, 8),
+                child: ScreenAspectRatio(),
+              ),
               FutureBuilder(
                   future: _getGroups(),
                   builder: (context, snapshot) {
@@ -173,58 +172,34 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
         ),
       ),
       padding: const EdgeInsets.fromLTRB(10, 60, 10, 20),
-      child: PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              borderSide: BorderSide(
-                color: Colors.black,
-                width: 2),
-              radius: 185,
-              value: dataTotals['income'],
-              color: const Color.fromARGB(255, 18, 233, 25),
-              title: 'Income',
-              titleStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold),
+      child: PieChart(PieChartData(
+        sections: [
+          PieChartSectionData(
+            borderSide: BorderSide(color: Colors.black, width: 2),
+            radius: 185,
+            value: dataTotals['income'],
+            color: const Color.fromARGB(255, 18, 233, 25),
+            title: 'Income',
+            titleStyle: TextStyle(
+                color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          ),
+          PieChartSectionData(
+            borderSide: BorderSide(
+              color: Colors.black,
+              width: 2,
             ),
-            PieChartSectionData(
-              borderSide: BorderSide(
-                color: Colors.black,
-                width: 2,
-              ),
-              radius: 150,
-              value: dataTotals['expenses'],
-              titlePositionPercentageOffset: 0.7,
-              color: Colors.red,
-              title: 'Expenses',
-              titleStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold),
-            )
-          ],
-          sectionsSpace: 2,
-          centerSpaceRadius: 0,
-        )
-      ),
-    );
-  }
-
-  Widget ThisFeatureHasNotBeenImplemented() {
-    return AlertDialog(
-      title: const Text('Feature Not Fully Implemented'),
-      content: const Text(
-          'This feature has not been fully implemented yet so this is a simple demo of what will be here'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('OK'),
-        ),
-      ],
+            radius: 150,
+            value: dataTotals['expenses'],
+            titlePositionPercentageOffset: 0.7,
+            color: Colors.red,
+            title: 'Expenses',
+            titleStyle: TextStyle(
+                color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          )
+        ],
+        sectionsSpace: 2,
+        centerSpaceRadius: 0,
+      )),
     );
   }
 
@@ -280,61 +255,66 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-  Widget GraphTypeNavigation(){
+  Widget GraphTypeNavigation() {
     return NavigationBar(
-        onDestinationSelected: (int index){
-          setState(() {
-            _selectedNavigationalIndex = index;
-          });
-        },
-        selectedIndex: _selectedNavigationalIndex,
-        indicatorColor: Colors.transparent,
-        indicatorShape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.zero
+      onDestinationSelected: (int index) {
+        setState(() {
+          _selectedNavigationalIndex = index;
+        });
+      },
+      selectedIndex: _selectedNavigationalIndex,
+      indicatorColor: Colors.transparent,
+      indicatorShape: BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+      destinations: [
+        NavigationDestination(
+          icon: Icon(
+            Icons.area_chart,
+            color: Colors.white,
+            size: 50,
+          ),
+          label: '',
+          tooltip: 'Line Chart',
+          selectedIcon: Icon(
+            Icons.area_chart,
+            color: Colors.grey,
+            size: 50,
+          ),
         ),
-        destinations: [
-          NavigationDestination(
-            icon: Icon(
-              Icons.area_chart,
-              color: Colors.white,
-              size: 50,),
-            label: '',
-            tooltip: 'Line Chart',
-            selectedIcon: Icon(
-              Icons.area_chart,
-              color: Colors.grey,
-              size: 50,
-            ),),
-          NavigationDestination(
-            icon: Icon(
-              Icons.bar_chart,
-              color: Colors.white,
-              size: 50,),
-            label: '',
-            tooltip: 'Bar Chart',
-            selectedIcon: Icon(
-              Icons.bar_chart,
-              color: Colors.grey,
-              size: 50,
-            ),),
-          NavigationDestination(
-            icon: Icon(
-              Icons.pie_chart,
-              color: Colors.white,
-              size: 50,),
-            label: '',
-            tooltip: 'Pie Chart',
-            selectedIcon: Icon(
-              Icons.pie_chart,
-              color: Colors.grey,
-              size: 50,
-            ),)
-        ],
-        backgroundColor: Colors.transparent,
-      );
+        NavigationDestination(
+          icon: Icon(
+            Icons.bar_chart,
+            color: Colors.white,
+            size: 50,
+          ),
+          label: '',
+          tooltip: 'Bar Chart',
+          selectedIcon: Icon(
+            Icons.bar_chart,
+            color: Colors.grey,
+            size: 50,
+          ),
+        ),
+        NavigationDestination(
+          icon: Icon(
+            Icons.pie_chart,
+            color: Colors.white,
+            size: 50,
+          ),
+          label: '',
+          tooltip: 'Pie Chart',
+          selectedIcon: Icon(
+            Icons.pie_chart,
+            color: Colors.grey,
+            size: 50,
+          ),
+        )
+      ],
+      backgroundColor: Colors.transparent,
+    );
   }
 
-  List<Map<String, dynamic>> _positiveNegative(List<Map<String, dynamic>> data) {
+  List<Map<String, dynamic>> _positiveNegative(
+      List<Map<String, dynamic>> data) {
     return data.map((entry) {
       final isIncome = entry['type'] == 0;
       return {
@@ -344,11 +324,11 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     }).toList();
   }
 
-  Map<String, double> _incomeExpense(List<Map<String, dynamic>> data){
+  Map<String, double> _incomeExpense(List<Map<String, dynamic>> data) {
     double totalIncome = 0.0;
     double totalExpenses = 0.0;
 
-    for(var entry in data) {
+    for (var entry in data) {
       if (entry['amount'] >= 0) {
         totalIncome += entry['amount'];
       } else {
@@ -357,7 +337,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     }
 
     return {
-      'income' : totalIncome,
+      'income': totalIncome,
       'expenses': totalExpenses,
     };
   }
@@ -376,12 +356,13 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
 
   Future<void> _getReportDots() async {
     try {
-      _points = await widget.cloudStorageManager.getReportDots(1); //hard Coded, change.
+      _points = await widget.cloudStorageManager
+          .getReportDots(1); //hard Coded, change.
       setState(() {
         data = _convertToSpots(_positiveNegative(_points));
         dataTotals = _incomeExpense(_positiveNegative(_points));
       });
-    } catch(e) {
+    } catch (e) {
       print('Error fetching data: $e');
     }
   }
