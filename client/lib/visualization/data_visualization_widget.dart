@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:budget_365/report/report.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -20,15 +22,26 @@ class DataVisualizationWidget extends StatefulWidget {
 }
 
 class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
-  List<double> data = [];
+  List<FlSpot> data = [];
   List<Group> _groups = [];
   List<Report> _reports = [];
+  List<Map<String, dynamic>> _points = [];
   String? _selectedGroupItem;
   int? _selectedGroupID;
   int _selectedNavigationalIndex = 0;
   String? selectedGroup;
   final List<String> items = ['thing1', 'thing2', 'thing3'];
   final List<String> graphType = ['Line Graph', 'Bar Graph', 'Pie Chart'];
+
+  Map<String, double> dataTotals = {};
+  final List<int> _dateRangeNumerical = [1, 7, 30, 365, 2147483647];
+  int _selectedDateRangeIndex = 3;
+
+  @override
+  void initState(){
+    super.initState();
+    _getReportDots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +51,10 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Data Visualization',
-            style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
+        title: Padding(
+                padding: EdgeInsets.fromLTRB(0, 25, 0, 8),
+                child: GraphTypeNavigation()
+              ),
       ),
       body: Stack(
         children: [
@@ -50,9 +62,9 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
           Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(8, 80, 8, 8),
-                child: ScreenAspectRatio(),
-              ),
+                      padding: EdgeInsets.fromLTRB(8, 140, 8, 8),
+                      child: ScreenAspectRatio(),
+                    ),
               FutureBuilder(
                   future: _getGroups(),
                   builder: (context, snapshot) {
@@ -74,7 +86,6 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                           SizedBox(
                             width: 5,
                           ),
-                          GraphTypeMenu(),
                         ],
                       );
                     }
@@ -122,7 +133,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
         borderData: FlBorderData(show: true),
         lineBarsData: [
           LineChartBarData(
-            spots: _convertToSpots(data),
+            spots: data,
             isCurved: true,
             barWidth: 4,
             isStrokeCapRound: true,
@@ -152,8 +163,52 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   }
 
   Widget PieChartScreen() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 120, 10, 75),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.black,
+          width: 2,
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(10, 60, 10, 20),
+      child: PieChart(
+        PieChartData(
+          sections: [
+            PieChartSectionData(
+              borderSide: BorderSide(
+                color: Colors.black,
+                width: 2),
+              radius: 185,
+              value: dataTotals['income'],
+              color: const Color.fromARGB(255, 18, 233, 25),
+              title: 'Income',
+              titleStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold),
+            ),
+            PieChartSectionData(
+              borderSide: BorderSide(
+                color: Colors.black,
+                width: 2,
+              ),
+              radius: 150,
+              value: dataTotals['expenses'],
+              titlePositionPercentageOffset: 0.7,
+              color: Colors.red,
+              title: 'Expenses',
+              titleStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold),
+            )
+          ],
+          sectionsSpace: 2,
+          centerSpaceRadius: 0,
+        )
+      ),
     );
   }
 
@@ -173,14 +228,15 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-  List<FlSpot> _convertToSpots(List<double> data) {
-    // _getReports();
-    print(_groups);
-    return List.generate(
-      _reports.length,
-      (index) =>
-          FlSpot(_reports[index].date.month.toDouble(), _reports[index].amount),
-    );
+  List<FlSpot> _convertToSpots(List<Map<String, dynamic>> data) {
+    return data.asMap().entries.map((report) {
+      final date = report.value['date'] as DateTime;
+      final amount = (report.value['amount'] as num).toDouble();
+
+      final xVal = date.difference(data.first['date']).inDays.toDouble();
+
+      return FlSpot(xVal, amount);
+    }).toList();
   }
 
   Widget GroupInput() {
@@ -224,43 +280,86 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     );
   }
 
-  Widget GraphTypeMenu() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-      width: 190,
-      height: 56,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(25.7),
-      ),
-      child: DropdownButton<int>(
-        style: TextStyle(
-            color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-        dropdownColor: Colors.blue,
-        icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-        isExpanded: true,
-        underline: Container(color: Colors.transparent),
-        value: _selectedNavigationalIndex,
-        hint: Text('Select Graph',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)), // Placeholder text
-        onChanged: (int? value) {
-          if (value != null) {
-            setState(() {
-              _selectedNavigationalIndex = value;
-            });
-          }
+  Widget GraphTypeNavigation(){
+    return NavigationBar(
+        onDestinationSelected: (int index){
+          setState(() {
+            _selectedNavigationalIndex = index;
+          });
         },
-        items: List.generate(
-            graphType.length,
-            (index) => DropdownMenuItem<int>(
-                  value: index,
-                  child: Text(graphType[index]),
-                )),
-      ),
-    );
+        selectedIndex: _selectedNavigationalIndex,
+        indicatorColor: Colors.transparent,
+        indicatorShape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.zero
+        ),
+        destinations: [
+          NavigationDestination(
+            icon: Icon(
+              Icons.area_chart,
+              color: Colors.white,
+              size: 50,),
+            label: '',
+            tooltip: 'Line Chart',
+            selectedIcon: Icon(
+              Icons.area_chart,
+              color: Colors.grey,
+              size: 50,
+            ),),
+          NavigationDestination(
+            icon: Icon(
+              Icons.bar_chart,
+              color: Colors.white,
+              size: 50,),
+            label: '',
+            tooltip: 'Bar Chart',
+            selectedIcon: Icon(
+              Icons.bar_chart,
+              color: Colors.grey,
+              size: 50,
+            ),),
+          NavigationDestination(
+            icon: Icon(
+              Icons.pie_chart,
+              color: Colors.white,
+              size: 50,),
+            label: '',
+            tooltip: 'Pie Chart',
+            selectedIcon: Icon(
+              Icons.pie_chart,
+              color: Colors.grey,
+              size: 50,
+            ),)
+        ],
+        backgroundColor: Colors.transparent,
+      );
+  }
+
+  List<Map<String, dynamic>> _positiveNegative(List<Map<String, dynamic>> data) {
+    return data.map((entry) {
+      final isIncome = entry['type'] == 0;
+      return {
+        'date': entry['date'],
+        'amount': isIncome ? entry['amount'] : -entry['amount'],
+      };
+    }).toList();
+  }
+
+  Map<String, double> _incomeExpense(List<Map<String, dynamic>> data){
+    double totalIncome = 0.0;
+    double totalExpenses = 0.0;
+
+    for(var entry in data) {
+      if (entry['amount'] >= 0) {
+        totalIncome += entry['amount'];
+      } else {
+        totalExpenses += entry['amount'].abs();
+      }
+    }
+
+    return {
+      'income' : totalIncome,
+      'expenses': totalExpenses,
+    };
   }
 
   Future<void> _getGroups() async {
@@ -271,25 +370,19 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
     }
   }
 
-  Future<void> _getReports(int groupID) async {
-    _reports = await widget.cloudStorageManager.getReports(groupID);
+  Future<void> _getReports() async {
+    _reports = await widget.cloudStorageManager.getReports(widget.userLoggedIn);
   }
 
-  int _dateToInt(DateTime date, String select) {
-    if (select == 'year') {
-      return date.year;
-    } else if (select == 'month') {
-      return date.month;
-    } else if (select == 'day') {
-      return date.day;
-    } else {
-      return 0;
+  Future<void> _getReportDots() async {
+    try {
+      _points = await widget.cloudStorageManager.getReportDots(1); //hard Coded, change.
+      setState(() {
+        data = _convertToSpots(_positiveNegative(_points));
+        dataTotals = _incomeExpense(_positiveNegative(_points));
+      });
+    } catch(e) {
+      print('Error fetching data: $e');
     }
-  }
-
-  void _onTapedNavigation(int index) {
-    setState(() {
-      _selectedNavigationalIndex = index;
-    });
   }
 }

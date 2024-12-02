@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:budget_365/utility/local_storage_manager.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
@@ -229,6 +230,31 @@ class CloudStorageManager {
         .eq('id_group', groupID)
         .order('date', ascending: false);
     return controller;
+  }
+
+  Future<List<Map<String, dynamic>>> getReportDots(groupID) async {
+    try {
+      final response = await _supabase
+        .from('report')
+        .select('amount, date, type',)
+        .eq('id_group', groupID)
+        .order('date', ascending: true);
+
+      if (response is List) {
+        return response.map((report) {
+          return {
+            'amount': report['amount'],
+            'date': DateTime.parse(report['date']),
+            'type': report['type'],
+          };
+        }).toList();
+      } else {
+        throw Exception('Unexpected response format');
+      }
+    } catch (error) {
+      print('Error fetching reports: $error');
+      return [];
+    }
   }
 
   Future<List<Report>> getReports(int groupID) async {
