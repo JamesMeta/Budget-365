@@ -29,7 +29,14 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions by Category'),
+        title: const Text(
+          'Visualization',
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 15.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 63, 158, 202),
         elevation: 4,
         systemOverlayStyle: SystemUiOverlayStyle.light,
