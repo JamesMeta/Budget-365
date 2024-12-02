@@ -134,7 +134,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
           userLoggedIn: userLoggedIn),
       DataVisualizationWidget(
         cloudStorageManager: widget.cloudStorageManager,
-        userLoggedIn: userLoggedIn,
       ),
       GroupOverviewPage(
           cloudStorageManager: widget.cloudStorageManager,
