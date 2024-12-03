@@ -28,7 +28,7 @@ The home screen got a ui rework to fit the data better
 
 Groups have now been added for everyone to use, you can edit, join, and create new groups
 
-![Image Alt Text](client/assets/images/settings.png)
+![Image Alt Text](client/assets/images/Settings.png)
 
 There's also now a settings page to log out, export data, send report email and set preferences
 
