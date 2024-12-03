@@ -969,4 +969,45 @@ class CloudStorageManager {
       return null;
     }
   }
+
+  Future<List<Report>?> getDataForPie() async {
+    try {
+      // Retrieves the current user ID using LocalStorageManager
+      final userID = await LocalStorageManager.getCurrentUserID();
+      if (userID == null) {
+        print('No user is currently logged in.');
+        return null;
+      }
+
+      // Fetches the list of groups the user is associated with
+      final groups = await getGroups(userID);
+      if (groups.isEmpty) {
+        print('No groups found for the user.');
+        return null;
+      }
+
+      // List to hold reports from all groups
+      List<Report> allReports = [];
+
+      // Loop through each group and retrieve its reports
+      for (final group in groups) {
+        final reports = await getReportsForExport(group.id);
+
+        // Filter the reports to only include those from the current user
+        final userReports =
+            reports.where((report) => report.userID == userID).toList();
+        allReports.addAll(userReports);
+      }
+
+      if (allReports.isEmpty) {
+        print('No reports found for user groups.');
+        return null;
+      }
+
+      return allReports;
+    } catch (error) {
+      print('Error in retrieving data for pie: $error');
+      return null;
+    }
+  }
 }
