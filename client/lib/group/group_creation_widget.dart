@@ -348,7 +348,10 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
         onPressed: () async {
           int response = await _createGroup();
           if (response == 0) {
-            Navigator.pop(context, response);
+            if (mounted) {
+              _showSnackbar(context, "Group Created");
+              Navigator.pop(context, response);
+            }
           } else {
             showDialog(
                 context: context,
@@ -447,16 +450,14 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                   ),
                   TextButton(
                     onPressed: () async {
-                      final response = await widget.cloudStorageManager
-                          .joinExistingGroup(
-                              _groupCodeController.text, widget.userID);
-                      if (response == "0") {
-                        _showSnackbar(context, "Group Joined Successfully");
+                      final response = await _joinGroup();
+                      if (response) {
+                        _showSnackbar(context, "Group Joined");
                         Navigator.pop(context);
                       } else {
                         _showSnackbar(context, "Invalid Group Code");
                       }
-                      Navigator.pop(context, 0);
+                      Navigator.pop(context);
                     },
                     child: Text("Submit"),
                   ),
@@ -496,6 +497,19 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
       _groupCode = groupCode;
     });
     return;
+  }
+
+  Future<bool> _joinGroup() async {
+    if (_groupCodeController.text == '') {
+      return false;
+    }
+    final response = await widget.cloudStorageManager
+        .joinExistingGroup(_groupCodeController.text, widget.userID);
+    if (response == "0") {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void _addUser() {

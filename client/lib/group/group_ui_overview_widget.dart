@@ -129,7 +129,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
         ));
   }
 
-  void _showSnackbar(BuildContext context, String message) {
+  void _showSnackbar(String message) {
     final snackBar = SnackBar(
       content: Text(message),
       duration: Duration(seconds: 2),
@@ -146,12 +146,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
                 cloudStorageManager: widget.cloudStorageManager,
                 userID: widget.userLoggedIn,
               )),
-    ).then((value) {
-      if (value == 0) {
-        _showSnackbar(context, 'Group created successfully');
-        setState(() {});
-      }
-    });
+    );
   }
 
   void _goToGroupBuilderEdit(Group? group) {
@@ -165,10 +160,10 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar(context, 'Group edited successfully');
+        _showSnackbar('Group edited successfully');
         setState(() {});
       } else if (value == 1) {
-        _showSnackbar(context, 'Group deleted successfully');
+        _showSnackbar('Group deleted successfully');
         setState(() {});
       }
     });
