@@ -18,13 +18,15 @@ class TransactionChart extends StatefulWidget {
 }
 
 class _TransactionChartState extends State<TransactionChart> {
-  final Map<String, Color> _categoryColors = {};
+  final Map<String, Color> _categoryColors =
+      {}; //stores randomized category colours so both the legend and chart can access the same RGB vals
 
   List<PieChartSectionData> _processDataForPieChart(
       List<Map<String, dynamic>> reportData, int? selectedGroupID) {
     final Map<String, double> spendingByCategory = {};
 
     for (final report in reportData) {
+      //iterates through the set of reports, and sets category and amount vals
       if (selectedGroupID == null || report['groupID'] == selectedGroupID) {
         final category = report['category'] ?? 'Uncategorized';
         final amount = report['amount'] ?? 0.0;
@@ -37,9 +39,11 @@ class _TransactionChartState extends State<TransactionChart> {
       final category = entry.key;
       final amount = entry.value.abs();
 
-      _categoryColors[category] ??= _getRandomColorForCategory();
+      _categoryColors[category] ??=
+          _getRandomColorForCategory(); //assigns an rgb val to the category
 
       return PieChartSectionData(
+        //pie chart
         value: amount,
         color: _categoryColors[category],
         radius: 50,
@@ -48,6 +52,7 @@ class _TransactionChartState extends State<TransactionChart> {
   }
 
   Color _getRandomColorForCategory() {
+    //returns a random RGB value
     final random = Random();
     return Color.fromRGBO(
       random.nextInt(256),
@@ -57,6 +62,7 @@ class _TransactionChartState extends State<TransactionChart> {
     );
   }
 
+//method creates a legend corresponding to the pie chart
   List<Widget> _buildLegend(Map<String, double> spendingByCategory) {
     final List<Widget> legendItems = [];
     spendingByCategory.forEach((category, amount) {
@@ -100,7 +106,7 @@ class _TransactionChartState extends State<TransactionChart> {
           widget.selectedGroupID,
         );
 
-        // Generate spendingByCategory for legend
+        //generates spendingByCategory data for the legend
         for (final report in reportData) {
           if (widget.selectedGroupID == null ||
               report['groupID'] == widget.selectedGroupID) {

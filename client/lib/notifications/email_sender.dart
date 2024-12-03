@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
@@ -34,8 +35,18 @@ class EmailSender {
     try {
       //sends the email
       final sendReport = await send(message, smtpServer);
+      if (kDebugMode) {
+        print('Email sent successfully: $sendReport');
+      }
     } on MailerException catch (e) {
-      for (var p in e.problems) {}
+      if (kDebugMode) {
+        print('Failed to send email: ${e.message}');
+      }
+      for (var p in e.problems) {
+        if (kDebugMode) {
+          print('Problem: ${p.code}: ${p.msg}');
+        }
+      }
       rethrow;
     }
   }
@@ -48,6 +59,13 @@ class EmailSender {
         subject: 'Test Email from Budget 365',
         body: 'This is a test email to verify the email sending functionality.',
       );
-    } catch (e) {}
+      if (kDebugMode) {
+        print('Test email sent successfully!');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to send test email: $e');
+      }
+    }
   }
 }

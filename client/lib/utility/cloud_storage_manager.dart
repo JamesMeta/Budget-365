@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
@@ -33,6 +34,10 @@ class CloudStorageManager {
           await _supabase.auth.signUp(password: password, email: email);
 
       if (creationResponse.user == null) {
+        if (kDebugMode) {
+          print(
+              'Error creating account: ${creationResponse.session?.toString()}');
+        }
         return creationResponse.session?.toString();
       }
 
@@ -44,8 +49,14 @@ class CloudStorageManager {
           })
           .select('id')
           .single();
+      if (kDebugMode) {
+        print('Account created successfully');
+      }
       return tableResponse['id'].toString();
     } catch (error) {
+      if (kDebugMode) {
+        print('Error creating account: $error');
+      }
       return error.toString();
     }
   }
@@ -85,6 +96,9 @@ class CloudStorageManager {
 
       return response['id'].toString();
     } catch (error) {
+      if (kDebugMode) {
+        print('Error logging in: $error');
+      }
       return error.toString();
     }
   }
@@ -108,6 +122,9 @@ class CloudStorageManager {
       //return true after successful sign-out and optional notification
       return true;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error logging out: $error');
+      }
       return false;
     }
   }
@@ -116,10 +133,16 @@ class CloudStorageManager {
     try {
       final response = _supabase.auth.currentSession;
       if (response != null && response.user.id.isNotEmpty) {
+        if (kDebugMode) {
+          print("user is logged in");
+        }
         return true;
       }
       return false;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error checking if user is logged in: $error');
+      }
       return false;
     }
   }
@@ -135,6 +158,9 @@ class CloudStorageManager {
 
       return response != null;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error checking if email is registered: $error');
+      }
       return false;
     }
   }
@@ -155,6 +181,9 @@ class CloudStorageManager {
       }
       return userGroups;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching user groups: $error');
+      }
       return null;
     }
   }
@@ -182,6 +211,9 @@ class CloudStorageManager {
 
       return groups;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching groups: $error');
+      }
       return [];
     }
   }
@@ -204,6 +236,9 @@ class CloudStorageManager {
 
       return group;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching groups: $error');
+      }
       return null;
     }
   }
@@ -221,32 +256,6 @@ class CloudStorageManager {
         .eq('id_group', groupID)
         .order('date', ascending: false);
     return controller;
-  }
-
-  Future<List<Map<String, dynamic>>> getReportDots(groupID) async {
-    try {
-      final response = await _supabase
-          .from('report')
-          .select(
-            'amount, date, type',
-          )
-          .eq('id_group', groupID)
-          .order('date', ascending: true);
-
-      if (response is List) {
-        return response.map((report) {
-          return {
-            'amount': report['amount'],
-            'date': DateTime.parse(report['date']),
-            'type': report['type'],
-          };
-        }).toList();
-      } else {
-        throw Exception('Unexpected response format');
-      }
-    } catch (error) {
-      return [];
-    }
   }
 
   //retrieves a list of reports with child data from cloud storage, based on group passed as an arg
@@ -274,6 +283,9 @@ class CloudStorageManager {
 
       return reports;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching reports: $error');
+      }
       return [];
     }
   }
@@ -288,6 +300,9 @@ class CloudStorageManager {
           .single();
       return response['account_name'] as String;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching username: $error');
+      }
       return '';
     }
   }
@@ -302,6 +317,9 @@ class CloudStorageManager {
           .single();
       return response['email'] as String;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching email: $error');
+      }
       return '';
     }
   }
@@ -318,6 +336,9 @@ class CloudStorageManager {
               })
           .toList();
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching users: $error');
+      }
       return [];
     }
   }
@@ -339,6 +360,9 @@ class CloudStorageManager {
       }
       return categories;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching categories: $error');
+      }
       return {'income': [], 'expense': []};
     }
   }
@@ -361,6 +385,9 @@ class CloudStorageManager {
           .single();
 
       final groupId = response['id'] as int;
+      if (kDebugMode) {
+        print('Group created successfully with ID: $groupId');
+      }
 
       //connection with notifications/local_notifications.dart to alert the user that the group creation was successful
       await _notificationsManager.showNotification(
@@ -376,7 +403,11 @@ class CloudStorageManager {
             'id_group': groupId,
             'type': 0,
           });
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating income category: $error');
+          }
+        }
       }
 
       //create expense categories
@@ -387,7 +418,11 @@ class CloudStorageManager {
             'id_group': groupId,
             'type': 1,
           });
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating expense category: $error');
+          }
+        }
       }
 
       //ceates user groups
@@ -400,9 +435,17 @@ class CloudStorageManager {
               .single();
           final userId = response['id'] as int;
           await createUserGroup(userId, groupId);
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating user group: $error');
+          }
+        }
       }
-    } catch (error) {}
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error creating group: $error');
+      }
+    }
   }
 
   //method to create a user group
@@ -413,8 +456,15 @@ class CloudStorageManager {
         'id_group': groupId,
       });
 
+      if (kDebugMode) {
+        print(
+            'User group created successfully for user: $userId and group: $groupId');
+      }
       return response != null;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error creating user group: $error');
+      }
       return false;
     }
   }
@@ -452,13 +502,24 @@ class CloudStorageManager {
           channelDescription: 'Notifications for report-related updates',
         );
       }
-    } catch (error) {}
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error creating report: $error');
+      }
+    }
   }
 
   Future<void> deleteReport(int reportID) async {
     try {
       await _supabase.from('report').delete().eq('id', reportID);
-    } catch (error) {}
+      if (kDebugMode) {
+        print('Report deleted successfully');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error deleting report: $error');
+      }
+    }
   }
 
   Future<void> editReport({
@@ -496,6 +557,9 @@ class CloudStorageManager {
         .eq('group_code', code)
         .maybeSingle();
     if (response == null) {
+      if (kDebugMode) {
+        print("Generated group code: $code");
+      }
       return code;
     }
     return generateUniqueGroupCode();
@@ -528,6 +592,9 @@ class CloudStorageManager {
         'balance': totalIncome - totalExpense
       };
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching report totals: $error');
+      }
       return {'income': 0.0, 'expense': 0.0, 'balance': 0.0};
     }
   }
@@ -568,6 +635,9 @@ class CloudStorageManager {
 
       return reports;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching reports for export: $error');
+      }
       return [];
     }
   }
@@ -580,6 +650,9 @@ class CloudStorageManager {
       //the LocalStorageManager has the method to retrieve the userID of the person logged-in to the local instance of the app
       final userID = await LocalStorageManager.getCurrentUserID();
       if (userID == null) {
+        if (kDebugMode) {
+          print('No user is currently logged in.');
+        }
         return;
       }
 
@@ -587,6 +660,9 @@ class CloudStorageManager {
       //This then retuns a set of groupIDs that the user is associated with
       final groups = await getGroups(userID);
       if (groups.isEmpty) {
+        if (kDebugMode) {
+          print('No groups found for the user.');
+        }
         return;
       }
 
@@ -598,12 +674,18 @@ class CloudStorageManager {
       }
 
       if (allReports.isEmpty) {
+        if (kDebugMode) {
+          print('No reports found for user groups.');
+        }
         return;
       }
 
       //flutter filepicker allows the user to select where they want to savethe file
       final directoryPath = await FilePicker.platform.getDirectoryPath();
       if (directoryPath == null) {
+        if (kDebugMode) {
+          print('No directory selected.');
+        }
         return;
       }
 
@@ -611,7 +693,15 @@ class CloudStorageManager {
       final reportsData = allReports.map((report) => report.toJson()).toList();
       final file = File('$directoryPath/user_reports.json');
       await file.writeAsString(jsonEncode(reportsData), flush: true);
-    } catch (error) {}
+
+      if (kDebugMode) {
+        print('Reports saved successfully to ${file.path}');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error exporting reports: $error');
+      }
+    }
   }
 
   Future<String> formatReportsForEmail() async {
@@ -654,6 +744,9 @@ class CloudStorageManager {
 
       return buffer.toString();
     } catch (error) {
+      if (kDebugMode) {
+        print('Error formatting reports for email: $error');
+      }
       return 'An error occurred while generating the report.';
     }
   }
@@ -674,6 +767,9 @@ class CloudStorageManager {
       await createUserGroup(userID, groupID);
       return '0';
     } catch (error) {
+      if (kDebugMode) {
+        print('Error joining group: $error');
+      }
       return 'Error joining group check the group code and connection before trying again';
     }
   }
@@ -687,6 +783,9 @@ class CloudStorageManager {
           .eq('id_account', userID);
       return '0';
     } catch (error) {
+      if (kDebugMode) {
+        print('Error leaving group: $error');
+      }
       return 'Error leaving group';
     }
   }
@@ -727,7 +826,11 @@ class CloudStorageManager {
             'id_group': groupID,
             'type': 0,
           });
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating income category: $error');
+          }
+        }
       }
 
       //create expense categories
@@ -738,13 +841,20 @@ class CloudStorageManager {
             'id_group': groupID,
             'type': 1,
           });
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating expense category: $error');
+          }
+        }
       }
 
       //delete existing user groups
       try {
         await _supabase.from('user_groups').delete().eq('id_group', groupID);
       } catch (error) {
+        if (kDebugMode) {
+          print('Error deleting user groups: $error');
+        }
         return 'Error updating group: $error';
       }
 
@@ -758,11 +868,18 @@ class CloudStorageManager {
               .single();
 
           await createUserGroup(userID['id'], groupID);
-        } catch (error) {}
+        } catch (error) {
+          if (kDebugMode) {
+            print('Error creating user group: $error');
+          }
+        }
       }
 
       return 'Group updated successfully';
     } catch (error) {
+      if (kDebugMode) {
+        print('Error updating group: $error');
+      }
       return 'Error updating group';
     }
   }
@@ -784,6 +901,9 @@ class CloudStorageManager {
       }
       return users;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching group users: $error');
+      }
       return [];
     }
   }
@@ -801,6 +921,9 @@ class CloudStorageManager {
       }
       return categories;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching group income categories: $error');
+      }
       return [];
     }
   }
@@ -818,6 +941,9 @@ class CloudStorageManager {
       }
       return categories;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching group expense categories: $error');
+      }
       return [];
     }
   }
@@ -836,10 +962,19 @@ class CloudStorageManager {
         subject: "Budget-365 Balance Report",
         body: emailBody,
       );
-    } catch (e) {}
+
+      if (kDebugMode) {
+        print('Balance email sent to $userEmail');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to send balance email: $e');
+      }
+    }
   }
 
   Future<void> sendEmail({
+    //definition of email transfer function for use within functions in the cloud manager
     required String recipient,
     required String subject,
     required String body,
@@ -847,7 +982,8 @@ class CloudStorageManager {
     String? username = dotenv.env['EMAIL_USER'];
     String? appPassword = dotenv.env['EMAIL_KEY'];
 
-    final smtpServer = gmail(username!, appPassword!);
+    final smtpServer = gmail(username!,
+        appPassword!); //I'm using gmail as the smtp server as the business account is registered with that provider
 
     final message = Message()
       ..from = Address(username, 'Budget 365 Notifications')
@@ -857,8 +993,18 @@ class CloudStorageManager {
 
     try {
       final sendReport = await send(message, smtpServer);
+      if (kDebugMode) {
+        print('Email sent successfully: $sendReport');
+      }
     } on MailerException catch (e) {
-      for (var p in e.problems) {}
+      if (kDebugMode) {
+        print('Failed to send email: ${e.message}');
+      }
+      for (var p in e.problems) {
+        if (kDebugMode) {
+          print('Problem: ${p.code}: ${p.msg}');
+        }
+      }
       rethrow;
     }
   }
@@ -868,12 +1014,18 @@ class CloudStorageManager {
       //retrieves the current user ID using LocalStorageManager
       final userID = await LocalStorageManager.getCurrentUserID();
       if (userID == null) {
+        if (kDebugMode) {
+          print('No user is currently logged in.');
+        }
         return null;
       }
 
       //fetches the list of groups the user is associated with
       final groups = await getGroups(userID);
       if (groups.isEmpty) {
+        if (kDebugMode) {
+          print('No groups found for the user.');
+        }
         return null;
       }
 
@@ -887,48 +1039,67 @@ class CloudStorageManager {
       }
 
       if (allReports.isEmpty) {
+        if (kDebugMode) {
+          print('No reports found for user groups.');
+        }
         return null;
       }
 
       return allReports;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching reports for graph: $error');
+      }
       return null;
     }
   }
 
   Future<List<Report>?> getDataForPie() async {
+    //this method is used to transfer report data in a list format that can be used for graphing
     try {
-      // Retrieves the current user ID using LocalStorageManager
+      //retrieves the current user ID using LocalStorageManager
       final userID = await LocalStorageManager.getCurrentUserID();
       if (userID == null) {
+        if (kDebugMode) {
+          print('No user is currently logged in.');
+        }
         return null;
       }
 
-      // Fetches the list of groups the user is associated with
+      //fetches the list of groups the user is associated with
       final groups = await getGroups(userID);
       if (groups.isEmpty) {
+        if (kDebugMode) {
+          print('No groups found for the user.');
+        }
         return null;
       }
 
-      // List to hold reports from all groups
+      //list to hold reports from all groups
       List<Report> allReports = [];
 
-      // Loop through each group and retrieve its reports
+      //loop through each group and retrieve its reports
       for (final group in groups) {
         final reports = await getReportsForExport(group.id);
 
-        // Filter the reports to only include those from the current user
+        //filter the reports to only include those from the current user
         final userReports =
             reports.where((report) => report.userID == userID).toList();
         allReports.addAll(userReports);
       }
 
       if (allReports.isEmpty) {
+        if (kDebugMode) {
+          print('No reports found for user groups.');
+        }
         return null;
       }
 
       return allReports;
     } catch (error) {
+      if (kDebugMode) {
+        print('Error in retrieving data for pie: $error');
+      }
       return null;
     }
   }

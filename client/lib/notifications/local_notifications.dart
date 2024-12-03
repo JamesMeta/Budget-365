@@ -1,5 +1,4 @@
-// ignore_for_file: empty_catches
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class LocalNotificationsManager {
@@ -27,7 +26,14 @@ class LocalNotificationsManager {
     try {
       await _notificationsPlugin.initialize(initializationSettings);
       _isInitialized = true;
-    } catch (error) {}
+      if (kDebugMode) {
+        print("Local notifications initialized successfully.");
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print("Error initializing notifications: $error");
+      }
+    }
   }
 
   Future<void> showNotification({
@@ -53,6 +59,13 @@ class LocalNotificationsManager {
       final notificationDetails = NotificationDetails(android: androidDetails);
 
       await _notificationsPlugin.show(id, title, body, notificationDetails);
-    } catch (error) {}
+      if (kDebugMode) {
+        print("Notification displayed: $title");
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print("Error showing notification: $error");
+      }
+    }
   }
 }
