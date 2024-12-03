@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, empty_catches
+
 import 'package:flutter/material.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/report/report_tile_widget.dart';
@@ -52,7 +54,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   bool loginInProgress = false;
 
   late double _appBarHeight;
-  late double _bottomNavigationBarHeight;
 
   late List<Widget> _widgetOptions = [];
 
@@ -64,7 +65,6 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   @override
   Widget build(BuildContext context) {
     _appBarHeight = MediaQuery.of(context).size.height * 0.1;
-    _bottomNavigationBarHeight = MediaQuery.of(context).size.height * 0.1;
 
     return FutureBuilder(
       future: _initalizeApp(),
@@ -204,9 +204,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   Future<bool> _goToLogin() async {
     try {
       clearSession();
-    } catch (e) {
-      print("Failed to clear session: $e");
-    }
+    } catch (e) {}
 
     //wait for the result of the navigation
     final result = await Navigator.push(
@@ -234,21 +232,15 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   Future<bool> _goToLoginSettings() async {
     try {
       await LocalStorageManager.logout(userLoggedIn);
-    } catch (e) {
-      print("No Login to Logout From: $e");
-    }
+    } catch (e) {}
 
     try {
       await widget.cloudStorageManager.logout();
-    } catch (e) {
-      print("No Login to Logout From: $e");
-    }
+    } catch (e) {}
 
     try {
       clearSession();
-    } catch (e) {
-      print("Failed to clear session: $e");
-    }
+    } catch (e) {}
 
     return true;
   }

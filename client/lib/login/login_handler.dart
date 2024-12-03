@@ -14,8 +14,6 @@ class LoginHandler {
       return id;
     }
 
-    print('Login successful');
-
     if (await LocalStorageManager.isAccountCashed(email)) {
       await LocalStorageManager.setMostRecentLogin(int.parse(id));
       return id;

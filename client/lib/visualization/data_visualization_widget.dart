@@ -7,8 +7,7 @@ import 'package:flutter/services.dart';
 class DataVisualizationWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
 
-  const DataVisualizationWidget({Key? key, required this.cloudStorageManager})
-      : super(key: key);
+  const DataVisualizationWidget({super.key, required this.cloudStorageManager});
 
   @override
   _DataVisualizationWidgetState createState() =>

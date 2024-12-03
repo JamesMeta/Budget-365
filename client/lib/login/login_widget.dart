@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, avoid_print
+// ignore_for_file: non_constant_identifier_names, avoid_print, unused_field, avoid_unnecessary_containers
 
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:flutter/material.dart';

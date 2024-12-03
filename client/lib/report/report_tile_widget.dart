@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace
+
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_365/report/report.dart';

@@ -34,12 +34,8 @@ class EmailSender {
     try {
       //sends the email
       final sendReport = await send(message, smtpServer);
-      print('Email sent successfully: $sendReport');
     } on MailerException catch (e) {
-      print('Failed to send email: ${e.message}');
-      for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
-      }
+      for (var p in e.problems) {}
       rethrow;
     }
   }
@@ -52,9 +48,6 @@ class EmailSender {
         subject: 'Test Email from Budget 365',
         body: 'This is a test email to verify the email sending functionality.',
       );
-      print('Test email sent successfully!');
-    } catch (e) {
-      print('Failed to send test email: $e');
-    }
+    } catch (e) {}
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,11 +13,11 @@ import 'package:budget_365/group/group_edit_widget.dart';
 
 class GroupOverviewPage extends StatefulWidget {
   final CloudStorageManager
-      cloudStorageManager; //instantiates the cloud management system
+      cloudStorageManager; // Instantiates the cloud management system
   final int userLoggedIn;
 
   const GroupOverviewPage({
-    Key? key,
+    super.key,
     required this.cloudStorageManager,
     required this.userLoggedIn,
   });
@@ -25,23 +27,24 @@ class GroupOverviewPage extends StatefulWidget {
 }
 
 class _GroupOverviewPageState extends State<GroupOverviewPage> {
-  late List<Group>? _groups;
+  late List<Group>? _groups; // List to store groups
 
-  static const _fontColor = Color.fromARGB(255, 255, 255, 255);
+  static const _fontColor =
+      Color.fromARGB(255, 255, 255, 255); // Font color for text
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const AppGradient(),
+        const AppGradient(), // Background gradient
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 110, 10, 75),
           child: Container(
             alignment: Alignment.topCenter,
-            child: GroupTileSection(),
+            child: GroupTileSection(), // Section to display group tiles
           ),
         ),
-        PlusButtonSectionGroup(),
+        PlusButtonSectionGroup(), // Section for the plus button
       ],
     );
   }
@@ -50,17 +53,19 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     return Container(
       alignment: Alignment.topCenter,
       child: FutureBuilder(
-          future: widget.cloudStorageManager.getGroups(widget.userLoggedIn),
+          future: widget.cloudStorageManager.getGroups(
+              widget.userLoggedIn), // Fetch groups from cloud storage
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return const CircularProgressIndicator(); // Show loading indicator while waiting
             } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
+              return Text(
+                  'Error: ${snapshot.error}'); // Show error message if there's an error
             } else {
-              _groups = snapshot.data;
+              _groups = snapshot.data; // Assign fetched groups to _groups
               return ListView.builder(
                 padding: const EdgeInsets.all(0),
-                itemCount: _groups?.length ?? 0,
+                itemCount: _groups?.length ?? 0, // Number of groups
                 itemBuilder: (context, index) {
                   final group = _groups?[index];
                   return Padding(
@@ -79,14 +84,15 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: _fontColor)),
+                                color: _fontColor)), // Display group name
                         subtitle: Text(group?.code ?? '',
                             style: const TextStyle(
-                                fontSize: 18, color: _fontColor)),
+                                fontSize: 18,
+                                color: _fontColor)), // Display group code
                         trailing: IconButton(
                           icon: const Icon(Icons.edit, color: _fontColor),
-                          onPressed: () =>
-                              _goToGroupBuilderEdit(_groups?[index]),
+                          onPressed: () => _goToGroupBuilderEdit(
+                              _groups?[index]), // Navigate to group edit page
                         ),
                         contentPadding: EdgeInsets.all(6),
                       ),
@@ -115,7 +121,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
             ),
           ),
           child: IconButton(
-            onPressed: _goToGroupBuilder,
+            onPressed: _goToGroupBuilder, // Navigate to group creation page
             icon: const Icon(
               Icons.add, // Use a plus icon
               color: Color.fromARGB(255, 71, 162, 236),
@@ -135,7 +141,8 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
       duration: Duration(seconds: 2),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(snackBar); // Display snackbar with message
   }
 
   void _goToGroupBuilder() {
@@ -160,10 +167,12 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
               )),
     ).then((value) {
       if (value == 0) {
-        _showSnackbar('Group edited successfully');
+        _showSnackbar(
+            'Group edited successfully'); // Show success message for group edit
         setState(() {});
       } else if (value == 1) {
-        _showSnackbar('Group deleted successfully');
+        _showSnackbar(
+            'Group deleted successfully'); // Show success message for group delete
         setState(() {});
       }
     });

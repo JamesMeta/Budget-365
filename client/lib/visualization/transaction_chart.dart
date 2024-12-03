@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import 'package:budget_365/design/app_gradient.dart';
-import 'package:flutter/services.dart';
 
 class TransactionChart extends StatefulWidget {
   final Future<List<Map<String, dynamic>>?> reportDataFuture;
   final int? selectedGroupID;
 
   const TransactionChart({
-    Key? key,
+    super.key,
     required this.reportDataFuture,
     required this.selectedGroupID,
-  }) : super(key: key);
+  });
 
   @override
   _TransactionChartState createState() => _TransactionChartState();

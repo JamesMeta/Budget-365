@@ -1,3 +1,6 @@
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/group/group.dart';
@@ -37,12 +40,12 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     '*️⃣Miscellaneous'
   ];
 
-  TextEditingController _groupNameController = TextEditingController();
-  TextEditingController _groupCodeController = TextEditingController();
+  final TextEditingController _groupNameController = TextEditingController();
+  final TextEditingController _groupCodeController = TextEditingController();
 
-  Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
-  Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
-  Color _textPopupColor = const Color.fromARGB(255, 0, 0, 0);
+  final Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
+  final Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
+  final Color _textPopupColor = const Color.fromARGB(255, 0, 0, 0);
 
   double fontSizeInputs = 17;
   double fontSizeButtons = 25;
@@ -696,9 +699,6 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (dialogCategoryController.text == '') {
-                      return;
-                    }
                     setState(() {
                       _categoryExpense = List.from(dialogCategoryExpense);
                       _categoryIncome = List.from(dialogCategoryIncome);

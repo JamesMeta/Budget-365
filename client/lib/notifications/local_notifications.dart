@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class LocalNotificationsManager {
@@ -13,8 +15,9 @@ class LocalNotificationsManager {
   }
 
   void _initializeNotifications() async {
-    if (_isInitialized)
+    if (_isInitialized) {
       return; //exits without reinitializing an existing service
+    }
 
     const androidInitializationSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -24,10 +27,7 @@ class LocalNotificationsManager {
     try {
       await _notificationsPlugin.initialize(initializationSettings);
       _isInitialized = true;
-      print("Local notifications initialized successfully.");
-    } catch (error) {
-      print("Error initializing notifications: $error");
-    }
+    } catch (error) {}
   }
 
   Future<void> showNotification({
@@ -53,9 +53,6 @@ class LocalNotificationsManager {
       final notificationDetails = NotificationDetails(android: androidDetails);
 
       await _notificationsPlugin.show(id, title, body, notificationDetails);
-      print("Notification displayed: $title");
-    } catch (error) {
-      print("Error showing notification: $error");
-    }
+    } catch (error) {}
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
