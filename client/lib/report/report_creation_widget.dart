@@ -51,11 +51,36 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   final Color _textFieldFontColor = const Color.fromARGB(255, 255, 255, 255);
   final Color _textFieldBorderColor = const Color.fromARGB(143, 0, 0, 0);
 
-  double fontSizeInputs = 17;
-  double fontSizeButtons = 25;
+  late double _fontSizeButtons;
+  late double _fontSizeInputs;
+  late double _fullSizedTextFieldWidth;
+  late double _fullSizedTextFieldHeight;
+  late double _halfSizedTextFieldWidth;
+  late double _halfSizedTextFieldHeight;
+  late double _iconSize;
+  late double _halfSizedButtonWidth;
+  late double _halfSizedButtonHeight;
+  late double _fullSizedButtonWidth;
+  late double _fullSizedButtonHeight;
+  late double _fontSizeTitle;
+  late double _descriptionHeight;
 
   @override
   Widget build(BuildContext context) {
+    _fontSizeButtons = MediaQuery.of(context).size.width * 0.05;
+    _fontSizeInputs = MediaQuery.of(context).size.width * 0.035;
+    _fullSizedTextFieldWidth = MediaQuery.of(context).size.width;
+    _fullSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.1;
+    _halfSizedTextFieldWidth = MediaQuery.of(context).size.width * 0.45;
+    _halfSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.1;
+    _iconSize = MediaQuery.of(context).size.width * 0.065;
+    _halfSizedButtonWidth = MediaQuery.of(context).size.width * 0.40;
+    _halfSizedButtonHeight = MediaQuery.of(context).size.height * 0.1;
+    _fullSizedButtonWidth = MediaQuery.of(context).size.width;
+    _fullSizedButtonHeight = MediaQuery.of(context).size.height * 0.1;
+    _fontSizeTitle = MediaQuery.of(context).size.width * 0.08;
+    _descriptionHeight = MediaQuery.of(context).size.height * 0.20;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 112, 213, 243),
       extendBody: true,
@@ -65,49 +90,47 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         children: [
           AppGradient(),
           Padding(
-            padding: EdgeInsets.fromLTRB(10, 120, 10, 10),
+            padding:
+                EdgeInsets.fromLTRB(10, _halfSizedButtonHeight * 1.4, 10, 10),
             child: SingleChildScrollView(
               // Wrap Column with SingleChildScrollView
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IncomeExpenseButton(),
-                  SizedBox(height: 40),
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          UsernameSection(),
-                          SizedBox(width: 5),
-                          GroupInput(),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          DateInputSelect(),
-                          SizedBox(width: 5),
-                          CategoryInput(),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          AmountInput(),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      DescriptionInput(),
-                      SizedBox(height: 20),
-                      BottomSubmitButton(),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IncomeExpenseButton(),
+                    SizedBox(height: 20),
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            UsernameSection(),
+                            SizedBox(width: 5),
+                            GroupInput(),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            DateInputSelect(),
+                            SizedBox(width: 5),
+                            CategoryInput(),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        AmountInput(),
+                        SizedBox(height: 20),
+                        DescriptionInput(),
+                        SizedBox(height: 20),
+                        BottomSubmitButton(),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
@@ -124,7 +147,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       title: Text(
         "Create Report",
         style: TextStyle(
-            color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+            color: Colors.white,
+            fontSize: _fontSizeTitle,
+            fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
     );
@@ -135,6 +160,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Container(
+          width: _halfSizedButtonWidth,
+          height: _halfSizedButtonHeight,
           decoration: BoxDecoration(
               border: Border.all(
                   color: _selectedType == 'income'
@@ -156,17 +183,19 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                   color: _selectedType == 'income'
                       ? const Color.fromARGB(255, 107, 248, 112)
                       : Colors.white,
-                  fontSize: fontSizeButtons,
+                  fontSize: _fontSizeButtons,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.bold),
             ),
           ),
         ),
         Container(
+          width: _halfSizedButtonWidth,
+          height: _halfSizedButtonHeight,
           decoration: BoxDecoration(
               border: Border.all(
                   color: _selectedType == 'expense'
-                      ? const Color.fromARGB(255, 0, 238, 255)
+                      ? const Color.fromARGB(255, 199, 0, 0)
                       : Colors.transparent,
                   width: 2.5),
               borderRadius: BorderRadius.circular(10)),
@@ -182,9 +211,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               "Expense",
               style: TextStyle(
                   color: _selectedType == 'expense'
-                      ? const Color.fromARGB(255, 0, 238, 255)
+                      ? const Color.fromARGB(255, 199, 0, 0)
                       : Colors.white,
-                  fontSize: fontSizeButtons,
+                  fontSize: _fontSizeButtons,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.bold),
             ),
@@ -205,8 +234,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             return Text('Error');
           } else {
             return Container(
-                width: 190,
-                height: 56,
+                width: _halfSizedTextFieldWidth,
+                height: _halfSizedTextFieldHeight,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(94, 117, 117, 117),
@@ -217,7 +246,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                   _username,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: _fontSizeInputs,
                       fontWeight: FontWeight.bold,
                       color: _textFieldFontColor),
                 ));
@@ -226,8 +255,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       );
     } else {
       return Container(
-          width: 190,
-          height: 56,
+          width: _halfSizedTextFieldWidth,
+          height: _halfSizedTextFieldHeight,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: const Color.fromARGB(94, 117, 117, 117),
@@ -238,7 +267,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
             _username,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 20,
+                fontSize: _fontSizeInputs,
                 fontWeight: FontWeight.bold,
                 color: _textFieldFontColor),
           ));
@@ -258,9 +287,10 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
               return Text('Error: ${snapshot.error}');
             } else if (snapshot.connectionState == ConnectionState.done) {
               return Container(
+                alignment: Alignment.center,
                 padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-                width: 190,
-                height: 56,
+                width: _halfSizedTextFieldWidth,
+                height: _halfSizedTextFieldHeight,
                 decoration: BoxDecoration(
                   border: Border.all(color: _textFieldBorderColor, width: 2),
                   borderRadius: BorderRadius.circular(26.7),
@@ -268,7 +298,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                 child: DropdownButton<String>(
                   style: TextStyle(
                       color: _textFieldFontColor,
-                      fontSize: fontSizeInputs,
+                      fontSize: _fontSizeInputs,
                       fontWeight: FontWeight.bold),
                   dropdownColor: Colors.blue,
                   icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
@@ -278,7 +308,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
                   hint: Text('Select Category',
                       style: TextStyle(
                           color: _textFieldFontColor,
-                          fontSize: fontSizeInputs,
+                          fontSize: _fontSizeInputs,
                           fontWeight: FontWeight.bold)), // Placeholder text
                   onChanged: (String? value) {
                     setState(() {
@@ -317,8 +347,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     } else {
       return Container(
         padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-        width: 190,
-        height: 56,
+        width: _halfSizedTextFieldWidth,
+        height: _halfSizedTextFieldHeight,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           border: Border.all(color: _textFieldBorderColor, width: 2),
           borderRadius: BorderRadius.circular(26.7),
@@ -326,7 +357,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         child: DropdownButton<String>(
           style: TextStyle(
               color: _textFieldFontColor,
-              fontSize: fontSizeInputs,
+              fontSize: _fontSizeInputs,
               fontWeight: FontWeight.bold),
           dropdownColor: Colors.blue,
           icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
@@ -336,7 +367,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           hint: Text('Select Category',
               style: TextStyle(
                   color: _textFieldFontColor,
-                  fontSize: fontSizeInputs,
+                  fontSize: _fontSizeInputs,
                   fontWeight: FontWeight.bold)), // Placeholder text
           onChanged: (String? value) {
             setState(() {
@@ -374,8 +405,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   Widget GroupInput() {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-      width: 190,
-      height: 56,
+      width: _halfSizedTextFieldWidth,
+      height: _halfSizedTextFieldHeight,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         border: Border.all(color: _textFieldBorderColor, width: 2),
         borderRadius: BorderRadius.circular(25.7),
@@ -383,7 +415,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
       child: DropdownButton<String>(
         style: TextStyle(
             color: _textFieldFontColor,
-            fontSize: fontSizeInputs,
+            fontSize: _fontSizeInputs,
             fontWeight: FontWeight.bold),
         dropdownColor: Colors.blue,
         icon: Icon(Icons.arrow_drop_down, color: _textFieldFontColor),
@@ -393,7 +425,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         hint: Text('Select Group',
             style: TextStyle(
                 color: _textFieldFontColor,
-                fontSize: fontSizeInputs,
+                fontSize: _fontSizeInputs,
                 fontWeight: FontWeight.bold)), // Placeholder text
         onChanged: (String? value) {
           setState(() {
@@ -412,84 +444,82 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   }
 
   Widget DateInputSelect() {
-    return SizedBox(
-      width: 190,
-      height: 56,
-      child: TextField(
-        controller: _dateController,
-        readOnly: true,
-        style: TextStyle(
-            color: _textFieldFontColor,
-            fontSize: fontSizeInputs,
-            fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          labelText: 'Select Date',
-          labelStyle: TextStyle(
-              color: _textFieldFontColor,
-              fontSize: fontSizeInputs,
-              fontWeight: FontWeight.bold),
-          // Set border for different states
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
-            borderRadius: BorderRadius.circular(25.7),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
-            borderRadius: BorderRadius.circular(25.7),
-          ),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color in general
-            borderRadius: BorderRadius.circular(25.7),
-          ),
-          suffixIcon: Icon(Icons.calendar_today, color: _textFieldFontColor),
-          fillColor: Colors.transparent,
-          filled: true,
+    return GestureDetector(
+      onTap: () {
+        _selectDate(context);
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+        width: _halfSizedTextFieldWidth,
+        height: _halfSizedTextFieldHeight,
+        decoration: BoxDecoration(
+          border: Border.all(color: _textFieldBorderColor, width: 2),
+          borderRadius: BorderRadius.circular(25.7),
+          color: Colors.transparent,
         ),
-        onTap: () => _selectDate(context),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _dateController.text,
+              style: TextStyle(
+                color: _textFieldFontColor,
+                fontSize: _fontSizeInputs,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Icon(
+              Icons.calendar_today,
+              color: Colors.white,
+              size: _iconSize,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget AmountInput() {
-    return SizedBox(
-      width: 390,
-      height: 56,
+    return Container(
+      width: _fullSizedTextFieldWidth, // Set width relative to screen
+      height: _fullSizedTextFieldHeight, // Set height relative to screen
       child: TextField(
         controller: _amountController,
         keyboardType: TextInputType.number,
+        expands: true,
+        maxLines: null,
         style: TextStyle(
-            color: _textFieldFontColor,
-            fontSize: fontSizeInputs,
-            fontWeight: FontWeight.bold),
+          color: _textFieldFontColor,
+          fontSize: _fontSizeInputs,
+          fontWeight: FontWeight.bold,
+        ),
         decoration: InputDecoration(
           labelText: "Enter Amount",
           labelStyle: TextStyle(
-              color: _textFieldFontColor,
-              fontSize: fontSizeInputs,
-              fontWeight: FontWeight.bold),
-          // Set border for different states
+            color: _textFieldFontColor,
+            fontSize: _fontSizeInputs,
+            fontWeight: FontWeight.bold,
+          ),
+          contentPadding: EdgeInsets.only(left: 12, right: 12),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+              color: _textFieldBorderColor,
+              width: 2,
+            ),
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+              color: _textFieldBorderColor,
+              width: 2,
+            ),
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-                color: _textFieldFontColor,
-                width: 2), // Border color in general
+              color: _textFieldFontColor,
+              width: 2,
+            ),
             borderRadius: BorderRadius.circular(25.7),
           ),
           fillColor: Colors.transparent,
@@ -502,7 +532,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   Widget DescriptionInput() {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
-      height: 300,
+      height: _descriptionHeight,
       child: TextField(
         controller: _descriptionController,
         textAlignVertical: TextAlignVertical.top,
@@ -510,7 +540,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
         expands: true,
         style: TextStyle(
             color: _textFieldFontColor,
-            fontSize: fontSizeInputs,
+            fontSize: _fontSizeInputs,
             fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           hintText: "Enter description here...",
@@ -544,7 +574,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget BottomSubmitButton() {
     return Container(
-      height: 100,
+      height: _fullSizedButtonHeight,
+      width: _fullSizedTextFieldWidth,
       alignment: Alignment.center,
       child: ElevatedButton(
         onPressed: () async {
@@ -591,13 +622,14 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           backgroundColor: WidgetStatePropertyAll(Colors.transparent),
           shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-          fixedSize: WidgetStatePropertyAll(Size(400, 80)),
+          fixedSize: WidgetStatePropertyAll(
+              Size(_fullSizedButtonWidth, _fullSizedButtonHeight)),
         ),
         child: Text(
           "Submit",
           style: TextStyle(
             color: Colors.white,
-            fontSize: fontSizeButtons,
+            fontSize: _fontSizeButtons,
             fontFamily: 'Arial',
             fontWeight: FontWeight.bold,
           ),
@@ -608,8 +640,8 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Widget MockTextField() {
     return Container(
-        width: 190,
-        height: 56,
+        width: _halfSizedTextFieldWidth,
+        height: _halfSizedTextFieldHeight,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           border: Border.all(color: _textFieldBorderColor, width: 2),
@@ -628,12 +660,14 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   void _addIncome() {
     setState(() {
       _selectedType = 'income';
+      _selectedCategory = null;
     });
   }
 
   void _addExpense() {
     setState(() {
       _selectedType = 'expense';
+      _selectedCategory = null;
     });
   }
 
@@ -651,7 +685,9 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: _dateController.text.isEmpty
+            ? DateTime.now()
+            : DateTime.parse(_dateController.text),
         firstDate: DateTime(1800),
         lastDate: DateTime(2100));
 

@@ -130,121 +130,123 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           const AppGradient(), //app theme gradient from app_gradient.dart is invoked
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const SizedBox(height: 50),
-                SwitchListTile(
-                  activeColor: Colors.lightBlueAccent,
-                  activeTrackColor: Colors.blueGrey,
-                  inactiveThumbColor: Colors.grey.shade700,
-                  inactiveTrackColor: Colors.grey.shade600,
-                  title: const Text(
-                    'Receive Report Notifications',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const SizedBox(height: 80),
+                  SwitchListTile(
+                    activeColor: Colors.lightBlueAccent,
+                    activeTrackColor: Colors.blueGrey,
+                    inactiveThumbColor: Colors.grey.shade700,
+                    inactiveTrackColor: Colors.grey.shade600,
+                    title: const Text(
+                      'Receive Report Notifications',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    value: receiveNotifications,
+                    onChanged: _saveNotificationSetting,
+                  ),
+                  const SizedBox(height: 50),
+                  SwitchListTile(
+                    activeColor: Colors.lightBlueAccent,
+                    activeTrackColor: Colors.blueGrey,
+                    inactiveThumbColor: Colors.grey.shade700,
+                    inactiveTrackColor: Colors.grey.shade600,
+                    title: const Text(
+                      'Receive Login Notifications',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    value: receiveLogin,
+                    onChanged: _saveLogonSetting,
+                  ),
+                  const SizedBox(height: 50),
+                  SwitchListTile(
+                    activeColor: Colors.lightBlueAccent,
+                    activeTrackColor: Colors.blueGrey,
+                    inactiveThumbColor: Colors.grey.shade700,
+                    inactiveTrackColor: Colors.grey.shade600,
+                    title: const Text(
+                      'Receive Logoff Notifications',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    value: receiveLogoff,
+                    onChanged: _saveLogoffSetting,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 40, 176, 218),
+                      foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: _exportUserReports,
+                    child: const Text(
+                      'Export Reports',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  value: receiveNotifications,
-                  onChanged: _saveNotificationSetting,
-                ),
-                const SizedBox(height: 50),
-                SwitchListTile(
-                  activeColor: Colors.lightBlueAccent,
-                  activeTrackColor: Colors.blueGrey,
-                  inactiveThumbColor: Colors.grey.shade700,
-                  inactiveTrackColor: Colors.grey.shade600,
-                  title: const Text(
-                    'Receive Login Notifications',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 40, 176, 218),
+                      foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: _sendBalanceEmail, // Trigger sendBalanceEmail
+                    child: const Text(
+                      'Send Balance Email',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  value: receiveLogin,
-                  onChanged: _saveLogonSetting,
-                ),
-                const SizedBox(height: 50),
-                SwitchListTile(
-                  activeColor: Colors.lightBlueAccent,
-                  activeTrackColor: Colors.blueGrey,
-                  inactiveThumbColor: Colors.grey.shade700,
-                  inactiveTrackColor: Colors.grey.shade600,
-                  title: const Text(
-                    'Receive Logoff Notifications',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 40, 176, 218),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: logout,
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  value: receiveLogoff,
-                  onChanged: _saveLogoffSetting,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 40, 176, 218),
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: _exportUserReports,
-                  child: const Text(
-                    'Export Reports',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 40, 176, 218),
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: _sendBalanceEmail, // Trigger sendBalanceEmail
-                  child: const Text(
-                    'Send Balance Email',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 40, 176, 218),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: logout,
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

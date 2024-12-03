@@ -51,6 +51,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   int _selectedNavigationalIndex = 0;
   bool loginInProgress = false;
 
+  late double _appBarHeight;
+  late double _bottomNavigationBarHeight;
+
   late List<Widget> _widgetOptions = [];
 
   @override
@@ -60,6 +63,9 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 
   @override
   Widget build(BuildContext context) {
+    _appBarHeight = MediaQuery.of(context).size.height * 0.1;
+    _bottomNavigationBarHeight = MediaQuery.of(context).size.height * 0.1;
+
     return FutureBuilder(
       future: _initalizeApp(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -146,6 +152,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: Image.asset('assets/images/logo.png'),
+      toolbarHeight: _appBarHeight,
       // title:
       //     Text(widget.title, style: const TextStyle(color: Colors.white)),
       actions: [
