@@ -60,7 +60,7 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
           AppGradient(),
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 20.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -94,9 +94,13 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
   }
 
   Widget LogoSection() {
-    return Image.asset(
-      'assets/images/logo1.png',
-      scale: 3,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.65,
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: Image.asset(
+        'assets/images/logo1.png',
+        fit: BoxFit.contain,
+      ),
     );
   }
 
@@ -425,7 +429,7 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
                           columnSpacing: 10,
                           columns: [
                             DataColumn(label: Text('User Email')),
-                            DataColumn(label: Text('Remove')),
+                            DataColumn(label: Text('')),
                           ],
                           rows: dialogUsers
                               .map((user) => DataRow(
@@ -457,6 +461,9 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    if (dialogUserEmailController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogUsers.add(dialogUserEmailController.text);
                       dialogUserEmailController.clear();
@@ -558,6 +565,9 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    if (dialogCategoryController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogCategoryExpense.add(dialogCategoryController.text);
                       dialogCategoryController.clear();
@@ -567,6 +577,9 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
                 ),
                 TextButton(
                   onPressed: () {
+                    if (dialogCategoryController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogCategoryIncome.add(dialogCategoryController.text);
                       dialogCategoryController.clear();

@@ -172,7 +172,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             return Container(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 width: double.infinity,
-                height: 75,
+                height: _rowHeight,
                 decoration: BoxDecoration(
                   color: _containerFillColor,
                   border: Border.all(color: Colors.black, width: 2),

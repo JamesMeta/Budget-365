@@ -70,16 +70,16 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
     _fontSizeButtons = MediaQuery.of(context).size.width * 0.05;
     _fontSizeInputs = MediaQuery.of(context).size.width * 0.035;
     _fullSizedTextFieldWidth = MediaQuery.of(context).size.width;
-    _fullSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.1;
+    _fullSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.08;
     _halfSizedTextFieldWidth = MediaQuery.of(context).size.width * 0.45;
-    _halfSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.1;
+    _halfSizedTextFieldHeight = MediaQuery.of(context).size.height * 0.08;
     _iconSize = MediaQuery.of(context).size.width * 0.065;
     _halfSizedButtonWidth = MediaQuery.of(context).size.width * 0.40;
-    _halfSizedButtonHeight = MediaQuery.of(context).size.height * 0.1;
+    _halfSizedButtonHeight = MediaQuery.of(context).size.height * 0.08;
     _fullSizedButtonWidth = MediaQuery.of(context).size.width;
     _fullSizedButtonHeight = MediaQuery.of(context).size.height * 0.1;
     _fontSizeTitle = MediaQuery.of(context).size.width * 0.08;
-    _descriptionHeight = MediaQuery.of(context).size.height * 0.20;
+    _descriptionHeight = MediaQuery.of(context).size.height * 0.3;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 112, 213, 243),
@@ -91,7 +91,7 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
           AppGradient(),
           Padding(
             padding:
-                EdgeInsets.fromLTRB(10, _halfSizedButtonHeight * 1.4, 10, 10),
+                EdgeInsets.fromLTRB(10, _halfSizedButtonHeight * 1.6, 10, 10),
             child: SingleChildScrollView(
               // Wrap Column with SingleChildScrollView
               child: SingleChildScrollView(
@@ -676,12 +676,14 @@ class _ReportCreationWidgetState extends State<ReportCreationWidget> {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: _dateController.text.isEmpty
-            ? DateTime.now()
-            : DateTime.parse(_dateController.text),
-        firstDate: DateTime(1800),
-        lastDate: DateTime(2100));
+      context: context,
+      initialDate: _dateController.text.isEmpty
+          ? DateTime.now()
+          : DateTime.parse(_dateController.text),
+      firstDate: DateTime(1800),
+      lastDate: DateTime.now(),
+      barrierColor: Colors.transparent,
+    );
 
     if (picked != null) {
       setState(() {

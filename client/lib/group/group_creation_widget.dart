@@ -67,7 +67,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
           AppGradient(),
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 20.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -89,7 +89,6 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                   ),
                   SizedBox(height: 5),
                   CreateGroupButton(),
-                  SizedBox(height: 40),
                   HaveCodeButton(),
                 ],
               ),
@@ -101,9 +100,13 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   }
 
   Widget LogoSection() {
-    return Image.asset(
-      'assets/images/logo1.png',
-      scale: 3,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.65,
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: Image.asset(
+        'assets/images/logo1.png',
+        fit: BoxFit.contain,
+      ),
     );
   }
 
@@ -519,7 +522,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                           columnSpacing: 10,
                           columns: [
                             DataColumn(label: Text('User Email')),
-                            DataColumn(label: Text('Remove')),
+                            DataColumn(label: Text('')),
                           ],
                           rows: dialogUsers
                               .map((user) => DataRow(
@@ -551,6 +554,9 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    if (dialogUserEmailController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogUsers.add(dialogUserEmailController.text);
                       dialogUserEmailController.clear();
@@ -652,6 +658,9 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    if (dialogCategoryController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogCategoryExpense.add(dialogCategoryController.text);
                       dialogCategoryController.clear();
@@ -661,6 +670,9 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                 ),
                 TextButton(
                   onPressed: () {
+                    if (dialogCategoryController.text == '') {
+                      return;
+                    }
                     setState(() {
                       dialogCategoryIncome.add(dialogCategoryController.text);
                       dialogCategoryController.clear();
@@ -670,6 +682,9 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
                 ),
                 TextButton(
                   onPressed: () {
+                    if (dialogCategoryController.text == '') {
+                      return;
+                    }
                     setState(() {
                       _categoryExpense = List.from(dialogCategoryExpense);
                       _categoryIncome = List.from(dialogCategoryIncome);
