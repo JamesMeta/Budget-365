@@ -17,48 +17,67 @@ class DataVisualizationWidget extends StatefulWidget {
 
 class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   late Future<List<Map<String, dynamic>>?> _reportDataFuture;
+  int? _selectedGroupID;
+  Set<int> _groupIDs = {};
 
   @override
   void initState() {
     super.initState();
-    //uses the method in the active instance of the cloudstoragemanager to extract user reports
     _reportDataFuture = widget.cloudStorageManager.getReportsForGraph();
+    _loadGroupIDs();
+  }
+
+  Future<void> _loadGroupIDs() async {
+    final reportData = await _reportDataFuture;
+    if (reportData != null) {
+      final groupIDs = reportData
+          .map((report) => report['groupID'] as int)
+          .toSet(); //extracts the  unique groupIDs
+      setState(() {
+        _groupIDs = groupIDs;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //appbar in this case stores a title for the visualization - this can be adjusted based on the graph
-        title: const Text(
-          'Visualization',
-          style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
-            fontSize: 15.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Your Activity by Category'),
         backgroundColor: const Color.fromARGB(255, 63, 158, 202),
         elevation: 4,
-        systemOverlayStyle: SystemUiOverlayStyle
-            .light, //fixes issue where colours weren't updating
       ),
-      extendBodyBehindAppBar: false,
       body: Stack(
         children: [
           const AppGradient(),
           Padding(
             padding: const EdgeInsets.all(19.0),
             child: SingleChildScrollView(
-              //allows for vertical scrolling to avoid infinity render crashes
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 20),
+                  DropdownButton<int>(
+                    hint: const Text("Select Group ID"),
+                    value: _selectedGroupID,
+                    items: _groupIDs
+                        .map((groupID) => DropdownMenuItem<int>(
+                              value: groupID,
+                              child: Text('Group $groupID'),
+                            ))
+                        .toList(),
+                    onChanged: (groupID) {
+                      setState(() {
+                        _selectedGroupID = groupID;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   SizedBox(
-                    height: 400,
+                    height: 500,
                     child: TransactionChart(
                       reportDataFuture: _reportDataFuture,
+                      selectedGroupID: _selectedGroupID,
                     ),
                   ),
                 ],
