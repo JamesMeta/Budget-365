@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+///This class defines the background gradient used in the app UI. It was defined as it's own class to
+///ease implementation across multiple widgets.
 class AppGradient extends StatelessWidget {
   const AppGradient({super.key});
 

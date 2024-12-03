@@ -77,7 +77,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
-                    height: 500,
+                    height: 800,
                     child: TransactionChart(
                       reportDataFuture: _reportDataFuture,
                       selectedGroupID: _selectedGroupID,
