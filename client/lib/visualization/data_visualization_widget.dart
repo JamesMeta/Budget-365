@@ -29,10 +29,19 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions by Category'),
+        //appbar in this case stores a title for the visualization - this can be adjusted based on the graph
+        title: const Text(
+          'Visualization',
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 15.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 63, 158, 202),
         elevation: 4,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        systemOverlayStyle: SystemUiOverlayStyle
+            .light, //fixes issue where colours weren't updating
       ),
       extendBodyBehindAppBar: false,
       body: Stack(
@@ -41,6 +50,7 @@ class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
           Padding(
             padding: const EdgeInsets.all(19.0),
             child: SingleChildScrollView(
+              //allows for vertical scrolling to avoid infinity render crashes
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

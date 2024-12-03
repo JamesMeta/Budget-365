@@ -20,7 +20,7 @@ class Budget365 extends StatelessWidget {
 
   const Budget365(this.cloudStorageManager, {super.key});
 
-  // This widget is the root of your application.
+  //base widget for the app
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -103,7 +103,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
     final session = await widget.cloudStorageManager.isLoggedIn();
     if (session && userLoggedIn != -1) {
       return;
-    } // If user is already logged in, skip login process
+    } //bypasses the login process if the cloud storage manager reports that the user is already logged-in
 
     var value = await LocalStorageManager.fetchAccounts();
 
@@ -117,14 +117,13 @@ class _Budget365WidgetState extends State<Budget365Widget> {
         final response = await widget.cloudStorageManager
             .login(mostRecentLogin['email'], mostRecentLogin['password']);
         if (int.tryParse(response!) != null) {
-          // If login is successful, update the userLoggedIn state
           userLoggedIn = int.parse(response);
-          return; // Finish the future successfully
+          return;
         }
       }
     }
 
-    // If no accounts or no recent login is found, show an alert dialog
+    // alert if no accounts or no recent login is found, show an alert dialog
     if (!loginInProgress) {
       loginInProgress = true;
       await _goToLogin();
@@ -209,7 +208,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
       print("Failed to clear session: $e");
     }
 
-    // Wait for the result of the navigation
+    //wait for the result of the navigation
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -220,15 +219,15 @@ class _Budget365WidgetState extends State<Budget365Widget> {
 
     if (result != null) {
       if (!mounted) {
-        return false; // Ensure widget is mounted before calling setState
+        return false; //esures the  widget is mounted before calling setState
       }
       setState(() {
         userLoggedIn = result;
       });
 
-      return true; // Login successful
+      return true; //logged-in
     } else {
-      return false; // Login failed
+      return false; //couldn't login
     }
   }
 

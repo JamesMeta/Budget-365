@@ -19,7 +19,7 @@ class Report {
     required this.date,
   });
 
-  // Convert the Report instance to a JSON-compatible map
+  //converts the Report instance to a JSON-compatible map (for exporting to user device)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -29,7 +29,7 @@ class Report {
       'amount': amount,
       'description': description,
       'category': category,
-      'date': date.toIso8601String(), // Convert DateTime to ISO 8601 string
+      'date': date.toIso8601String(),
     };
   }
 }

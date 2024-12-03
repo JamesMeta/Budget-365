@@ -271,14 +271,13 @@ class _HomeWidgetState extends State<HomeWidget> {
               snapshot.data!.isEmpty) {
             return const Center(child: Text('No reports found.'));
           } else {
-            _reports =
-                snapshot.data as List<dynamic>?; // Cast `snapshot.data` safely.
+            _reports = snapshot.data as List<dynamic>?; //casts `snapshot.data`
 
-            // Ensure reports are sorted by date in descending order
+            //sorts reports in descending order
             _reports!.sort((a, b) {
               DateTime dateA = DateTime.parse(a['date']);
               DateTime dateB = DateTime.parse(b['date']);
-              return dateB.compareTo(dateA); // Descending order
+              return dateB.compareTo(dateA); //descending order
             });
 
             return ListView.builder(
@@ -299,7 +298,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   date: DateTime.parse(reportData['date']),
                 );
 
-                //Determine if its within the datarange
+                //check if its within the datarange
                 DateTime currentDate = DateTime.now();
                 DateTime reportDate = report.date;
 
@@ -308,21 +307,21 @@ class _HomeWidgetState extends State<HomeWidget> {
                   return const SizedBox();
                 }
 
-                // Determine if a divider is needed
+                //is a divider needed?
                 bool showDivider = false;
                 if (index == 0) {
-                  showDivider = false; // Show divider for the first item
+                  showDivider = false;
                 } else {
                   DateTime currentReportDate = report.date;
                   DateTime previousReportDate =
                       DateTime.parse(_reports![index - 1]['date']);
                   if (currentReportDate.month != previousReportDate.month ||
                       currentReportDate.year != previousReportDate.year) {
-                    showDivider = true; // Month has changed
+                    showDivider = true;
                   }
                 }
 
-                // Build the list of widgets to display
+                //builds the list of widgets to display
                 List<Widget> widgets = [];
                 if (showDivider) {
                   widgets.add(DividerTileWidget(
@@ -353,35 +352,34 @@ class _HomeWidgetState extends State<HomeWidget> {
       right: 20,
       bottom: 100,
       child: Container(
-        width: 70, // Set size of the container
-        height: 70, // Set size of the container
+        width: 70,
+        height: 70,
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 71, 162, 236), // Background color
-          shape: BoxShape.circle, // Circular shape Optional: add border
+          color: Color.fromARGB(255, 71, 162, 236),
+          shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.black, // Border color
-            width: 1, // Border width
+            color: Colors.black,
+            width: 1,
           ),
         ),
         child: IconButton(
           onPressed: _goToReportBuilder,
           icon: const Icon(
-            Icons.add, // Use a plus icon
-            color: Colors.white, // Icon color
-            size: 55, // Adjust size to fit well
+            Icons.add,
+            color: Colors.white,
+            size: 55,
           ),
-          padding: EdgeInsets.zero, // Remove padding
-          constraints: const BoxConstraints(), // No constraints
-          splashColor:
-              Colors.blue.withOpacity(0.4), // Splash color for feedback
-          highlightColor:
-              Colors.white.withOpacity(0.3), // Highlight color for feedback
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          splashColor: Colors.blue.withOpacity(0.4),
+          highlightColor: Colors.white.withOpacity(0.3),
         ),
       ),
     );
   }
 
   Widget ThisFeatureHasNotBeenImplemented() {
+    //widget is now deprecated - pending final confirmation, I'm removing this
     return AlertDialog(
       title: const Text('Feature Not Implemented'),
       content: const Text(
@@ -440,9 +438,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                setState(() {
-                  // You can update any state variables here, even if you don't actually change anything.
-                });
+                setState(() {});
               },
               child: const Text('OK'),
             ),
@@ -481,9 +477,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(context, 'Report created successfully.');
-        setState(() {
-          // You can update any state variables here, even if you don't actually change anything.
-        });
+        setState(() {});
       }
     });
   }
@@ -499,9 +493,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(context, 'Report updated successfully.');
-        setState(() {
-          // You can update any state variables here, even if you don't actually change anything.
-        });
+        setState(() {});
       }
     });
   }

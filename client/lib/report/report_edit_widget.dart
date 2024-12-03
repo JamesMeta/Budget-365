@@ -60,7 +60,7 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
     _amountController.text = widget.report!.amount.toString();
     _descriptionController.text = widget.report!.description;
     _dateController.text =
-        widget.report!.date.toIso8601String().split('T').first; // YYYY-MM-DD
+        widget.report!.date.toIso8601String().split('T').first; //YYYY-MM-DD
   }
 
   @override
@@ -91,7 +91,6 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
             padding:
                 EdgeInsets.fromLTRB(10, _halfSizedButtonHeight * 1.4, 10, 10),
             child: SingleChildScrollView(
-              // Wrap Column with SingleChildScrollView
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -132,7 +131,6 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
           ),
         ],
       ),
-      // bottomNavigationBar: BottomAppBarSection(),
     );
   }
 
@@ -163,7 +161,7 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context); // Close the dialog
+                          Navigator.pop(context);
                         },
                         child: Text("Cancel"),
                       ),
@@ -171,9 +169,8 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
                         onPressed: () async {
                           await widget.cloudStorageManager
                               .deleteReport(widget.report!.id);
-                          Navigator.pop(context); // Close the dialog
-                          Navigator.pop(
-                              context, 0); // Close the page return success
+                          Navigator.pop(context);
+                          Navigator.pop(context, 0);
                         },
                         child: Text("Delete"),
                       ),
@@ -590,24 +587,17 @@ class _ReportEditWidgetState extends State<ReportEditWidget> {
           hintText: "Enter description here...",
           hintStyle: TextStyle(color: _textFieldFontColor),
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
           ),
           filled: true,
           fillColor: Colors.transparent,
