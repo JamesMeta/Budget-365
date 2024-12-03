@@ -4,13 +4,37 @@
 Mobile app designed to allow for collaboration on making and reporting monthly budgets, incomes, and expenses 
 
 ## Usage
-To use the app in the current configuration please login using my login as it is setup to work with the current implemented features. In the future this will be possible for all new accounts but isn't currently.
+To use the app in the current configuration please create a brand new account or use the one provided below. I recommend you use the account though for the best view of the project
 
-### Login
+### Login that has stuff going on
 
 Email: jamesmata556@gmail.com
 
 Password: 123456
+
+#### Alternatively Join Group With Code
+
+Code: BXYZ
+
+## New Additions to the final version
+
+![Image Alt Text](client/assets/images/homenew.png)
+
+The home screen got a ui rework to fit the data better
+
+![Image Alt Text](client/assets/images/group.png)
+
+![Image Alt Text](client/assets/images/groupcreate.png)
+
+Groups have now been added for everyone to use, you can edit, join, and create new groups
+
+![Image Alt Text](client/assets/images/settings.png)
+
+There's also now a settings page to log out, export data, send report email and set preferences
+
+![Image Alt Text](client/assets/images/infoviz.png)
+
+There's also now basic data visualization for reports
 
 ## Required Features:
 
@@ -36,7 +60,9 @@ This can be seen after you submit a report to the database
 ![Image Alt Text](client/assets/images/snackbar.png)
 
 ### Notifications:
-Notifications are absent from this version of the app because I couldn't figure them out
+Notifications are no longer absent because Dennis is great
+
+![Image Alt Text](client/assets/images/notifications.png)
 
 ### Local Storage:
 This can be seen after your first login, whenever you boot up the app it automatically signs you in instead of requiring you to login each time
