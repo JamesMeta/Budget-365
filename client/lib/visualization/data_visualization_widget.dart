@@ -5,7 +5,8 @@ import 'package:budget_365/design/app_gradient.dart';
 import 'package:flutter/services.dart';
 
 class DataVisualizationWidget extends StatefulWidget {
-  final CloudStorageManager cloudStorageManager;
+  final CloudStorageManager
+      cloudStorageManager; //requires connection to cloud manager instance for this service to get user data
 
   const DataVisualizationWidget({Key? key, required this.cloudStorageManager})
       : super(key: key);
@@ -18,16 +19,19 @@ class DataVisualizationWidget extends StatefulWidget {
 class _DataVisualizationWidgetState extends State<DataVisualizationWidget> {
   late Future<List<Map<String, dynamic>>?> _reportDataFuture;
   int? _selectedGroupID;
-  Set<int> _groupIDs = {};
+  Set<int> _groupIDs =
+      {}; //_groupIDs will hold the unique GIDs to refine visualization
 
   @override
   void initState() {
     super.initState();
-    _reportDataFuture = widget.cloudStorageManager.getReportsForGraph();
+    _reportDataFuture = widget.cloudStorageManager
+        .getReportsForGraph(); //stores the list of report data
     _loadGroupIDs();
   }
 
   Future<void> _loadGroupIDs() async {
+    //maps the GIDs from report data, and then sets the unique GIDs
     final reportData = await _reportDataFuture;
     if (reportData != null) {
       final groupIDs = reportData

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class LocalNotificationsManager {
@@ -24,9 +25,13 @@ class LocalNotificationsManager {
     try {
       await _notificationsPlugin.initialize(initializationSettings);
       _isInitialized = true;
-      print("Local notifications initialized successfully.");
+      if (kDebugMode) {
+        print("Local notifications initialized successfully.");
+      }
     } catch (error) {
-      print("Error initializing notifications: $error");
+      if (kDebugMode) {
+        print("Error initializing notifications: $error");
+      }
     }
   }
 
@@ -53,9 +58,13 @@ class LocalNotificationsManager {
       final notificationDetails = NotificationDetails(android: androidDetails);
 
       await _notificationsPlugin.show(id, title, body, notificationDetails);
-      print("Notification displayed: $title");
+      if (kDebugMode) {
+        print("Notification displayed: $title");
+      }
     } catch (error) {
-      print("Error showing notification: $error");
+      if (kDebugMode) {
+        print("Error showing notification: $error");
+      }
     }
   }
 }
