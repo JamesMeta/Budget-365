@@ -13,7 +13,7 @@ import 'package:budget_365/group/group_edit_widget.dart';
 
 class GroupOverviewPage extends StatefulWidget {
   final CloudStorageManager
-      cloudStorageManager; // Instantiates the cloud management system
+      cloudStorageManager; //instantiates the cloud management system
   final int userLoggedIn;
 
   const GroupOverviewPage({
@@ -27,24 +27,24 @@ class GroupOverviewPage extends StatefulWidget {
 }
 
 class _GroupOverviewPageState extends State<GroupOverviewPage> {
-  late List<Group>? _groups; // List to store groups
+  late List<Group>? _groups; //list to store groups
 
   static const _fontColor =
-      Color.fromARGB(255, 255, 255, 255); // Font color for text
+      Color.fromARGB(255, 255, 255, 255); //font color for text
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const AppGradient(), // Background gradient
+        const AppGradient(), //gradient
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 110, 10, 75),
           child: Container(
             alignment: Alignment.topCenter,
-            child: GroupTileSection(), // Section to display group tiles
+            child: GroupTileSection(), //section to display group tiles
           ),
         ),
-        PlusButtonSectionGroup(), // Section for the plus button
+        PlusButtonSectionGroup(), //section for the plus button
       ],
     );
   }
@@ -53,19 +53,19 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     return Container(
       alignment: Alignment.topCenter,
       child: FutureBuilder(
-          future: widget.cloudStorageManager.getGroups(
-              widget.userLoggedIn), // Fetch groups from cloud storage
+          future: widget.cloudStorageManager
+              .getGroups(widget.userLoggedIn), //fetch groups from cloud storage
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator(); // Show loading indicator while waiting
             } else if (snapshot.hasError) {
               return Text(
-                  'Error: ${snapshot.error}'); // Show error message if there's an error
+                  'Error: ${snapshot.error}'); //show error message if there's an error
             } else {
-              _groups = snapshot.data; // Assign fetched groups to _groups
+              _groups = snapshot.data; //assign fetched groups to _groups
               return ListView.builder(
                 padding: const EdgeInsets.all(0),
-                itemCount: _groups?.length ?? 0, // Number of groups
+                itemCount: _groups?.length ?? 0, //number of groups
                 itemBuilder: (context, index) {
                   final group = _groups?[index];
                   return Padding(
@@ -84,15 +84,15 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: _fontColor)), // Display group name
+                                color: _fontColor)), //display group name
                         subtitle: Text(group?.code ?? '',
                             style: const TextStyle(
                                 fontSize: 18,
-                                color: _fontColor)), // Display group code
+                                color: _fontColor)), //display group code
                         trailing: IconButton(
                           icon: const Icon(Icons.edit, color: _fontColor),
                           onPressed: () => _goToGroupBuilderEdit(
-                              _groups?[index]), // Navigate to group edit page
+                              _groups?[index]), //navigate to group edit page
                         ),
                         contentPadding: EdgeInsets.all(6),
                       ),
@@ -117,17 +117,17 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
             shape: BoxShape.circle,
             border: Border.all(
               color: Colors.black,
-              width: 1, // Border width
+              width: 1, //width
             ),
           ),
           child: IconButton(
-            onPressed: _goToGroupBuilder, // Navigate to group creation page
+            onPressed: _goToGroupBuilder, //navigate to group creation page
             icon: const Icon(
-              Icons.add, // Use a plus icon
+              Icons.add, //use a plus icon
               color: Color.fromARGB(255, 71, 162, 236),
-              size: 55, // Adjust size to fit well
+              size: 55, //adjust size to fit well
             ),
-            padding: EdgeInsets.zero, // Remove padding
+            padding: EdgeInsets.zero, //remove padding
             constraints: const BoxConstraints(),
             splashColor: Colors.blue.withOpacity(0.4),
             highlightColor: Colors.white.withOpacity(0.3),
@@ -142,7 +142,7 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     );
 
     ScaffoldMessenger.of(context)
-        .showSnackBar(snackBar); // Display snackbar with message
+        .showSnackBar(snackBar); //display snackbar with message
   }
 
   void _goToGroupBuilder() {
@@ -168,11 +168,11 @@ class _GroupOverviewPageState extends State<GroupOverviewPage> {
     ).then((value) {
       if (value == 0) {
         _showSnackbar(
-            'Group edited successfully'); // Show success message for group edit
+            'Group edited successfully'); //show success message for group edit
         setState(() {});
       } else if (value == 1) {
         _showSnackbar(
-            'Group deleted successfully'); // Show success message for group delete
+            'Group deleted successfully'); //show success message for group delete
         setState(() {});
       }
     });

@@ -24,7 +24,7 @@ class LocalStorageManager {
 
     return await openDatabase(
       path,
-      version: 2, //increment this when you change the schema
+      version: 2, //increment this when changing the schema
       onCreate: _createDB, //this will create the table if it does not exist
     );
   }

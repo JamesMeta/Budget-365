@@ -25,6 +25,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   String _groupCode = '';
   List<String> _users = [];
   List<String> _categoryExpense = [
+    //definition of the basic expense categories
     '🛒Groceries',
     '🪟Rent',
     '💡Utilities',
@@ -34,6 +35,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
     '*️⃣Miscellaneous'
   ];
   List<String> _categoryIncome = [
+    //default income categories
     '💵Salary',
     '🏦Investments',
     '🎁Gifts',
@@ -103,6 +105,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   }
 
   Widget LogoSection() {
+    //defines the container carrying the project icon
     return Container(
       width: MediaQuery.of(context).size.width * 0.65,
       height: MediaQuery.of(context).size.height * 0.3,
@@ -125,6 +128,7 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
   }
 
   Widget GroupCode() {
+    //defines groupcode container
     return Container(
       decoration: BoxDecoration(
           color: const Color.fromARGB(60, 0, 0, 0),
@@ -190,23 +194,16 @@ class _GroupCreationWidgetState extends State<GroupCreationWidget> {
               color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldFontColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldFontColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           fillColor: Colors.transparent,

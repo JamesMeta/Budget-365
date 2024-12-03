@@ -168,6 +168,7 @@ class _Budget365WidgetState extends State<Budget365Widget> {
   }
 
   Widget BottomNavigationBarSection() {
+    //defines the lower snackbar
     return Container(
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: Colors.black, width: 1)),

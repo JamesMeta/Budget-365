@@ -216,7 +216,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: _sendBalanceEmail, // Trigger sendBalanceEmail
+                    onPressed: _sendBalanceEmail, //triggers sendBalanceEmail
                     child: const Text(
                       'Send Balance Email',
                       style: TextStyle(

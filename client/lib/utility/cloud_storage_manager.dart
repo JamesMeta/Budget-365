@@ -547,6 +547,7 @@ class CloudStorageManager {
   }
 
   Future<String> generateUniqueGroupCode() async {
+    //uses random function to generate a 5 char code for supabase ID
     final random = Random();
     final alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     final code =
@@ -566,6 +567,7 @@ class CloudStorageManager {
   }
 
   Future<Map<String, double>> getReportTotals(groupID, days) async {
+    //returns summed report data to provide balance data
     try {
       final response = await _supabase
           .from('report')
@@ -752,6 +754,7 @@ class CloudStorageManager {
   }
 
   Future<String> joinExistingGroup(String groupCode, userID) async {
+    //appends a user by ID to a group
     try {
       final response = await _supabase
           .from('group')
@@ -775,6 +778,7 @@ class CloudStorageManager {
   }
 
   Future<String> leaveGroup(int groupID, int userID) async {
+    //removes a user ID from a group
     try {
       await _supabase
           .from('user_groups')
@@ -909,6 +913,7 @@ class CloudStorageManager {
   }
 
   Future<List<String>> getGroupIncomeCategories(int groupID) async {
+    //returns a list of the categories for a groups income set
     try {
       final response = await _supabase
           .from('category')
@@ -929,6 +934,7 @@ class CloudStorageManager {
   }
 
   Future<List<String>> getGroupExpenseCategories(int groupID) async {
+    //returns a list of expense cats
     try {
       final response = await _supabase
           .from('category')

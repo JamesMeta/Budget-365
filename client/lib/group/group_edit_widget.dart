@@ -169,23 +169,16 @@ class _GroupEditWidgetState extends State<GroupEditWidget> {
               color: _textFieldFontColor,
               fontSize: fontSizeInputs,
               fontWeight: FontWeight.bold),
-          // Set border for different states
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when enabled
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldBorderColor,
-                width: 2), // Border color when focused
+            borderSide: BorderSide(color: _textFieldBorderColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: _textFieldFontColor,
-                width: 2), // Border color in general
+            borderSide: BorderSide(color: _textFieldFontColor, width: 2),
             borderRadius: BorderRadius.circular(25.7),
           ),
           fillColor: Colors.transparent,

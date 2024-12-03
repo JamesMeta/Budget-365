@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
 
@@ -22,8 +23,12 @@ void main() async {
 
   var db = await openDatabase('account_details.db');
   bool tableExists = await checkIfTableExists(db, 'account');
-  print("Table exists: $tableExists");
+  if (kDebugMode) {
+    print("Table exists: $tableExists");
+  }
 
   List<String> columnNames = await getColumnNames(db, 'account');
-  print("Column names: $columnNames");
+  if (kDebugMode) {
+    print("Column names: $columnNames");
+  }
 }
