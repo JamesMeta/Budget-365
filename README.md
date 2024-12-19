@@ -6,6 +6,8 @@ Mobile app designed to allow for collaboration on making and reporting monthly b
 ## Usage
 To use the app in the current configuration please create a brand new account or use the one provided below. I recommend you use the account though for the best view of the project
 
+For this to work our Supabase Project must also still be operating, if you are unable to connect it is likely we didn't renew it.
+
 ### Login that has stuff going on
 
 Email: jamesmata556@gmail.com
@@ -32,19 +34,9 @@ Groups have now been added for everyone to use, you can edit, join, and create n
 
 There's also now a settings page to log out, export data, send report email and set preferences
 
-![Image Alt Text](client/assets/images/infoviz.png)
-
-There's also now basic data visualization for reports
-
-## Required Features:
-
 ### Dialogs and pickers:
-Can be seen if logged in as my account and you navigate to the reports section and you click on the date text field
 
 ![Image Alt Text](client/assets/images/dialogs.png)
-
-### Multiple Screens and navigation:
-This can be seen in the many different screens you can navigate to 
 
 ![Image Alt Text](client/assets/images/login.png)
 
