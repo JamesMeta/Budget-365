@@ -4,6 +4,8 @@
 Mobile app designed to allow for collaboration on making and reporting monthly budgets, incomes, and expenses 
 
 ## Usage
+The usage of this debugging version requires a package of several API keys, these can be received by emailing me directly at jamesmata556@gmail.com
+
 To use the app in the current configuration please create a brand new account or use the one provided below. I recommend you use the account though for the best view of the project
 
 For this to work our Supabase Project must also still be operating, if you are unable to connect it is likely we didn't renew it.
