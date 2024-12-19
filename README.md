@@ -52,17 +52,3 @@ Notifications are no longer absent because Dennis is great
 
 ![Image Alt Text](client/assets/images/notifications.png)
 
-### Local Storage:
-This can be seen after your first login, whenever you boot up the app it automatically signs you in instead of requiring you to login each time
-
-![Image Alt Text](client/assets/images/localcode.png)
-
-### Cloud Storage:
-This can be seen in the reports as they are all stored on a cloud database
-
-![Image Alt Text](client/assets/images/cloudcode.png)
-
-### HTTP Request:
-This can be seen in our calls to our supabase client as they all use HTTP requests inorder to operate
-
-![Image Alt Text](client/assets/images/supabase.png)
