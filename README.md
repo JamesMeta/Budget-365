@@ -40,8 +40,6 @@ There's also now a settings page to log out, export data, send report email and 
 
 ![Image Alt Text](client/assets/images/login.png)
 
-![Image Alt Text](client/assets/images/home.png)
-
 ![Image Alt Text](client/assets/images/report.png)
 
 ![Image Alt Text](client/assets/images/data.png)
