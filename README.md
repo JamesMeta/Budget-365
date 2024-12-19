@@ -42,8 +42,6 @@ There's also now a settings page to log out, export data, send report email and 
 
 ![Image Alt Text](client/assets/images/report.png)
 
-![Image Alt Text](client/assets/images/data.png)
-
 ### Snack Bars:
 This can be seen after you submit a report to the database
 
