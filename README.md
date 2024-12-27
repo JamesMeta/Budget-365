@@ -4,7 +4,11 @@
 Mobile app designed to allow for collaboration on making and reporting monthly budgets, incomes, and expenses 
 
 ## Usage
+The usage of this debugging version requires a package of several API keys, these can be received by emailing me directly at jamesmata556@gmail.com
+
 To use the app in the current configuration please create a brand new account or use the one provided below. I recommend you use the account though for the best view of the project
+
+For this to work our Supabase Project must also still be operating, if you are unable to connect it is likely we didn't renew it.
 
 ### Login that has stuff going on
 
@@ -32,27 +36,13 @@ Groups have now been added for everyone to use, you can edit, join, and create n
 
 There's also now a settings page to log out, export data, send report email and set preferences
 
-![Image Alt Text](client/assets/images/infoviz.png)
-
-There's also now basic data visualization for reports
-
-## Required Features:
-
 ### Dialogs and pickers:
-Can be seen if logged in as my account and you navigate to the reports section and you click on the date text field
 
 ![Image Alt Text](client/assets/images/dialogs.png)
 
-### Multiple Screens and navigation:
-This can be seen in the many different screens you can navigate to 
-
 ![Image Alt Text](client/assets/images/login.png)
 
-![Image Alt Text](client/assets/images/home.png)
-
 ![Image Alt Text](client/assets/images/report.png)
-
-![Image Alt Text](client/assets/images/data.png)
 
 ### Snack Bars:
 This can be seen after you submit a report to the database
@@ -64,17 +54,3 @@ Notifications are no longer absent because Dennis is great
 
 ![Image Alt Text](client/assets/images/notifications.png)
 
-### Local Storage:
-This can be seen after your first login, whenever you boot up the app it automatically signs you in instead of requiring you to login each time
-
-![Image Alt Text](client/assets/images/localcode.png)
-
-### Cloud Storage:
-This can be seen in the reports as they are all stored on a cloud database
-
-![Image Alt Text](client/assets/images/cloudcode.png)
-
-### HTTP Request:
-This can be seen in our calls to our supabase client as they all use HTTP requests inorder to operate
-
-![Image Alt Text](client/assets/images/supabase.png)
