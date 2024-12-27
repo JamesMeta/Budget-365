@@ -4,13 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/home/budget_365_widget.dart';
 import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:budget_365/firebase_options.dart';
-import 'notifications/firebase_api.dart';
-import 'notifications/local_notifications.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:budget_365/notifications/email_sender.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,23 +12,6 @@ Future<void> main() async {
   //load environment variables
 
   await dotenv.load(fileName: "assets/keys/env");
-
-  //associates loaded env variables with api variables
-  DefaultFirebaseOptions.initialize(
-    webApiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
-    androidApiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
-    iosApiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
-    macosApiKey: dotenv.env['FIREBASE_MACOS_API_KEY'] ?? '',
-    windowsApiKey: dotenv.env['FIREBASE_WINDOWS_API_KEY'] ?? '',
-  );
-
-  //initializes firebase connection
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
-  await FirebaseApi().initNotifications();
 
   //as with the firebase options, the supabase env variables are loaded
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
@@ -49,24 +26,13 @@ Future<void> main() async {
     anonKey: supabaseAnonKey,
   );
 
-  final localNotificationsManager =
-      LocalNotificationsManager(); //creates and instance of the notifications manager
   final cloudStorageManager = CloudStorageManager(
     //passes supabase and localnotifications manager to init cloud storage manager
     Supabase.instance.client,
-    localNotificationsManager,
   );
 
   //wait for local storage to activate
   await LocalStorageManager.database;
 
-  //initializes email functionality
-  final emailSender = EmailSender(
-    username: dotenv.env['EMAIL_USER']!,
-    appPassword: dotenv.env['EMAIL_KEY']!,
-  );
-
   runApp(Budget365(cloudStorageManager));
-
-  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 }

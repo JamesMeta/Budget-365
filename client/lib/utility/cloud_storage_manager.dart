@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names, empty_catches
 
-import 'dart:async';
 import 'dart:math';
 import 'dart:io';
 import 'dart:convert';
@@ -15,16 +14,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budget_365/group/group.dart';
 import 'package:budget_365/group/user_groups.dart';
 import 'package:budget_365/report/report.dart';
-import 'package:budget_365/notifications/local_notifications.dart';
 import 'package:file_picker/file_picker.dart';
 
 class CloudStorageManager {
   final SupabaseClient _supabase; //supabase client connection
-  final LocalNotificationsManager
-      _notificationsManager; //notification manager connection for report notifications etc
 
   //constructor takes the Supabase client as a parameter
-  CloudStorageManager(this._supabase, this._notificationsManager);
+  CloudStorageManager(this._supabase);
 
   //method to create a new account
   Future<String?> createAccount(
@@ -81,19 +77,6 @@ class CloudStorageManager {
         return "No user found with the given email";
       }
 
-      //conditional of whether or not the user has disabled the login notification
-      bool loginNotification = await LocalStorageManager.getLoginSetting();
-      if (loginNotification) {
-        await _notificationsManager.showNotification(
-            //notify the user that they have successfully logged-in
-
-            title: 'Login Successful',
-            body: 'Welcome! You are now signed-in with Budget-365.',
-            channelId: 'auth_channel',
-            channelName: 'Authentication Notifications',
-            channelDescription: 'Notificatons for Login/Logout');
-      }
-
       return response['id'].toString();
     } catch (error) {
       if (kDebugMode) {
@@ -107,17 +90,6 @@ class CloudStorageManager {
   Future<bool> logout() async {
     try {
       await _supabase.auth.signOut();
-
-      //check logoff notification setting
-      bool logoffNotification = await LocalStorageManager.getLogoffSetting();
-      if (logoffNotification) {
-        await _notificationsManager.showNotification(
-            title: 'Logout Successful',
-            body: 'You are now signed out of Budget-365',
-            channelId: 'auth_channel',
-            channelName: 'Authentication Notifications',
-            channelDescription: 'Notifications for Login/Logout');
-      }
 
       //return true after successful sign-out and optional notification
       return true;
@@ -389,12 +361,6 @@ class CloudStorageManager {
         print('Group created successfully with ID: $groupId');
       }
 
-      //connection with notifications/local_notifications.dart to alert the user that the group creation was successful
-      await _notificationsManager.showNotification(
-        title: 'Group Created',
-        body: 'The group $groupName has been created!',
-      );
-
       // Create income categories
       for (String category in incomeCategories) {
         try {
@@ -488,20 +454,6 @@ class CloudStorageManager {
         'date': date.toIso8601String(),
         'type': type,
       });
-
-      //check if user wants notifications
-      bool receiveNotifications =
-          await LocalStorageManager.getNotificationSetting();
-      if (receiveNotifications) {
-        //if the user wants report notifications,
-        await _notificationsManager.showNotification(
-          title: 'Report Created',
-          body: 'Your report has been uploaded!',
-          channelId: 'report_channel',
-          channelName: 'Report Notifications',
-          channelDescription: 'Notifications for report-related updates',
-        );
-      }
     } catch (error) {
       if (kDebugMode) {
         print('Error creating report: $error');

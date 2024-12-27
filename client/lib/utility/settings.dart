@@ -2,7 +2,6 @@ import 'package:budget_365/utility/cloud_storage_manager.dart';
 import 'package:budget_365/utility/local_storage_manager.dart';
 import 'package:budget_365/design/app_gradient.dart';
 import 'package:flutter/material.dart';
-import 'package:budget_365/notifications/email_sender.dart';
 
 class SettingsWidget extends StatefulWidget {
   final CloudStorageManager cloudStorageManager;
@@ -27,17 +26,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   void initState() {
     super.initState();
-    _loadNotificationSetting();
     _loadLogoffSetting();
     _loadLogonSetting();
-  }
-
-  Future<void> _loadNotificationSetting() async {
-    //retrieves the user's notification preference from local database
-    bool shouldReceive = await LocalStorageManager.getNotificationSetting();
-    setState(() {
-      receiveNotifications = shouldReceive;
-    });
   }
 
   Future<void> _loadLogonSetting() async {
@@ -53,14 +43,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     setState(() {
       receiveLogoff = logoffNotificationEnabled;
     });
-  }
-
-  Future<void> _saveNotificationSetting(bool value) async {
-    //when the user sets the notification preference, that value is stored using localstoragemanager
-    setState(() {
-      receiveNotifications = value;
-    });
-    await LocalStorageManager.setNotificationSetting(value);
   }
 
   Future<void> _saveLogonSetting(bool value) async {
@@ -134,58 +116,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const SizedBox(height: 80),
-                  SwitchListTile(
-                    activeColor: Colors.lightBlueAccent,
-                    activeTrackColor: Colors.blueGrey,
-                    inactiveThumbColor: Colors.grey.shade700,
-                    inactiveTrackColor: Colors.grey.shade600,
-                    title: const Text(
-                      'Receive Report Notifications',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    value: receiveNotifications,
-                    onChanged: _saveNotificationSetting,
-                  ),
                   const SizedBox(height: 50),
-                  SwitchListTile(
-                    activeColor: Colors.lightBlueAccent,
-                    activeTrackColor: Colors.blueGrey,
-                    inactiveThumbColor: Colors.grey.shade700,
-                    inactiveTrackColor: Colors.grey.shade600,
-                    title: const Text(
-                      'Receive Login Notifications',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    value: receiveLogin,
-                    onChanged: _saveLogonSetting,
-                  ),
-                  const SizedBox(height: 50),
-                  SwitchListTile(
-                    activeColor: Colors.lightBlueAccent,
-                    activeTrackColor: Colors.blueGrey,
-                    inactiveThumbColor: Colors.grey.shade700,
-                    inactiveTrackColor: Colors.grey.shade600,
-                    title: const Text(
-                      'Receive Logoff Notifications',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    value: receiveLogoff,
-                    onChanged: _saveLogoffSetting,
-                  ),
-                  const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 40, 176, 218),
@@ -199,26 +130,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     onPressed: _exportUserReports,
                     child: const Text(
                       'Export Reports',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 40, 176, 218),
-                      foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: _sendBalanceEmail, //triggers sendBalanceEmail
-                    child: const Text(
-                      'Send Balance Email',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
